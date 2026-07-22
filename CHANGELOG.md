@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.0] — 2026-07-22 — Fase 12
+
+### Lançamento comercial e acesso protegido
+
+- Home reconstruída como página comercial completa, com proposta de valor, metodologia, módulos, mercado de trabalho, fundador, perguntas frequentes e CTAs de matrícula.
+- Nova identidade aplicada com os materiais oficiais enviados, incluindo logo, cenários de estúdio e arte de formas de pagamento.
+- Oferta consolidada em R$ 450,00, com cartão em até 12x, PIX e boleto à vista, além de 5% de desconto no cartão à vista (R$ 427,50).
+- Área do aluno protegida por guarda de autenticação: sem configuração Firebase ou sessão Google válida, o acesso é direcionado ao login.
+- Build datado e hora registrados em BUILD.txt; comunicado institucional e certificação revisados como Curso Livre de Formação Profissional.
+
 ## [0.11.0] — 2026-07-22 — Fases 08 a 11
 
 ### Fase 08 — Inteligência Aplicada

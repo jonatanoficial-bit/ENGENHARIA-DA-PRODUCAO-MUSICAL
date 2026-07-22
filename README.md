@@ -2,9 +2,16 @@
 
 Fundação da plataforma estática, criada para publicação no GitHub Pages.
 
-## Fases 01–11 — Fundação, Identidade, Operação e Auditoria Final
+## Fases 01–12 — Fundação, Identidade, Operação e Lançamento Comercial
 
-Inclui arquitetura de páginas, componentes compartilhados, identidade visual final, Home premium, plataforma institucional, área do aluno, assistente inteligente demonstrativo, áreas premium e comercial, painel administrativo demonstrativo, Firebase preparado para login Google, PWA, SEO técnico e auditoria final.
+Inclui arquitetura de páginas, componentes compartilhados, identidade visual final, landing page comercial, plataforma institucional, área do aluno, assistente inteligente, áreas premium e comercial, painel administrativo, Firebase preparado para login Google, PWA, SEO técnico e auditoria final.
+
+### Fase 12 — lançamento comercial
+
+- Home longa de conversão, com oferta, metodologia, plano didático, área de atuação, apresentação do fundador, FAQ e CTA de matrícula.
+- Integração dos materiais visuais oficiais de marca, estúdio e pagamento fornecidos para o lançamento.
+- Proteção da área do aluno: antes de o Firebase ser configurado, as rotas de aluno redirecionam para o login; depois, exigem sessão Google válida.
+- `BUILD.txt` registra a versão, a fase e a data/hora do pacote.
 
 ### Como visualizar
 

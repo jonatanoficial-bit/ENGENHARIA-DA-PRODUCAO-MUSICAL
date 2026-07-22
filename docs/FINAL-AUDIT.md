@@ -1,21 +1,28 @@
-# Auditoria Final — EMP v0.11.0
+# Auditoria de Entrega — EMP v1.0.0 · Fase 12
 
 ## Escopo verificado
 
 - Estrutura de páginas, componentes, CSS, JavaScript e assets locais.
-- Links internos e metadados obrigatórios.
-- Sintaxe JavaScript e referências essenciais.
-- Navegação responsiva, menu móvel, Área do Aluno, painel administrativo e condições comerciais em prévia local.
-- Console sem erros ou avisos durante os fluxos testados.
+- Links internos, metadados obrigatórios e arquivos essenciais para publicação estática.
+- Landing page comercial com proposta institucional, metodologia, programa didático, apresentação do fundador, condições de matrícula, FAQ e CTAs.
+- Aplicação dos assets de lançamento enviados: logo oficial, cenários, imagem de pagamento e identidade visual.
+- Proteção das rotas da Área do Aluno por Firebase Authentication: sem configuração válida ou sessão Google ativa, o acesso é redirecionado para o login.
+- Identidade institucional: Instituto Musical Vale · CNPJ 31.255.200/0001-19; programa desenvolvido pela Vale Produções em parceria com o Instituto Musical Vale.
 
-## Limites de integração
+## Verificações de integridade
 
-- Firebase está preparado, mas só ativa após o preenchimento de `firebase/firebase-config.js` conforme `FIREBASE-SETUP.txt`.
-- Pagamentos, dados de alunos, mensagens e certificados emitidos dependem de backend, regras de segurança e configurações de produção.
-- Links de aulas não listadas do YouTube e formulários de avaliação devem ser informados pelo administrador antes da publicação.
+- `npm run audit` confere os arquivos essenciais, páginas, metadados e referências locais.
+- `scripts/package.ps1` gera o ZIP de entrega sem incluir as pastas de trabalho ou pacotes anteriores.
+- `BUILD.txt` registra a versão, a fase e a data/hora da geração.
 
-## Institucional
+## Dependências de publicação
 
-- Instituição certificadora: Instituto Musical Vale · CNPJ 31.255.200/0001-19.
-- Produção musical: Vale Produção.
-- Fundador e professor: Jonatan Vale.
+- Preencher `firebase/firebase-config.js`, habilitar Google no Firebase Authentication e autorizar o domínio de publicação conforme `FIREBASE-SETUP.txt`.
+- Conectar um provedor de pagamento antes de disponibilizar cobrança, parcelamento ou boleto real.
+- Configurar, no backend, a liberação de acesso após confirmação de matrícula e a emissão de certificados oficiais com identificador único e validação.
+
+## Enquadramento institucional
+
+- Formação classificada como Curso Livre de Formação Profissional.
+- Certificado de conclusão emitido pelo Instituto Musical Vale conforme a legislação aplicável aos cursos livres.
+- A plataforma não apresenta a formação como graduação, tecnólogo, pós-graduação ou curso reconhecido pelo MEC.

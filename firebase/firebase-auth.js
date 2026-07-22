@@ -1,22 +1,22 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
-import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
 import { firebaseConfig } from './firebase-config.js';
 
-const isConfigured = firebaseConfig?.apiKey && !firebaseConfig.apiKey.startsWith('COLE_');
 const status = document.querySelector('[data-firebase-status]');
-const googleButton = document.querySelector('[data-google-login]');
-const logoutButton = document.querySelector('[data-firebase-logout]');
-const userName = document.querySelector('[data-firebase-user]');
+const login = document.querySelector('[data-google-login]');
+const logout = document.querySelector('[data-firebase-logout]');
+const configured = firebaseConfig?.apiKey && !firebaseConfig.apiKey.startsWith('COLE_');
+const setStatus = (text) => { if (status) status.textContent = text; };
 
-const show = (message) => { if (status) status.textContent = message; };
-if (!isConfigured) {
-  show('Firebase ainda não configurado. Consulte FIREBASE-SETUP.txt antes de ativar o login Google.');
-  googleButton?.setAttribute('disabled', '');
+if (!configured) {
+  setStatus('O acesso será liberado após a configuração do Firebase pelo administrador.');
+  login?.setAttribute('disabled', '');
 } else {
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  const [{ initializeApp }, { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut }] = await Promise.all([
+    import('https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js')
+  ]);
+  const auth = getAuth(initializeApp(firebaseConfig));
   const provider = new GoogleAuthProvider();
-  googleButton?.addEventListener('click', async () => { try { await signInWithPopup(auth, provider); } catch (error) { show(`Não foi possível entrar: ${error.code}. Verifique os domínios autorizados no Firebase.`); } });
-  logoutButton?.addEventListener('click', () => signOut(auth));
-  onAuthStateChanged(auth, (user) => { if (user) { show('Login Google ativo.'); if (userName) userName.textContent = user.displayName || user.email; googleButton?.setAttribute('hidden', ''); logoutButton?.removeAttribute('hidden'); } else { show('Entre com sua conta Google para sincronizar seu acesso.'); googleButton?.removeAttribute('hidden'); logoutButton?.setAttribute('hidden', ''); } });
+  login?.addEventListener('click', async () => { try { await signInWithPopup(auth, provider); window.location.assign('../aluno/index.html'); } catch (error) { setStatus('Não foi possível concluir o login. Verifique os domínios autorizados no Firebase.'); } });
+  logout?.addEventListener('click', () => signOut(auth));
+  onAuthStateChanged(auth, (user) => { if (user) { setStatus(`Sessão ativa: ${user.displayName || user.email}`); login?.setAttribute('hidden', ''); logout?.removeAttribute('hidden'); } else { setStatus('Entre com Google para acessar sua formação.'); login?.removeAttribute('hidden'); logout?.setAttribute('hidden', ''); } });
 }

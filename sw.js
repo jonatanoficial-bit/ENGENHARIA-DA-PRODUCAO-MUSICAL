@@ -1,7 +1,7 @@
-const CACHE_NAME = 'emp-v0-11-0';
+const CACHE_NAME = 'emp-v1-0-0';
 const APP_SHELL = [
   './', './index.html', './css/tokens.css', './css/base.css', './css/components.css',
-  './css/layout.css', './css/phase-2.css', './css/phase-3.css', './css/platform.css', './css/final-polish.css', './js/app.js', './js/home.js', './js/portal.js', './js/smart-tools.js', './components/component-loader.js', './site.webmanifest'
+  './css/layout.css', './css/phase-2.css', './css/phase-3.css', './css/platform.css', './css/final-polish.css', './css/phase-12.css', './js/app.js', './js/home.js', './js/portal.js', './js/smart-tools.js', './components/component-loader.js', './site.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {
