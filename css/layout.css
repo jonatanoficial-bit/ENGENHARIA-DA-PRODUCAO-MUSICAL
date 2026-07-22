@@ -1,0 +1,5 @@
+body { display: flex; min-height: 100vh; flex-direction: column; }
+main { flex: 1; }
+.page-grid { display: grid; align-items: end; gap: 2rem; }
+.page-aside { padding: 1.35rem; border-left: 1px solid var(--gold); color: var(--muted); }
+@media (min-width: 48rem) { .page-grid { grid-template-columns: 1.35fr .65fr; } }

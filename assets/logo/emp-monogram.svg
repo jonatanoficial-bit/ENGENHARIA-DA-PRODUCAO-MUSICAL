@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Monograma EMP">
+  <rect width="160" height="160" rx="40" fill="#0a131c"/>
+  <path d="M39 115V45h18l23 35 23-35h18v70h-18V76l-15 23H72L57 76v39Z" fill="#d9b774"/>
+  <circle cx="80" cy="80" r="66" fill="none" stroke="#d9b774" stroke-opacity=".38"/>
+</svg>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>./index.html</loc></url>
+  <url><loc>./pages/sobre.html</loc></url>
+  <url><loc>./pages/metodologia.html</loc></url>
+  <url><loc>./pages/grade-curricular.html</loc></url>
+  <url><loc>./pages/professores.html</loc></url>
+  <url><loc>./pages/planos.html</loc></url>
+  <url><loc>./pages/professores.html</loc></url>
+  <url><loc>./pages/contato.html</loc></url>
+  <url><loc>./pages/quero-ser-artista.html</loc></url>
+  <url><loc>./pages/quero-ser-consultor.html</loc></url>
+  <url><loc>./pages/fundador.html</loc></url>
+  <url><loc>./pages/solicitar-producao.html</loc></url>
+  <url><loc>./mentorias/index.html</loc></url>
+  <url><loc>./consultorias/index.html</loc></url>
+  <url><loc>./afiliados/index.html</loc></url>
+  <url><loc>./blog/index.html</loc></url>
+</urlset>

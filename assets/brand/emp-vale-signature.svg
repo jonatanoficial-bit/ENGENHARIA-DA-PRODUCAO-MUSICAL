@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 240" role="img" aria-labelledby="title desc">
+  <title id="title">Engenharia da Produção Musical</title><desc id="desc">Assinatura visual com monograma EPM e ondas sonoras.</desc>
+  <defs><linearGradient id="gold" x1="0" x2="1"><stop stop-color="#f2d99e"/><stop offset=".5" stop-color="#c89842"/><stop offset="1" stop-color="#f7e1ad"/></linearGradient></defs>
+  <rect width="240" height="240" rx="58" fill="#09131d"/><circle cx="120" cy="120" r="92" fill="none" stroke="url(#gold)" stroke-width="3" opacity=".7"/>
+  <path d="M64 159V80h19l37 47 37-47h19v79h-19v-48l-27 35h-20l-27-35v48z" fill="url(#gold)"/>
+  <path d="M91 175c19 10 39 14 59 10m-74 13c31 16 67 18 100 4" fill="none" stroke="#4e8caf" stroke-linecap="round" stroke-width="4"/>
+  <text x="278" y="101" fill="#eaf0f4" font-family="Georgia, serif" font-size="49" letter-spacing="1">ENGENHARIA DA</text>
+  <text x="278" y="157" fill="url(#gold)" font-family="Georgia, serif" font-size="52" letter-spacing="1">PRODUÇÃO MUSICAL</text>
+  <text x="280" y="193" fill="#9aa8b3" font-family="Arial, sans-serif" font-size="15" letter-spacing="5">INSTITUTO MUSICAL VALE · FORMAÇÃO PROFISSIONAL</text>
+</svg>

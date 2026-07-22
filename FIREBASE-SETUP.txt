@@ -1,0 +1,41 @@
+FIREBASE GRATUITO — LOGIN GOOGLE PARA A ÁREA DO ALUNO
+=====================================================
+
+Este projeto já contém a estrutura de login Google em /firebase/firebase-auth.js.
+Nenhuma chave secreta foi incluída no ZIP. A configuração web do Firebase pode ficar no front-end,
+mas as regras do Firestore/Storage devem ser restritivas antes de colocar dados de alunos em produção.
+
+PASSO A PASSO
+1. Acesse https://console.firebase.google.com/ e clique em “Adicionar projeto”.
+2. Crie o projeto (o plano Spark gratuito é suficiente para começar). Analytics é opcional.
+3. Dentro do projeto, clique no ícone Web (</>) e registre o site. Copie o objeto firebaseConfig exibido.
+4. Copie o arquivo /firebase/firebase-config.example.js e renomeie a cópia para firebase-config.js.
+5. Cole seu firebaseConfig no novo arquivo, preservando “export const firebaseConfig = { ... }”.
+6. No menu Build > Authentication > Sign-in method, habilite o provedor Google e salve.
+7. Em Authentication > Settings > Authorized domains, adicione o domínio do GitHub Pages
+   (ex.: SEU_USUARIO.github.io) e seu domínio próprio quando ele existir. localhost já é usado para testes.
+8. Publique os arquivos no GitHub Pages. Abra /pages/login.html e clique em “Continuar com Google”.
+
+PRÓXIMA ETAPA RECOMENDADA — DADOS DO ALUNO
+9. Em Build > Firestore Database, crie o banco em modo produção. Não mantenha regras abertas.
+10. Crie uma coleção “users” com documentos cujo ID seja o UID do Firebase Authentication.
+11. Use regras iniciais semelhantes a estas (ajuste antes de produção):
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+
+SEGURANÇA E LIMITES
+- Não coloque chaves de conta de serviço, senhas administrativas ou segredos de pagamento no site.
+- A apiKey web não substitui regras de segurança; proteja Firestore e Storage com regras e autenticação.
+- Antes de pagamentos, use um provedor próprio (ex.: Mercado Pago/Stripe) via backend ou Cloud Functions.
+- Verifique os limites atuais do plano Spark diretamente no Firebase Console antes de lançar.
+
+REFERÊNCIAS OFICIAIS
+https://firebase.google.com/docs/web/setup
+https://firebase.google.com/docs/auth/web/google-signin
