@@ -1,4 +1,4 @@
-# Auditoria de Entrega — EMP v1.0.0 · Fase 12
+# Auditoria de Entrega — EMP v1.1.0 · Fase 13
 
 ## Escopo verificado
 
@@ -7,6 +7,8 @@
 - Landing page comercial com proposta institucional, metodologia, programa didático, apresentação do fundador, condições de matrícula, FAQ e CTAs.
 - Aplicação dos assets de lançamento enviados: logo oficial, cenários, imagem de pagamento e identidade visual.
 - Proteção das rotas da Área do Aluno por Firebase Authentication: sem configuração válida ou sessão Google ativa, o acesso é redirecionado para o login.
+- Rolagem vertical da Home revisada para mouse, trackpad e toque; a página mantém apenas a contenção horizontal.
+- Grade Curricular ampliada com referências visuais de softwares, plugins, instrumentos, IA, streaming, distribuição, hardware e criação audiovisual.
 - Identidade institucional: Instituto Musical Vale · CNPJ 31.255.200/0001-19; programa desenvolvido pela Vale Produções em parceria com o Instituto Musical Vale.
 
 ## Verificações de integridade

@@ -1,8 +1,8 @@
 ENGENHARIA DA PRODUÇÃO MUSICAL™
 
-Release: v1.0.0
-Fase: 12 — Lançamento Comercial e Área do Aluno Protegida
-Build: 22/07/2026 · 16:05 BRT
+Release: v1.1.0
+Fase: 13 — Experiência de Navegação e Ecossistema de Ferramentas
+Build: 22/07/2026 · 17:46 BRT
 
 Instituição certificadora: Instituto Musical Vale
 CNPJ: 31.255.200/0001-19

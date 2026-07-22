@@ -2,9 +2,15 @@
 
 Fundação da plataforma estática, criada para publicação no GitHub Pages.
 
-## Fases 01–12 — Fundação, Identidade, Operação e Lançamento Comercial
+## Fases 01–13 — Fundação, Identidade, Operação e Lançamento Comercial
 
 Inclui arquitetura de páginas, componentes compartilhados, identidade visual final, landing page comercial, plataforma institucional, área do aluno, assistente inteligente, áreas premium e comercial, painel administrativo, Firebase preparado para login Google, PWA, SEO técnico e auditoria final.
+
+### Fase 13 — navegação e ecossistema de ferramentas
+
+- Rolagem corrigida para mouse, trackpad e toque em desktop e dispositivos móveis.
+- Grade curricular com vitrine visual de DAWs, plugins, instrumentos virtuais, IA, streaming, distribuição, áudio, hardware, vídeo e design.
+- Novos assets de marca e referências educacionais aplicados com aviso de propriedade das marcas.
 
 ### Fase 12 — lançamento comercial
 

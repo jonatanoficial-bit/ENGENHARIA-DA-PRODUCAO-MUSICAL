@@ -1,5 +1,5 @@
 param(
-  [string]$Destination = "outputs/engenharia-da-producao-musical-fases-01-a-12-v1.0.0.zip"
+  [string]$Destination = "outputs/engenharia-da-producao-musical-fases-01-a-13-v1.1.0.zip"
 )
 
 $root = Split-Path -Parent $PSScriptRoot

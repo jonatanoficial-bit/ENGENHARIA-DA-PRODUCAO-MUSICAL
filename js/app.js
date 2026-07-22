@@ -20,4 +20,8 @@
   if (window.location.pathname.includes('/aluno/')) {
     import(`${root.dataset.root || './'}firebase/auth-guard.js`);
   }
+  const phase13Styles = document.createElement('link');
+  phase13Styles.rel = 'stylesheet';
+  phase13Styles.href = `${root.dataset.root || './'}css/phase-13.css`;
+  document.head.append(phase13Styles);
 })();

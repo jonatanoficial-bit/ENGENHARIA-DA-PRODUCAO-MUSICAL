@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0] — 2026-07-22 — Fase 13
+
+### Experiência de navegação e ecossistema de ferramentas
+
+- Correção da rolagem vertical na Home para mouse, trackpad e toque, preservando o bloqueio de excesso horizontal.
+- Grade curricular renovada com vitrine visual de DAWs, plugins, instrumentos virtuais, IA, streaming, distribuição, áudio, interfaces, captação, vídeo e design.
+- Inclusão de uma composição visual parcial na Home e novos materiais de referência educacional fornecidos para a formação.
+- Aviso de propriedade de marcas adicionado à Grade Curricular e cache PWA atualizado para a nova versão.
+
 ## [1.0.0] — 2026-07-22 — Fase 12
 
 ### Lançamento comercial e acesso protegido
