@@ -1,13 +1,19 @@
 # Changelog
 
+## [1.3.1] — 2026-07-27 — Checkouts Hotmart
+
+- Botões dos planos Essencial, Profissional e Premium conectados às respectivas ofertas oficiais da Hotmart.
+- Pasta geral de trabalhos do Google Drive disponibilizada na Área do Aluno para a primeira turma.
+
 ## [1.3.0] — 2026-07-27 — Fase 15
 
-- Corrigido o enquadramento dos retratos de Jonatan Vale e Giovane Firmino, preservando o rosto completo em desktop e celular.
-- A navegação pública agora apresenta “Valores” com acesso direto aos planos, sem depender da área do aluno.
-- A antiga página vazia de conteúdos encaminha para a página pública de planos e valores.
-- “Quem Somos” foi reconstruída com história, missão, visão, compromisso, valores, identidade institucional e chamadas para formação e matrícula.
-- Página antiga de professores encaminha para a direção acadêmica completa.
-- Sitemap, cache PWA, auditoria e documentação atualizados para a versão 1.3.0.
+### Operação acadêmica, avaliações e matrículas
+
+- Nova Área do Professor com perfil docente validado no Firebase, lista de matrículas, avaliações, notas, chamadas de presença, solicitações de mentoria e vínculo de pastas do Google Drive.
+- Provas integradas ao site: o professor publica questões, o aluno envia a resposta no painel e a correção é registrada pelo professor sem expor o gabarito ao aluno.
+- Área do aluno ampliada com avaliações oficiais, solicitação de mentoria e acesso individual à pasta de entregas.
+- Estrutura comercial preparada para checkout externo da Hotmart, com documentação para ofertas, Webhook e matrícula segura após pagamento aprovado.
+- Documentação de regras Firestore, operação Hotmart e entregas individuais no Google Drive adicionada.
 
 ## [1.2.0] — 2026-07-27 — Fase 14
 

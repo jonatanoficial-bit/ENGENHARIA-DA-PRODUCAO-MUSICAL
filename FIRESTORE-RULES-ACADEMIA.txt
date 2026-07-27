@@ -1,0 +1,106 @@
+REGRAS DO FIRESTORE — ÁREA DO ALUNO E ÁREA DO PROFESSOR
+
+ANTES DE COLAR
+1. Firebase Console > Build > Firestore Database > Rules.
+2. Apague as regras atuais.
+3. Cole todo o conteúdo abaixo.
+4. Clique em Publish / Publicar.
+
+IMPORTANTE: antes de acessar a Área do Professor, crie manualmente no console
+uma coleção chamada staff. O ID do documento deve ser o UID do professor
+obtido em Authentication > Users. Campos do documento:
+
+active: true
+role: "teacher"
+name: "Jonatan Vale"
+
+Para o segundo professor, repita com o UID dele e role: "teacher".
+
+REGRAS PARA COLAR
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isStaff() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
+        && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.active == true;
+    }
+    function owns(studentId) {
+      return signedIn() && request.auth.uid == studentId;
+    }
+
+    match /staff/{staffId} {
+      allow read: if owns(staffId) || isStaff();
+      allow write: if false;
+    }
+
+    match /students/{studentId} {
+      allow read: if owns(studentId) || isStaff();
+      allow create, update, delete: if isStaff();
+    }
+
+    match /students/{studentId}/progress/{moduleId} {
+      allow read: if owns(studentId) || isStaff();
+      allow create, update: if owns(studentId) || isStaff();
+      allow delete: if isStaff();
+    }
+
+    match /assessments/{assessmentId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isStaff();
+
+      match /submissions/{studentId} {
+        allow read: if owns(studentId) || isStaff();
+        allow create, update: if owns(studentId) || isStaff();
+        allow delete: if isStaff();
+      }
+    }
+
+    // O gabarito é visível somente a professores.
+    match /assessmentKeys/{assessmentId} {
+      allow read, write: if isStaff();
+    }
+
+    match /liveSessions/{sessionId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isStaff();
+
+      match /attendance/{studentId} {
+        allow read: if owns(studentId) || isStaff();
+        allow create, update, delete: if isStaff();
+      }
+    }
+
+    match /mentorshipRequests/{requestId} {
+      allow read: if isStaff() || (signedIn() && resource.data.studentId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.studentId == request.auth.uid;
+      allow update, delete: if isStaff();
+    }
+  }
+}
+
+COMO CADASTRAR UM ALUNO MANUALMENTE
+
+Coleção: students
+ID do documento: UID do aluno visto em Authentication > Users
+
+Campos recomendados:
+name: "Nome do aluno"
+email: "email@aluno.com"
+plan: "profissional"
+enrollmentStatus: "paid"
+courseStart: "2026-08-10"
+driveFolderUrl: "https://drive.google.com/..."
+
+Não cadastre alunos como paid antes da confirmação da compra na Hotmart.
+
+OBSERVAÇÃO SOBRE PROVAS
+
+O aluno vê a pergunta e envia a resposta no próprio site. O gabarito fica em
+assessmentKeys, que as regras acima permitem somente ao professor. A correção
+é feita na Área do Professor; assim, o aluno não consegue ver a resposta certa
+no código do navegador.

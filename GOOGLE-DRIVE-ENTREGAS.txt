@@ -1,0 +1,33 @@
+GOOGLE DRIVE — ENTREGA DE TRABALHOS DOS ALUNOS
+
+OBJETIVO
+Cada aluno terá uma pasta individual para enviar projetos, áudios, PDFs e links.
+
+CONFIGURAÇÃO INICIAL (MELHOR PARA A PRIMEIRA TURMA)
+
+1. Entre em https://drive.google.com com a conta institucional da escola.
+2. Crie uma pasta principal chamada:
+   EPM — ENTREGAS DE ALUNOS
+3. Dentro dela, crie uma pasta por aluno:
+   NOME DO ALUNO — TURMA 2026
+4. Abra a pasta individual > Compartilhar.
+5. Adicione o e-mail Google do aluno como Editor.
+6. Copie o link da pasta.
+7. Na Área do Professor, no quadro Alunos, clique em “Vincular pasta” e cole
+   esse link no aluno correspondente.
+
+RESULTADO
+O aluno verá apenas o botão “Abrir minha pasta no Google Drive” dentro da Área
+do Aluno. Cada um acessa somente a pasta que foi vinculada ao seu próprio perfil.
+
+NÃO RECOMENDADO
+- Não use uma única pasta aberta para todos os alunos.
+- Não configure “Qualquer pessoa com o link pode editar”.
+- Não peça arquivos por WhatsApp como processo oficial de entrega.
+
+AUTOMAÇÃO FUTURA
+
+Após a primeira turma, é possível automatizar a criação da pasta individual
+com Google Apps Script quando a compra for aprovada na Hotmart. Essa automação
+deve ficar em uma conta institucional e validar o evento de pagamento antes de
+compartilhar qualquer pasta.

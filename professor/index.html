@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR" data-root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Área do Professor | Engenharia da Produção Musical™</title>
+  <meta name="description" content="Painel docente da Engenharia da Produção Musical™.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="manifest" href="../site.webmanifest">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/platform.css">
+  <link rel="stylesheet" href="../css/final-polish.css">
+  <link rel="stylesheet" href="../css/phase-14.css">
+  <link rel="stylesheet" href="../css/phase-15.css">
+</head>
+<body class="app-shell teacher-shell">
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <div data-component="header"></div>
+  <main id="conteudo" class="app-main">
+    <div class="container">
+      <div class="teacher-gate" data-teacher-gate aria-live="polite">Validando perfil docente…</div>
+      <div data-teacher-content hidden>
+        <header class="teacher-header"><div><p class="eyebrow">Área do professor</p><h1>Operação acadêmica em uma única visão.</h1><p class="lede">Acompanhe matrículas liberadas, avaliações, presenças, mentorias e entregas de projetos.</p></div><a class="button button--quiet" href="../aluno/index.html">Ver área do aluno</a></header>
+
+        <section class="teacher-metrics" data-teacher-metrics>
+          <article><strong>—</strong><span>alunos com matrícula ativa</span></article><article><strong>—</strong><span>avaliações publicadas</span></article><article><strong>—</strong><span>agendamentos pendentes</span></article>
+        </section>
+
+        <div class="teacher-grid">
+          <section class="teacher-card teacher-card--wide" id="alunos"><div class="teacher-card__head"><div><p class="eyebrow">Alunos</p><h2>Matrículas e progresso</h2></div><span class="badge">Firestore</span></div><div class="teacher-table-wrap"><table class="teacher-table"><thead><tr><th>Aluno</th><th>Plano</th><th>Status</th><th>Início</th><th>Drive</th></tr></thead><tbody data-student-roster><tr><td colspan="5">Carregando alunos autorizados…</td></tr></tbody></table></div></section>
+
+          <section class="teacher-card" id="avaliacoes"><p class="eyebrow">Nova avaliação</p><h2>Publique uma prova integrada.</h2><form class="teacher-form" data-create-assessment><label>Título<input name="title" required maxlength="100" placeholder="Ex.: Prova — Fundamentos do Som"></label><label>Módulo<select name="module" required><option value="M01">M01</option><option value="M02">M02</option><option value="M03">M03</option><option value="M04">M04</option><option value="M05">M05</option><option value="M06">M06</option><option value="M07">M07</option><option value="M08">M08</option><option value="M09">M09</option><option value="M10">M10</option><option value="M11">M11</option><option value="M12">M12</option><option value="M13">M13</option><option value="M14">M14</option><option value="M15">M15</option><option value="M16">M16</option><option value="M17">M17</option><option value="M18">M18</option><option value="M19">M19</option><option value="M20">M20</option></select></label><label>Questão<textarea name="question" required placeholder="Digite a pergunta da avaliação."></textarea></label><label>Alternativa correta<input name="correct" required placeholder="Resposta correta"></label><label>Alternativa incorreta 1<input name="wrongOne" required placeholder="Resposta incorreta"></label><label>Alternativa incorreta 2<input name="wrongTwo" required placeholder="Resposta incorreta"></label><label>Nota mínima (%)<input name="passScore" type="number" value="70" min="1" max="100" required></label><button class="button" type="submit">Publicar avaliação</button><p class="form-feedback" data-assessment-feedback></p></form></section>
+
+          <section class="teacher-card" id="presenca"><p class="eyebrow">Aula ao vivo</p><h2>Registre presença.</h2><form class="teacher-form" data-create-session><label>Título da aula<input name="title" required placeholder="Ex.: M02 · Frequência e espectro"></label><label>Data e hora<input name="startsAt" type="datetime-local" required></label><label>Link da transmissão<input name="meetingUrl" type="url" placeholder="https://"></label><button class="button button--quiet" type="submit">Criar chamada de presença</button><p class="form-feedback" data-session-feedback></p></form><p class="teacher-note">Após criar a chamada, a lista de alunos aparece para registrar presença no painel de cada aula.</p></section>
+
+          <section class="teacher-card teacher-card--wide"><div class="teacher-card__head"><div><p class="eyebrow">Presenças</p><h2>Chamadas criadas</h2></div></div><div data-live-session-list class="teacher-list"><p>Carregando chamadas…</p></div></section>
+
+          <section class="teacher-card teacher-card--wide" id="notas"><div class="teacher-card__head"><div><p class="eyebrow">Notas</p><h2>Resultados das avaliações</h2></div></div><div data-assessment-list class="assessment-list"><p>Carregando avaliações publicadas…</p></div></section>
+
+          <section class="teacher-card" id="agendamentos"><p class="eyebrow">Mentorias e solicitações</p><h2>Próximos atendimentos</h2><div data-mentorship-requests class="teacher-list"><p>Carregando solicitações…</p></div></section>
+
+          <section class="teacher-card" id="entregas"><p class="eyebrow">Projetos e Drive</p><h2>Entrega de trabalhos</h2><p>A turma utiliza inicialmente uma pasta geral do Google Drive para enviar projetos e referências. Oriente cada aluno a criar uma pasta com seu nome e o módulo da entrega.</p><p class="teacher-note">Quando a operação crescer, a coordenação poderá migrar para pastas individuais vinculadas ao perfil de cada aluno.</p></section>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div data-component="footer"></div>
+  <script src="../components/component-loader.js"></script>
+  <script src="../js/app.js"></script>
+  <script type="module" src="../js/teacher-portal.js"></script>
+</body>
+</html>

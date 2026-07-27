@@ -6,20 +6,18 @@ Fundação da plataforma estática, criada para publicação no GitHub Pages.
 
 Inclui arquitetura de páginas, componentes compartilhados, identidade visual final, landing page comercial, plataforma institucional, área do aluno, assistente inteligente, áreas premium e comercial, painel administrativo, Firebase preparado para login Google, PWA, SEO técnico e auditoria final.
 
-### Fase 15 — conteúdo institucional e acesso público aos valores
-
-- Menu principal com acesso direto a Planos e Valores.
-- Página Quem Somos completa, com história, missão, visão, compromisso e identidade institucional.
-- Retratos da direção responsivos e sem corte de rosto.
-- Rotas antigas de Conteúdos e Professores encaminhadas para as páginas atualizadas.
-- Release **1.3.0**, build de **27/07/2026 às 12:52 BRT**.
-
 ### Fase 14 — direção acadêmica, planos e jornada modular
 
 - Direção acadêmica apresentada com Jonatan Vale e Giovane Firmino da Silva, incluindo formação e atribuições no programa.
 - Planos Essencial, Profissional e Premium com comparação de benefícios, valores e condições de pagamento dependentes do checkout.
 - Catálogo completo do plano de aulas: 20 módulos e 162 aulas detalhadas, liberação em ritmo de duas aulas por semana, bloqueio visual e avaliação de avanço.
 - `YOUTUBE-EMBEDS.md` orienta a publicação das gravações do OBS em vídeos não listados; `FIREBASE-CONTROLE-DE-CURSO.txt` explica como tornar matrícula, plano e progresso seguros no Firestore.
+
+### Fase 15 — operação acadêmica e matrículas
+
+- Área do Professor em `professor/index.html`, protegida por perfil docente no Firestore.
+- Avaliações, notas, presenças, solicitações de mentoria e vínculos individuais de entrega no Google Drive.
+- Checkout externo da Hotmart conectado às ofertas Essencial, Profissional e Premium. A primeira turma utiliza uma pasta geral de entregas no Google Drive; veja `OPERACAO-HOTMART-E-MATRICULAS.txt`, `FIRESTORE-RULES-ACADEMIA.txt` e `GOOGLE-DRIVE-ENTREGAS.txt`.
 
 ### Fase 13 — navegação e ecossistema de ferramentas
 

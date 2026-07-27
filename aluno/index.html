@@ -59,6 +59,22 @@
           <p>Ao atingir a nota mínima, o próximo módulo poderá avançar conforme a data de liberação da turma.</p>
         </section>
 
+        <section class="teacher-assessments" data-teacher-assessments aria-live="polite">
+          <p class="eyebrow">Provas publicadas pelo professor</p>
+          <h2>Avaliações integradas à sua trilha.</h2>
+          <p>As avaliações enviadas pela equipe aparecem aqui. A nota e a data da tentativa ficam registradas no seu perfil acadêmico.</p>
+        </section>
+
+        <section class="student-workspace" data-student-workspace aria-live="polite">
+          <div><p class="eyebrow">Projetos e entregas</p><h2>Pasta geral de trabalhos.</h2><p>Envie seus arquivos e referências pela pasta compartilhada da turma. Cada envio deve conter seu nome e o módulo correspondente.</p></div>
+          <div data-drive-workspace><a class="button" href="https://drive.google.com/drive/folders/12bmLthE4F7Mfe6lFlD0cGxiPjNFKZD0a?usp=sharing" target="_blank" rel="noopener">Abrir pasta geral de trabalhos no Google Drive</a></div>
+        </section>
+
+        <section class="student-request" data-student-request>
+          <div><p class="eyebrow">Agendamento</p><h2>Solicite uma mentoria ou orientação.</h2><p>Descreva o assunto. A equipe responderá conforme a disponibilidade do seu plano.</p></div>
+          <form data-mentorship-request><label>Assunto<input name="topic" required placeholder="Ex.: revisão da mix do projeto final"></label><label>Melhor período<textarea name="availability" required placeholder="Ex.: terças à noite ou sábados pela manhã"></textarea></label><button class="button button--quiet" type="submit">Enviar solicitação</button><p class="form-feedback"></p></form>
+        </section>
+
         <section id="biblioteca" class="app-grid app-grid--two">
           <article class="app-card"><p class="eyebrow">Biblioteca</p><h2>Materiais e projetos</h2><p>O Plano Profissional e o Plano Premium incluem os materiais complementares. No Plano Essencial, eles podem ser contratados separadamente conforme as condições de matrícula.</p><a class="button button--quiet" href="../downloads/">Abrir biblioteca</a></article>
           <article class="app-card"><p class="eyebrow">Certificação</p><h2>Progresso com evidência.</h2><p>Conclua a trilha, as avaliações e os critérios acadêmicos para solicitar seu certificado emitido pelo Instituto Musical Vale.</p><a class="button button--quiet" href="certificado.html">Ver certificado</a></article>
@@ -70,5 +86,6 @@
   <script src="../components/component-loader.js"></script>
   <script src="../js/app.js"></script>
   <script src="../js/course-catalog.js"></script>
+  <script type="module" src="../js/student-assessments.js"></script>
 </body>
 </html>

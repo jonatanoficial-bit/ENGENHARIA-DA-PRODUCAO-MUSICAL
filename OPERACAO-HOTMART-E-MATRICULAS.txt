@@ -1,0 +1,70 @@
+OPERAÇÃO RECOMENDADA — PAGAMENTO, MATRÍCULA E COMUNICAÇÃO
+Engenharia da Produção Musical™
+
+DECISÃO RECOMENDADA
+
+Use a HOTMART apenas como checkout e processadora de pagamento.
+Use o seu site como vitrine institucional, Área do Aluno e Área do Professor.
+Use o FIRESTORE como base acadêmica de alunos, planos, notas e progresso.
+
+POR QUE ESTA É A MELHOR COMBINAÇÃO
+
+- O aluno paga em uma página reconhecida da Hotmart, não no seu site.
+- Dados de cartão não passam pelo seu servidor nem ficam armazenados no projeto.
+- A Hotmart disponibiliza cartão, Pix, boleto e, quando elegível/configurado,
+  modalidades de parcelamento. Confira as opções habilitadas no seu produto.
+- A Hotmart envia e-mails de compra e permite Webhook para automatizar acesso.
+- Firebase mantém a operação acadêmica separada do financeiro.
+
+O QUE FAZER NA HOTMART
+
+1. Crie o produto “Engenharia da Produção Musical™”.
+2. Crie três ofertas: Essencial, Profissional e Premium.
+3. Configure os valores e a garantia de acordo com sua política comercial.
+4. Habilite as formas de pagamento disponíveis para sua conta/produto.
+5. Copie o link de checkout de cada oferta.
+6. Envie os três links ao Codex. Eles serão incluídos nos botões do site.
+
+NÃO COLOQUE DADOS DE CARTÃO NO SITE
+
+O botão “Quero o plano” deve levar o visitante ao checkout oficial da Hotmart.
+Isso transmite mais confiança e reduz a responsabilidade técnica do site.
+
+MATRÍCULA AUTOMÁTICA — FLUXO IDEAL
+
+1. Cliente compra na Hotmart.
+2. Hotmart confirma PURCHASE_APPROVED.
+3. Hotmart envia um Webhook para um serviço protegido.
+4. O serviço cria/atualiza o aluno em Firestore com enrollmentStatus: "paid".
+5. O serviço envia e-mail de boas-vindas ao aluno e cópia à equipe.
+6. O aluno entra com a mesma conta Google usada na matrícula; a equipe vincula
+   ou confere o e-mail/UID no Firestore.
+
+IMPORTANTE: não configure o Webhook diretamente para uma página estática do
+site. O Hottok da Hotmart precisa ser validado em ambiente de servidor antes de
+liberar acesso. Quando você tiver os links e o Webhook da Hotmart, a próxima
+etapa é criar esse receptor protegido.
+
+ETAPA INICIAL MAIS SIMPLES (SEM AUTOMAÇÃO)
+
+Enquanto o Webhook não estiver pronto:
+- Hotmart envia a confirmação para você.
+- Você abre Firebase > Authentication > Users e copia o UID do aluno.
+- Firebase > Firestore > students > Add document.
+- Crie o documento seguindo FIRESTORE-RULES-ACADEMIA.txt.
+- O aluno passa a ter seu perfil acadêmico liberado.
+
+FORMULÁRIO DE PRÉ-MATRÍCULA
+
+Use um formulário simples somente para captar interesse, não para pagamento.
+Opções recomendadas: formulário do próprio site ligado ao Firestore ou Google
+Forms ligado a uma planilha. O Google Forms é uma boa opção gratuita para
+pré-matrícula, pedidos de mentoria e pesquisas, pois já organiza respostas
+em planilha e permite e-mail de resposta por automação do Google Apps Script.
+
+Para matrícula paga, a fonte de verdade deve ser a Hotmart, não um formulário.
+
+REFERÊNCIAS OFICIAIS
+Hotmart Webhook: https://developers.hotmart.com/docs/en/2.0.0/webhook/purchase-webhook/
+Hotmart pagamentos: https://help.hotmart.com/pt-br/article/25648853025037/
+Firebase Rules: https://firebase.google.com/docs/firestore/security/get-started

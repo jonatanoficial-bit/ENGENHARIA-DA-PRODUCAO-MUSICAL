@@ -5,6 +5,8 @@ const login = document.querySelector('[data-google-login]');
 const logout = document.querySelector('[data-firebase-logout]');
 const configured = firebaseConfig?.apiKey && !firebaseConfig.apiKey.startsWith('COLE_');
 const setStatus = (text) => { if (status) status.textContent = text; };
+const target = new URLSearchParams(window.location.search).get('target');
+const destination = target === 'teacher' ? '../professor/index.html' : '../aluno/index.html';
 
 if (!configured) {
   setStatus('O acesso será liberado após a configuração do Firebase pelo administrador.');
@@ -16,7 +18,7 @@ if (!configured) {
   ]);
   const auth = getAuth(initializeApp(firebaseConfig));
   const provider = new GoogleAuthProvider();
-  login?.addEventListener('click', async () => { try { await signInWithPopup(auth, provider); window.location.assign('../aluno/index.html'); } catch (error) { setStatus('Não foi possível concluir o login. Verifique os domínios autorizados no Firebase.'); } });
+  login?.addEventListener('click', async () => { try { await signInWithPopup(auth, provider); window.location.assign(destination); } catch (error) { setStatus('Não foi possível concluir o login. Verifique os domínios autorizados no Firebase.'); } });
   logout?.addEventListener('click', () => signOut(auth));
   onAuthStateChanged(auth, (user) => { if (user) { setStatus(`Sessão ativa: ${user.displayName || user.email}`); login?.setAttribute('hidden', ''); logout?.removeAttribute('hidden'); } else { setStatus('Entre com Google para acessar sua formação.'); login?.removeAttribute('hidden'); logout?.setAttribute('hidden', ''); } });
 }

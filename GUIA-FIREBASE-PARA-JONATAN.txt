@@ -1,0 +1,197 @@
+GUIA PASSO A PASSO — CONECTAR O FIREBASE À ÁREA DO ALUNO
+Engenharia da Produção Musical™
+
+OBJETIVO
+Criar gratuitamente um projeto Firebase para que a Área do Aluno aceite login com conta Google.
+
+IMPORTANTE ANTES DE COMEÇAR
+- Você precisará de uma conta Google/Gmail.
+- Não é necessário me enviar senha, código de verificação, cartão ou acesso à sua conta.
+- No final, você vai copiar um bloco chamado firebaseConfig. Ele pode ser usado no site e não é uma senha administrativa.
+- Faça tudo pelo computador, de preferência usando Google Chrome.
+
+PARTE 1 — CRIAR O PROJETO
+
+1. Abra este endereço:
+   https://console.firebase.google.com/
+
+2. Entre com a conta Google que será dona do projeto.
+
+3. Clique em “Adicionar projeto” ou “Create a project”.
+
+4. No nome do projeto, escreva algo simples, por exemplo:
+   engenharia-producao-musical
+
+5. Clique em “Continuar”.
+
+6. O Firebase pode perguntar sobre Google Analytics.
+   - Para começar, você pode deixar DESATIVADO.
+   - Clique em “Criar projeto”.
+
+7. Espere a criação terminar e clique em “Continuar”.
+
+
+PARTE 2 — CADASTRAR O SITE (APLICATIVO WEB)
+
+1. Na tela inicial do projeto Firebase, procure o ícone </> (Web).
+
+2. Clique no ícone Web.
+
+3. Em “Apelido do app”, escreva:
+   site-engenharia-producao-musical
+
+4. NÃO marque Firebase Hosting agora. Isso pode ser feito depois, se desejar.
+
+5. Clique em “Registrar app”.
+
+6. O Firebase mostrará um código parecido com este:
+
+   const firebaseConfig = {
+     apiKey: "...",
+     authDomain: "...",
+     projectId: "...",
+     storageBucket: "...",
+     messagingSenderId: "...",
+     appId: "..."
+   };
+
+7. COPIE TODO esse bloco e guarde em um bloco de notas.
+
+8. Clique em “Continuar no console”.
+
+O QUE VOCÊ DEVE ME ENVIAR DEPOIS
+
+Envie somente o bloco firebaseConfig completo, igual ao exemplo acima.
+Não envie senha da sua conta Google, código SMS, chave privada, arquivo JSON de conta de serviço ou dados de cartão.
+
+
+PARTE 3 — ATIVAR LOGIN COM GOOGLE
+
+1. No menu esquerdo do Firebase, abra “Build”.
+
+2. Clique em “Authentication”.
+
+3. Clique no botão “Começar” / “Get started”.
+
+4. Abra a aba “Sign-in method” ou “Método de login”.
+
+5. Clique em “Google”.
+
+6. Ative a opção “Enable” / “Ativar”.
+
+7. Se o Firebase pedir “E-mail de suporte do projeto”, escolha seu e-mail.
+
+8. Clique em “Salvar”.
+
+Pronto: agora o Firebase permite que alunos entrem com Google.
+
+
+PARTE 4 — AUTORIZAR O ENDEREÇO DO SEU SITE
+
+Esta etapa é obrigatória para o login funcionar quando o site estiver publicado.
+
+1. Ainda em Authentication, clique na aba “Settings” / “Configurações”.
+
+2. Procure “Authorized domains” / “Domínios autorizados”.
+
+3. Clique em “Add domain” / “Adicionar domínio”.
+
+4. Adicione o endereço do seu site SEM https:// e SEM / no fim.
+
+   Exemplos:
+   - Se o site estiver no GitHub Pages:
+     SEU_USUARIO.github.io
+
+   - Se usar domínio próprio:
+     engenhariadaproducaomusical.com.br
+
+   - Se usar www:
+     www.engenhariadaproducaomusical.com.br
+
+5. Salve cada domínio.
+
+OBSERVAÇÃO
+Para testar no computador, o Firebase costuma aceitar localhost. Caso apareça erro de domínio durante o teste local, adicione:
+   localhost
+
+
+PARTE 5 — CRIAR O BANCO DE DADOS DOS ALUNOS (FAÇA AGORA)
+
+Esta etapa prepara a matrícula, o plano de cada aluno, a data de início e o progresso.
+
+1. No menu esquerdo, abra “Build”.
+
+2. Clique em “Firestore Database”.
+
+3. Clique em “Criar banco de dados”.
+
+4. Escolha “Modo de produção” / “Production mode”.
+   NÃO escolha modo de teste para publicar o site.
+
+5. Escolha uma região próxima do Brasil, se estiver disponível.
+   Exemplo comum: southamerica-east1 (São Paulo).
+
+6. Clique em “Ativar”.
+
+7. Não é necessário criar coleções agora. Quando você me enviar o firebaseConfig, eu preparo a estrutura correta para alunos, planos, aulas e progresso.
+
+
+PARTE 6 — NÃO ATIVE ESTES ITENS AGORA
+
+Para o primeiro passo, não é necessário configurar:
+- Cloud Functions
+- Conta de serviço / Service Account
+- Arquivo JSON de administrador
+- Pagamentos dentro do Firebase
+- Firebase Storage
+- Firebase Hosting
+
+Esses itens serão usados apenas quando forem realmente necessários. O login Google e o Firestore gratuito são o primeiro passo.
+
+
+CHECKLIST FINAL
+
+[ ] Criei o projeto Firebase.
+[ ] Registrei o aplicativo Web.
+[ ] Copiei o bloco firebaseConfig.
+[ ] Ativei o provedor Google em Authentication.
+[ ] Adicionei o domínio do site em Authorized domains.
+[ ] Criei o Cloud Firestore em modo de produção.
+[ ] Enviei para o Codex somente o firebaseConfig.
+
+
+O QUE ACONTECE QUANDO VOCÊ ME ENVIAR O firebaseConfig
+
+1. Eu adiciono a configuração no projeto sem expor senhas administrativas.
+2. O botão “Entrar com Google” passa a funcionar.
+3. A Área do Aluno continuará bloqueada para quem não estiver autenticado.
+4. Na etapa seguinte, configuramos no Firestore quais alunos têm matrícula paga, qual plano possuem e quais módulos podem acessar.
+
+
+ERROS MAIS COMUNS
+
+“auth/unauthorized-domain” ou “Domínio não autorizado”
+→ Volte à Parte 4 e adicione o domínio correto, sem https://.
+
+“Popup blocked” / janela de login não abriu
+→ Permita pop-ups para o site no navegador e clique novamente no botão Google.
+
+Login abre, mas volta para a página de entrada
+→ Normalmente o firebaseConfig foi copiado incompleto ou o domínio não foi autorizado.
+
+Aluno consegue logar, mas não deve ter acesso ao curso ainda
+→ Isso será controlado na próxima etapa pelo Firestore, usando o status da matrícula.
+
+
+FONTES OFICIAIS DO FIREBASE
+
+Configuração Web:
+https://firebase.google.com/docs/web/setup
+
+Login com Google:
+https://firebase.google.com/docs/auth/web/google-signin
+
+Regras de segurança do Firestore:
+https://firebase.google.com/docs/firestore/security/get-started
+
+FIM DO GUIA
