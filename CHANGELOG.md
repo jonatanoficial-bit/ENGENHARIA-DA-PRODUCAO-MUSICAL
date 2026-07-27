@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.0] — 2026-07-27 — Fase 14
+
+### Direção Acadêmica, Planos e Jornada Modular
+
+- Inclusão do parceiro oficial Giovane Firmino da Silva, com perfil profissional, fotografia e credenciais técnicas ao lado do fundador Jonatan Vale.
+- Página de planos reconstruída com os níveis Essencial (R$ 450,00), Profissional (R$ 797,00) e Premium (R$ 1.497,00), diferenciais claros e condições de pagamento explicitadas.
+- Área do aluno convertida para trilha de 20 módulos e 162 aulas detalhadas, com agenda de duas aulas por semana, estados bloqueados e player pronto para embeds de gravações não listadas.
+- Avaliação por módulo adicionada com nota mínima e progressão registrada localmente como interface de prévia; documentação criada para persistência segura com Firebase/Firestore.
+- Adicionados os guias YOUTUBE-EMBEDS.md e FIREBASE-CONTROLE-DE-CURSO.txt.
+
 ## [1.1.0] — 2026-07-22 — Fase 13
 
 ### Experiência de navegação e ecossistema de ferramentas

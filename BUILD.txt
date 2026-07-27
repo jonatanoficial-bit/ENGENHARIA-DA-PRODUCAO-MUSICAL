@@ -1,8 +1,8 @@
 ENGENHARIA DA PRODUÇÃO MUSICAL™
 
-Release: v1.1.0
-Fase: 13 — Experiência de Navegação e Ecossistema de Ferramentas
-Build: 22/07/2026 · 17:46 BRT
+Release: v1.2.0
+Fase: 14 — Direção Acadêmica, Planos e Jornada Modular
+Build: 27/07/2026 · 11:35 BRT
 
 Instituição certificadora: Instituto Musical Vale
 CNPJ: 31.255.200/0001-19
@@ -11,3 +11,5 @@ Parceria de desenvolvimento educacional: Vale Produções
 Enquadramento: Curso Livre de Formação Profissional.
 Autenticação da área do aluno: Firebase Authentication com login Google,
 dependente da configuração descrita em FIREBASE-SETUP.txt.
+Controle de matrícula, plano, calendário e progresso: veja
+FIREBASE-CONTROLE-DE-CURSO.txt.

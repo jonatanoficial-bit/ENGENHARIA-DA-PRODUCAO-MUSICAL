@@ -1,0 +1,44 @@
+CONTROLE DE ACESSO DA ÁREA DO ALUNO — FASE 14
+
+O login Google já está preparado no projeto por meio do Firebase Authentication. Antes de publicar, siga o FIREBASE-SETUP.txt e depois implemente o controle de matrícula no Firestore. O login, sozinho, confirma a identidade do aluno; ele não confirma pagamento, plano ou liberação de conteúdo.
+
+ESTRUTURA RECOMENDADA NO FIRESTORE
+
+Coleção: students
+Documento: UID retornado pelo Firebase Authentication
+
+Exemplo de documento:
+{
+  "active": true,
+  "plan": "profissional",
+  "enrollmentStatus": "paid",
+  "courseStart": "2026-08-10",
+  "allowedModules": ["M01"],
+  "updatedAt": "timestamp do servidor"
+}
+
+REGRAS IMPORTANTES
+
+1. O checkout deve gravar ou atualizar enrollmentStatus para "paid" apenas depois da aprovação do pagamento.
+2. Use Cloud Functions, um painel administrativo protegido ou a integração do seu checkout para escrever esse dado. Nunca deixe o aluno alterar seu próprio plano pelo navegador.
+3. As regras do Firestore devem permitir que o aluno leia somente o documento cujo UID é igual ao seu próprio UID.
+4. O servidor deve calcular a data de liberação (duas aulas por semana) e devolver allowedModules / allowedLessons. Isso evita que alguém altere o relógio ou o localStorage do navegador.
+5. Registre a aprovação das avaliações em Firestore. O quiz desta entrega tem interface funcional; para uma validação oficial, as tentativas, respostas e notas precisam ser gravadas no servidor.
+
+EXEMPLO CONCEITUAL DE REGRAS FIRESTORE
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /students/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false; // somente Admin SDK / Cloud Function
+    }
+  }
+}
+
+IMPORTANTE
+
+- Troque o data-course-start em aluno/index.html pela data oficial da turma.
+- O arquivo YOUTUBE-EMBEDS.md explica como inserir cada vídeo não listado.
+- Vídeo não listado não é DRM. Para conteúdo comercial, mantenha os embeds apenas na área autenticada e não exponha IDs em páginas públicas.

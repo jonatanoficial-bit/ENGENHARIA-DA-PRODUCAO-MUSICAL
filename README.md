@@ -2,9 +2,16 @@
 
 Fundação da plataforma estática, criada para publicação no GitHub Pages.
 
-## Fases 01–13 — Fundação, Identidade, Operação e Lançamento Comercial
+## Fases 01–14 — Fundação, Identidade, Operação e Lançamento Comercial
 
 Inclui arquitetura de páginas, componentes compartilhados, identidade visual final, landing page comercial, plataforma institucional, área do aluno, assistente inteligente, áreas premium e comercial, painel administrativo, Firebase preparado para login Google, PWA, SEO técnico e auditoria final.
+
+### Fase 14 — direção acadêmica, planos e jornada modular
+
+- Direção acadêmica apresentada com Jonatan Vale e Giovane Firmino da Silva, incluindo formação e atribuições no programa.
+- Planos Essencial, Profissional e Premium com comparação de benefícios, valores e condições de pagamento dependentes do checkout.
+- Catálogo completo do plano de aulas: 20 módulos e 162 aulas detalhadas, liberação em ritmo de duas aulas por semana, bloqueio visual e avaliação de avanço.
+- `YOUTUBE-EMBEDS.md` orienta a publicação das gravações do OBS em vídeos não listados; `FIREBASE-CONTROLE-DE-CURSO.txt` explica como tornar matrícula, plano e progresso seguros no Firestore.
 
 ### Fase 13 — navegação e ecossistema de ferramentas
 

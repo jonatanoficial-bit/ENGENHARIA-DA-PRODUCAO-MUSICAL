@@ -17,6 +17,7 @@ const required = ['index.html', '404.html', 'site.webmanifest', 'sw.js', 'BUILD.
 
 required.forEach((file) => { if (!fs.existsSync(path.join(root, file))) errors.push(`Arquivo obrigatório ausente: ${file}`); });
 ['css/phase-13.css', 'assets/campaign/home-vale-music-academy.png', 'assets/curriculum/daws.png', 'assets/curriculum/plugins-e-mixagem.png', 'assets/curriculum/instrumentos-virtuais.png', 'assets/curriculum/ia-criativa.png', 'assets/curriculum/streaming-e-distribuicao.png', 'assets/curriculum/audio-e-hardware.png', 'assets/curriculum/microfones-e-interfaces.png', 'assets/curriculum/video-e-design.png'].forEach((file) => { if (!fs.existsSync(path.join(root, file))) errors.push(`Arquivo obrigatório ausente: ${file}`); });
+['css/phase-14.css', 'js/course-catalog.js', 'assets/team/giovane-firmino.jpg', 'YOUTUBE-EMBEDS.md', 'FIREBASE-CONTROLE-DE-CURSO.txt'].forEach((file) => { if (!fs.existsSync(path.join(root, file))) errors.push(`Arquivo obrigatório ausente: ${file}`); });
 htmlFiles.forEach((file) => {
   const source = fs.readFileSync(file, 'utf8');
   const relative = path.relative(root, file);
