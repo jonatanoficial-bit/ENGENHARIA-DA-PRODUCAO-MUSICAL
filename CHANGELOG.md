@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0] — 2026-07-27 — Fase 15
+
+- Corrigido o enquadramento dos retratos de Jonatan Vale e Giovane Firmino, preservando o rosto completo em desktop e celular.
+- A navegação pública agora apresenta “Valores” com acesso direto aos planos, sem depender da área do aluno.
+- A antiga página vazia de conteúdos encaminha para a página pública de planos e valores.
+- “Quem Somos” foi reconstruída com história, missão, visão, compromisso, valores, identidade institucional e chamadas para formação e matrícula.
+- Página antiga de professores encaminha para a direção acadêmica completa.
+- Sitemap, cache PWA, auditoria e documentação atualizados para a versão 1.3.0.
+
 ## [1.2.0] — 2026-07-27 — Fase 14
 
 ### Direção Acadêmica, Planos e Jornada Modular

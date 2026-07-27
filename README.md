@@ -2,9 +2,17 @@
 
 Fundação da plataforma estática, criada para publicação no GitHub Pages.
 
-## Fases 01–14 — Fundação, Identidade, Operação e Lançamento Comercial
+## Fases 01–15 — Fundação, Identidade, Operação e Lançamento Comercial
 
 Inclui arquitetura de páginas, componentes compartilhados, identidade visual final, landing page comercial, plataforma institucional, área do aluno, assistente inteligente, áreas premium e comercial, painel administrativo, Firebase preparado para login Google, PWA, SEO técnico e auditoria final.
+
+### Fase 15 — conteúdo institucional e acesso público aos valores
+
+- Menu principal com acesso direto a Planos e Valores.
+- Página Quem Somos completa, com história, missão, visão, compromisso e identidade institucional.
+- Retratos da direção responsivos e sem corte de rosto.
+- Rotas antigas de Conteúdos e Professores encaminhadas para as páginas atualizadas.
+- Release **1.3.0**, build de **27/07/2026 às 12:52 BRT**.
 
 ### Fase 14 — direção acadêmica, planos e jornada modular
 

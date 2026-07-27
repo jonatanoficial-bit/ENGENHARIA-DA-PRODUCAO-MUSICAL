@@ -4,7 +4,6 @@
   <url><loc>./pages/sobre.html</loc></url>
   <url><loc>./pages/metodologia.html</loc></url>
   <url><loc>./pages/grade-curricular.html</loc></url>
-  <url><loc>./pages/professores.html</loc></url>
   <url><loc>./pages/planos.html</loc></url>
   <url><loc>./pages/professores.html</loc></url>
   <url><loc>./pages/contato.html</loc></url>
@@ -15,5 +14,4 @@
   <url><loc>./mentorias/index.html</loc></url>
   <url><loc>./consultorias/index.html</loc></url>
   <url><loc>./afiliados/index.html</loc></url>
-  <url><loc>./blog/index.html</loc></url>
 </urlset>

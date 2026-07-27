@@ -1,0 +1,17 @@
+/* Fase 15 — conteúdo institucional, valores públicos e retratos responsivos */
+.about-page{background:linear-gradient(180deg,#07101b 0,#0b1420 48%,#07101b 100%)}
+.about-hero{padding:clamp(4.5rem,9vw,8rem) 0 4rem;border-bottom:1px solid rgba(255,255,255,.1);background:radial-gradient(circle at 82% 30%,rgba(215,170,73,.14),transparent 30rem)}
+.about-hero__grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(18rem,.75fr);gap:clamp(2rem,6vw,6rem);align-items:end}
+.about-hero h1{max-width:13ch;margin:.5rem 0 1.25rem;font-size:clamp(3rem,7vw,6.4rem)}
+.about-hero__facts{display:grid;gap:.7rem;padding:1.35rem;border:1px solid rgba(229,184,83,.35);border-radius:1.2rem;background:rgba(5,12,20,.8);box-shadow:0 1.5rem 4rem rgba(0,0,0,.24)}
+.about-hero__facts div{padding:.85rem;border-bottom:1px solid rgba(255,255,255,.1)}
+.about-hero__facts div:last-child{border-bottom:0}.about-hero__facts span{display:block;color:#9fb0bd;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase}.about-hero__facts strong{display:block;margin-top:.2rem;color:#f3cf78;font-size:1.05rem}
+.institution-story{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(2rem,6vw,5rem);align-items:start}
+.institution-story h2{max-width:12ch}.institution-story__copy{display:grid;gap:1rem}.institution-story__copy p{margin:0;color:#c9d5df;font-size:1.05rem;line-height:1.8}
+.mission-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}.mission-card{padding:1.5rem;border:1px solid rgba(255,255,255,.13);border-radius:1rem;background:linear-gradient(145deg,rgba(20,33,48,.9),rgba(7,13,22,.95))}.mission-card span{display:grid;width:2.6rem;height:2.6rem;place-items:center;margin-bottom:1.2rem;border:1px solid rgba(231,188,91,.6);border-radius:50%;color:#f3ca6d;font-weight:900}.mission-card h3{font-size:1.55rem}.mission-card p{margin:0;color:#b9c8d4;line-height:1.7}
+.institution-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}.institution-value{min-height:11rem;padding:1.25rem;border-top:2px solid #dcac47;border-radius:.7rem;background:rgba(255,255,255,.035)}.institution-value b{display:block;margin-bottom:.65rem;color:#f2cc74;font-size:1.1rem}.institution-value p{margin:0;color:#b8c7d2}
+.identity-band{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.identity-band article{padding:1.5rem;border:1px solid rgba(231,187,87,.28);border-radius:1rem;background:#09131f}.identity-band h3{margin:.35rem 0 .6rem;font-size:1.65rem}.identity-band p{margin:0;color:#c2d0da}.identity-band a{display:inline-flex;margin-top:1rem;color:#f0c769;font-weight:800}
+.about-cta{padding:clamp(2rem,5vw,4rem);border:1px solid rgba(229,182,77,.4);border-radius:1.25rem;background:radial-gradient(circle at 90% 10%,rgba(218,171,65,.18),transparent 22rem),#09131f}.about-cta h2{max-width:17ch}.about-cta__actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.4rem}
+.plans-page .plans-hero{background:radial-gradient(circle at 80% 20%,rgba(226,179,79,.13),transparent 28rem)}.plans-page .plans-hero .lede{max-width:68ch}
+@media(max-width:900px){.about-hero__grid,.institution-story,.mission-grid,.identity-band{grid-template-columns:1fr}.about-hero__grid{align-items:start}.about-hero__facts{max-width:36rem}.institution-values{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.about-hero{padding-top:3.4rem}.institution-values{grid-template-columns:1fr}.about-cta__actions .button{width:100%;justify-content:center}}

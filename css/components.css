@@ -24,3 +24,4 @@
 .status { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1.25rem; color: var(--muted); font-size: .9rem; }
 .status::before { width: .55rem; aspect-ratio: 1; border-radius: 50%; background: #74c99e; content: ''; box-shadow: 0 0 0 .22rem color-mix(in srgb, #74c99e 13%, transparent); }
 @media (min-width: 54rem) { .nav-toggle { display: none; } .site-nav { position: static; display: flex; align-items: center; padding: 0; border: 0; background: none; box-shadow: none; } .site-nav a { padding: .45rem .5rem; font-size: .74rem; } .footer-grid { grid-template-columns: 1.4fr 1fr 1fr; } }
+@media (max-width: 359px) { .header-actions .theme-toggle { display: none; } }
