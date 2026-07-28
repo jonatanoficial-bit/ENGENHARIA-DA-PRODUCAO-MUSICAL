@@ -11,4 +11,8 @@ function getAdmin() {
   return admin;
 }
 
-module.exports = { getAdmin };
+function getDb() {
+  return getAdmin().firestore(process.env.FIRESTORE_DATABASE_ID || 'default');
+}
+
+module.exports = { getAdmin, getDb };

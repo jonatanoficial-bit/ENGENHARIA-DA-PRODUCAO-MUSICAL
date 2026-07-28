@@ -5,6 +5,8 @@ export const firebaseConfig = {
   apiKey: "AIzaSyA0Y2efDF4i6kdiytUhFaRvHDnVzZ12wsc",
   authDomain: "engenharia-producao-musical.firebaseapp.com",
   projectId: "engenharia-producao-musical",
+  // Este projeto utiliza um banco Firestore nomeado "default" (sem parênteses).
+  firestoreDatabaseId: "default",
   storageBucket: "engenharia-producao-musical.firebasestorage.app",
   messagingSenderId: "151969888946",
   appId: "1:151969888946:web:a2d543ba891399e4a667ab"

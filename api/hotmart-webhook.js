@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { getAdmin } = require('./_firebase-admin');
+const { getAdmin, getDb } = require('./_firebase-admin');
 
 const offers = { cqiymwjq: 'essencial', wuqbrxz6: 'profissional', '9824kdrk': 'premium' };
 const approvedEvents = new Set(['PURCHASE_APPROVED', 'PURCHASE_COMPLETE', 'PURCHASE_COMPLETED']);
@@ -27,7 +27,7 @@ module.exports = async (request, response) => {
     const transaction = String(purchase.transaction || purchase.transaction_id || payload.id || crypto.randomUUID());
     if (!event || !email) return response.status(200).json({ received: true, ignored: 'Evento de teste sem comprador' });
 
-    const admin = getAdmin(); const db = admin.firestore(); const now = admin.firestore.FieldValue.serverTimestamp();
+    const admin = getAdmin(); const db = getDb(); const now = admin.firestore.FieldValue.serverTimestamp();
     const offerCode = String(offer.code || offer.id || '').toLowerCase();
     const plan = offers[offerCode] || String(offer.name || 'curso').toLowerCase();
     const grossAmount = toNumber(purchase.price?.value ?? purchase.price ?? data.price);

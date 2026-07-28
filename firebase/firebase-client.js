@@ -13,7 +13,7 @@ export const firebaseReady = configured ? (async () => {
   const db = firestoreSdk.initializeFirestore(app, {
     experimentalForceLongPolling: true,
     useFetchStreams: false
-  });
+  }, firebaseConfig.firestoreDatabaseId || '(default)');
   return { auth: authSdk.getAuth(app), authSdk, db, firestoreSdk };
 })() : null;
 

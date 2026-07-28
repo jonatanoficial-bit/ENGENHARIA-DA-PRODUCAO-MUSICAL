@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { getAdmin } = require('./_firebase-admin');
+const { getAdmin, getDb } = require('./_firebase-admin');
 const emailKey = (email) => crypto.createHash('sha256').update(String(email).trim().toLowerCase()).digest('hex');
 
 module.exports = async (request, response) => {
@@ -10,7 +10,7 @@ module.exports = async (request, response) => {
     const admin = getAdmin(); const decoded = await admin.auth().verifyIdToken(body.idToken);
     const email = String(decoded.email || '').trim().toLowerCase();
     if (!email) return response.status(403).json({ error: 'A conta Google não possui e-mail' });
-    const db = admin.firestore(); const enrollmentRef = db.collection('enrollments').doc(emailKey(email)); const enrollmentSnapshot = await enrollmentRef.get();
+    const db = getDb(); const enrollmentRef = db.collection('enrollments').doc(emailKey(email)); const enrollmentSnapshot = await enrollmentRef.get();
     if (!enrollmentSnapshot.exists || enrollmentSnapshot.data().enrollmentStatus !== 'paid') return response.status(403).json({ status: 'pending' });
     const enrollment = enrollmentSnapshot.data(); const now = admin.firestore.FieldValue.serverTimestamp();
     await db.collection('students').doc(decoded.uid).set({ name: decoded.name || enrollment.buyerName || '', email, plan: enrollment.plan || 'curso', enrollmentStatus: 'paid', courseStart: enrollment.courseStart || '', enrollmentId: enrollmentRef.id, latestTransaction: enrollment.latestTransaction || '', updatedAt: now, claimedAt: now }, { merge: true });
