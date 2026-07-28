@@ -7,6 +7,7 @@ const configured = firebaseConfig?.apiKey && !firebaseConfig.apiKey.startsWith('
 const setStatus = (text) => { if (status) status.textContent = text; };
 const target = new URLSearchParams(window.location.search).get('target');
 const destination = target === 'teacher' ? '../professor/index.html' : '../aluno/index.html';
+const requestedStatus = new URLSearchParams(window.location.search).get('status');
 
 if (!configured) {
   setStatus('O acesso será liberado após a configuração do Firebase pelo administrador.');
@@ -18,7 +19,16 @@ if (!configured) {
   ]);
   const auth = getAuth(initializeApp(firebaseConfig));
   const provider = new GoogleAuthProvider();
-  login?.addEventListener('click', async () => { try { await signInWithPopup(auth, provider); window.location.assign(destination); } catch (error) { setStatus('Não foi possível concluir o login. Verifique os domínios autorizados no Firebase.'); } });
+  login?.addEventListener('click', async () => { try {
+    const result = await signInWithPopup(auth, provider);
+    if (target !== 'teacher') {
+      try {
+        const idToken = await result.user.getIdToken();
+        await fetch('../api/claim-enrollment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
+      } catch { /* A Área do Aluno confirma a matrícula no Firestore após o redirecionamento. */ }
+    }
+    window.location.assign(destination);
+  } catch (error) { setStatus('Não foi possível concluir o login. Verifique os domínios autorizados no Firebase.'); } });
   logout?.addEventListener('click', () => signOut(auth));
-  onAuthStateChanged(auth, (user) => { if (user) { setStatus(`Sessão ativa: ${user.displayName || user.email}`); login?.setAttribute('hidden', ''); logout?.removeAttribute('hidden'); } else { setStatus('Entre com Google para acessar sua formação.'); login?.removeAttribute('hidden'); logout?.setAttribute('hidden', ''); } });
+  onAuthStateChanged(auth, (user) => { if (user) { setStatus(requestedStatus === 'enrollment' ? 'Sua conta Google está ativa. A matrícula será liberada após a confirmação da compra na Hotmart.' : `Sessão ativa: ${user.displayName || user.email}`); login?.setAttribute('hidden', ''); logout?.removeAttribute('hidden'); } else { setStatus('Entre com Google para acessar sua formação.'); login?.removeAttribute('hidden'); logout?.setAttribute('hidden', ''); } });
 }

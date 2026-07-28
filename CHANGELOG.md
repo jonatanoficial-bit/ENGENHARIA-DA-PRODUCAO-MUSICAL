@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0] — 2026-07-28 — Fase 16
+
+- Placar circular de progresso e página de perfil do aluno adicionados à plataforma.
+- Painel docente ampliado com alunos ativos, receita bruta aprovada e comissão registrada por webhook.
+- Rota Vercel segura para webhook da Hotmart e vínculo da compra ao login Google preparada com Firebase Admin.
+- Guia didático completo da jornada comercial, das aulas e da publicação criado em `JORNADA-HOTMART-E-ALUNO.txt`.
+
 ## [1.3.1] — 2026-07-27 — Checkouts Hotmart
 
 - Botões dos planos Essencial, Profissional e Premium conectados às respectivas ofertas oficiais da Hotmart.

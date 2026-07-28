@@ -19,6 +19,13 @@ Inclui arquitetura de páginas, componentes compartilhados, identidade visual fi
 - Avaliações, notas, presenças, solicitações de mentoria e vínculos individuais de entrega no Google Drive.
 - Checkout externo da Hotmart conectado às ofertas Essencial, Profissional e Premium. A primeira turma utiliza uma pasta geral de entregas no Google Drive; veja `OPERACAO-HOTMART-E-MATRICULAS.txt`, `FIRESTORE-RULES-ACADEMIA.txt` e `GOOGLE-DRIVE-ENTREGAS.txt`.
 
+### Fase 16 — jornada comercial e visão operacional
+
+- Placar de progresso em porcentagem e página de perfil na Área do Aluno.
+- Painel do Professor com indicadores financeiros preparados para as vendas aprovadas recebidas por webhook.
+- Rotas Vercel para webhook da Hotmart e vínculo seguro da matrícula ao login Google.
+- `JORNADA-HOTMART-E-ALUNO.txt` explica a operação de ponta a ponta, inclusive onde as aulas em vídeo ficam hospedadas.
+
 ### Fase 13 — navegação e ecossistema de ferramentas
 
 - Rolagem corrigida para mouse, trackpad e toque em desktop e dispositivos móveis.

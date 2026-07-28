@@ -1,8 +1,8 @@
 ENGENHARIA DA PRODUÇÃO MUSICAL™
 
-Release: v1.3.1
-Fase: 15 — Operação Acadêmica, Avaliações e Matrículas
-Build: 27/07/2026 · 19:39 BRT
+Release: v1.4.0
+Fase: 16 — Jornada Comercial, Progresso e Integração Hotmart
+Build: 28/07/2026 · 10:07 BRT
 
 Instituição certificadora: Instituto Musical Vale
 CNPJ: 31.255.200/0001-19
@@ -12,3 +12,4 @@ Enquadramento: Curso Livre de Formação Profissional.
 Autenticação: Firebase Authentication com login Google.
 Operação acadêmica: Firestore (alunos, avaliações, notas, presença e solicitações).
 Checkout: ofertas oficiais da Hotmart vinculadas aos planos Essencial, Profissional e Premium.
+Automação de matrícula: rota segura Vercel + Firebase Admin, dependente das variáveis privadas.

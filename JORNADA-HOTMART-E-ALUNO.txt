@@ -1,0 +1,137 @@
+JORNADA DO ALUNO — HOTMART, PAGAMENTO E PLATAFORMA
+ENGENHARIA DA PRODUÇÃO MUSICAL™
+
+DECISÃO ADOTADA NESTA VERSÃO
+
+HOTMART = checkout, pagamentos, comprovantes e evento de compra.
+FIREBASE = login Google, perfil do aluno, permissões, notas, presenças e área acadêmica.
+SITE EMP = vitrine, Área do Aluno, Área do Professor, aulas, avaliações e entregas.
+YOUTUBE NÃO LISTADO = hospedagem das gravações das aulas ao vivo, incorporadas na Área do Aluno.
+
+Você NÃO precisa colocar todos os vídeos dentro da Hotmart para usar a Hotmart.
+Nesta arquitetura, a Hotmart cuida do pagamento com a credibilidade dela; o aluno estuda
+na sua plataforma, com a identidade e os recursos exclusivos da Engenharia da Produção Musical™.
+
+JORNADA COMPLETA DO ALUNO
+
+1. A pessoa acessa o seu site e conhece o curso.
+2. Escolhe Essencial, Profissional ou Premium.
+3. O botão abre o checkout seguro da oferta correspondente na Hotmart.
+4. A pessoa paga por um método disponível no checkout.
+5. A Hotmart confirma a compra e envia o comprovante ao comprador.
+6. A Hotmart envia um aviso automático (webhook) para a rota segura do seu site.
+7. A rota registra a matrícula e a venda no Firebase.
+8. O aluno entra no site usando Google COM O MESMO E-MAIL USADO NA COMPRA.
+9. A plataforma reconhece a matrícula, cria/vincula o perfil do aluno e libera a Área do Aluno.
+10. O aluno vê a porcentagem do curso, o calendário de duas aulas semanais, as aulas liberadas,
+    as avaliações, a pasta geral de trabalhos e seu perfil.
+11. O professor acompanha alunos, notas, presenças, mentorias e indicadores de vendas.
+
+VÍDEOS: ONDE FICAM?
+
+Fluxo recomendado para esta fase:
+
+- A aula é ministrada ao vivo (Google Meet, Zoom, YouTube ou outra ferramenta escolhida).
+- A gravação é feita no OBS.
+- Você envia o vídeo para o YouTube como NÃO LISTADO.
+- Copia apenas o ID do vídeo para o arquivo YOUTUBE-EMBEDS.md, conforme o modelo existente.
+- O vídeo aparece dentro da Área do Aluno, sem abrir uma página pública do YouTube.
+
+Vantagem: não pesa sua hospedagem, é simples para gravar e permite publicar aula por aula.
+
+Você pode usar a Hotmart Club no futuro, mas não é recomendado duplicar as 162 aulas agora.
+Se optar por Hotmart Club como área principal, a Área do Aluno própria perde parte da função
+de trilha, presença, perfil e avaliações. A arquitetura acima mantém tudo centralizado no seu site.
+
+CONFIGURAÇÃO NECESSÁRIA ANTES DE ATIVAR O WEBHOOK
+
+IMPORTANTE: faça o deploy deste ZIP na Vercel. GitHub Pages sozinho NÃO executa as rotas /api
+e, portanto, não consegue liberar matrículas automaticamente.
+
+1. Crie ou atualize o repositório no GitHub com todos os arquivos deste ZIP.
+2. Na Vercel, importe esse repositório e faça o deploy.
+3. Em Vercel > Project > Settings > Environment Variables, crie estas variáveis:
+
+   HOTMART_HOTTOK
+   FIREBASE_PROJECT_ID
+   FIREBASE_CLIENT_EMAIL
+   FIREBASE_PRIVATE_KEY
+
+4. O Hottok é copiado em Hotmart > Ferramentas > Webhook > Autenticação.
+   NUNCA envie esse valor pelo chat e NUNCA coloque no GitHub.
+
+5. Para as três variáveis FIREBASE, abra Firebase Console > Configurações do projeto
+   > Contas de serviço > Gerar nova chave privada.
+   Abra o arquivo JSON baixado e copie:
+   - project_id para FIREBASE_PROJECT_ID
+   - client_email para FIREBASE_CLIENT_EMAIL
+   - private_key para FIREBASE_PRIVATE_KEY
+   Não envie esse JSON para o GitHub ou por chat. Guarde-o em local seguro.
+
+6. Faça um novo deploy na Vercel após salvar as variáveis.
+7. Na Hotmart > Ferramentas > Webhook, cadastre exatamente:
+
+   https://engenharia-da-producao-musical.vercel.app/api/hotmart-webhook
+
+8. Selecione a versão 2.0.0 e, no mínimo, os eventos:
+   - Compra aprovada
+   - Compra cancelada
+   - Compra reembolsada
+   - Chargeback
+   - Compra atrasada, se estiver disponível para sua modalidade
+
+9. Salve. Somente depois faça o teste da Hotmart.
+10. Confira em Hotmart > Webhook > Histórico se a resposta foi 200.
+
+O QUE O WEBHOOK FAZ
+
+- Compra aprovada: cria/atualiza a matrícula como "paid" e registra a venda.
+- Cancelamento, reembolso, chargeback ou atraso: marca a matrícula como "blocked".
+- Vendas aprovadas passam a aparecer no painel do professor.
+- A Área do Aluno só libera para documento students/{UID} com enrollmentStatus = "paid".
+
+OBSERVAÇÃO SOBRE O PRIMEIRO LOGIN
+
+O aluno deve entrar com o mesmo e-mail usado na Hotmart. O sistema liga esse e-mail
+ao UID do login Google e cria o perfil acadêmico. Se o e-mail for diferente, a compra
+continua válida na Hotmart, mas a liberação precisa ser corrigida pela coordenação.
+
+PERFIL, PROGRESSO E AVALIAÇÕES
+
+- "Meu perfil" mostra e-mail, plano, status e início da turma.
+- O placar grande mostra a porcentagem de módulos concluídos.
+- As aulas seguem duas liberações semanais, com bloqueio visual das próximas etapas.
+- O professor cria provas e corrige respostas na Área do Professor.
+- A resposta correta fica invisível para o aluno. A correção é manual nesta fase,
+  para proteger o gabarito. Correção automática segura pode ser adicionada depois
+  com uma função de servidor.
+
+FINANCEIRO DO PROFESSOR
+
+O painel mostra alunos ativos, receita bruta de compras aprovadas e a porcentagem
+de comissão registrada no evento de venda, quando esse dado estiver disponível.
+Esses indicadores são gerenciais. O relatório financeiro oficial, repasses, taxas,
+impostos e saldo a receber devem sempre ser conferidos diretamente na Hotmart.
+
+DRIVE GERAL DE TRABALHOS
+
+A pasta geral está liberada para acelerar a primeira turma. Oriente cada aluno a criar:
+
+NOME DO ALUNO — MÓDULO XX — NOME DO TRABALHO
+
+Como alunos com acesso podem visualizar conteúdo da pasta compartilhada, migre para
+pastas individuais quando o número de alunos aumentar ou houver arquivos sensíveis.
+
+O QUE AINDA NÃO É AUTOMÁTICO
+
+- E-mail de boas-vindas personalizado pela plataforma: a Hotmart já envia o comprovante;
+  e-mail personalizado pode ser adicionado depois com Resend, Brevo ou Firebase Extension.
+- Definição da data de início da turma: o professor define a data no botão "Definir início"
+  da lista de alunos. A agenda de liberações é atualizada na Área do Aluno.
+- Pastas individuais no Drive: nesta primeira fase a pasta é geral.
+
+REFERÊNCIAS OFICIAIS
+
+Hotmart Webhook: https://developers.hotmart.com/docs/pt-BR/2.0.0/webhook/purchase-webhook/
+Hotmart sobre Webhook: https://help.hotmart.com/en/article/360001491352/how-do-i-set-up-my-product-s-api-using-the-webhook-postback-/
+Firebase Admin: https://firebase.google.com/docs/admin/setup

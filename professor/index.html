@@ -23,10 +23,10 @@
     <div class="container">
       <div class="teacher-gate" data-teacher-gate aria-live="polite">Validando perfil docente…</div>
       <div data-teacher-content hidden>
-        <header class="teacher-header"><div><p class="eyebrow">Área do professor</p><h1>Operação acadêmica em uma única visão.</h1><p class="lede">Acompanhe matrículas liberadas, avaliações, presenças, mentorias e entregas de projetos.</p></div><a class="button button--quiet" href="../aluno/index.html">Ver área do aluno</a></header>
+        <header class="teacher-header"><div><p class="eyebrow">Área do professor</p><h1>Operação acadêmica em uma única visão.</h1><p class="lede">Acompanhe matrículas liberadas, avaliações, presenças, mentorias, entregas e indicadores de vendas registrados pela Hotmart.</p></div><a class="button button--quiet" href="../aluno/index.html">Ver área do aluno</a></header>
 
-        <section class="teacher-metrics" data-teacher-metrics>
-          <article><strong>—</strong><span>alunos com matrícula ativa</span></article><article><strong>—</strong><span>avaliações publicadas</span></article><article><strong>—</strong><span>agendamentos pendentes</span></article>
+        <section class="teacher-metrics teacher-metrics--expanded" data-teacher-metrics>
+          <article><strong>—</strong><span>alunos com matrícula ativa</span></article><article><strong>—</strong><span>avaliações publicadas</span></article><article><strong>—</strong><span>agendamentos pendentes</span></article><article class="teacher-metric--finance"><strong data-finance-gross>R$ —</strong><span>receita bruta aprovada</span></article><article class="teacher-metric--finance"><strong data-finance-commission>—</strong><span>comissão registrada</span></article>
         </section>
 
         <div class="teacher-grid">
@@ -39,6 +39,8 @@
           <section class="teacher-card teacher-card--wide"><div class="teacher-card__head"><div><p class="eyebrow">Presenças</p><h2>Chamadas criadas</h2></div></div><div data-live-session-list class="teacher-list"><p>Carregando chamadas…</p></div></section>
 
           <section class="teacher-card teacher-card--wide" id="notas"><div class="teacher-card__head"><div><p class="eyebrow">Notas</p><h2>Resultados das avaliações</h2></div></div><div data-assessment-list class="assessment-list"><p>Carregando avaliações publicadas…</p></div></section>
+
+          <section class="teacher-card teacher-card--wide" id="financeiro"><div class="teacher-card__head"><div><p class="eyebrow">Financeiro</p><h2>Vendas registradas pela Hotmart</h2></div><span class="badge">Indicadores</span></div><p class="teacher-finance-note">Os valores aparecem após a configuração do webhook seguro. Use o relatório financeiro oficial da Hotmart para conciliação e repasses.</p><div data-finance-sales class="teacher-finance-table"><p>Aguardando registros de vendas aprovadas.</p></div></section>
 
           <section class="teacher-card" id="agendamentos"><p class="eyebrow">Mentorias e solicitações</p><h2>Próximos atendimentos</h2><div data-mentorship-requests class="teacher-list"><p>Carregando solicitações…</p></div></section>
 

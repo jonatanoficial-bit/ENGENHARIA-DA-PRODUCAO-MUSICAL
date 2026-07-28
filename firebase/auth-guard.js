@@ -1,13 +1,32 @@
-import { firebaseConfig } from './firebase-config.js';
+import { firebaseReady } from './firebase-client.js';
 
-const configured = firebaseConfig?.apiKey && !firebaseConfig.apiKey.startsWith('COLE_');
-if (!configured) {
-  window.location.replace('../pages/login.html?status=configure');
+const loginUrl = '../pages/login.html';
+
+if (!firebaseReady) {
+  window.location.replace(`${loginUrl}?status=configure`);
 } else {
-  const [{ initializeApp }, { getAuth, onAuthStateChanged }] = await Promise.all([
-    import('https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js'),
-    import('https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js')
-  ]);
-  const auth = getAuth(initializeApp(firebaseConfig));
-  onAuthStateChanged(auth, (user) => { if (!user) window.location.replace('../pages/login.html?status=login'); });
+  const { auth, authSdk, db, firestoreSdk } = await firebaseReady;
+  authSdk.onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.replace(`${loginUrl}?status=login`);
+      return;
+    }
+    try {
+      const [staffSnapshot, studentSnapshot] = await Promise.all([
+        firestoreSdk.getDoc(firestoreSdk.doc(db, 'staff', user.uid)),
+        firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid))
+      ]);
+      const isStaff = staffSnapshot.exists() && staffSnapshot.data().active === true;
+      const student = studentSnapshot.exists() ? studentSnapshot.data() : null;
+      const isEnrolled = student?.enrollmentStatus === 'paid';
+      if (!isStaff && !isEnrolled) {
+        window.location.replace(`${loginUrl}?status=enrollment`);
+        return;
+      }
+      window.empStudentSession = { user, student, isStaff };
+      document.dispatchEvent(new CustomEvent('student:authorized', { detail: window.empStudentSession }));
+    } catch {
+      window.location.replace(`${loginUrl}?status=firestore`);
+    }
+  });
 }

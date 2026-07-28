@@ -7,6 +7,7 @@ const formatDate = (value) => {
   const date = value.toDate ? value.toDate() : new Date(value);
   return Number.isNaN(date.getTime()) ? '—' : new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(date);
 };
+const formatMoney = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value || 0));
 
 try {
   const { user } = await authorized;
@@ -17,17 +18,25 @@ try {
   const assessmentsNode = document.querySelector('[data-assessment-list]');
   const requestsNode = document.querySelector('[data-mentorship-requests]');
   const sessionsNode = document.querySelector('[data-live-session-list]');
+  const salesNode = document.querySelector('[data-finance-sales]');
   let rosterStudents = [];
 
   async function loadStudents() {
     const snapshot = await getDocs(query(collection(db, 'students'), orderBy('name'), limit(100)));
     const students = snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() }));
-    roster.innerHTML = students.length ? students.map((student) => `<tr><td><strong>${safe(student.name || student.email || 'Aluno sem nome')}</strong><small>${safe(student.email || student.id)}</small></td><td>${safe(student.plan || 'A definir')}</td><td><span class="teacher-status ${student.enrollmentStatus === 'paid' ? 'teacher-status--ok' : ''}">${safe(student.enrollmentStatus || 'Pendente')}</span></td><td>${formatDate(student.courseStart)}</td><td>${student.driveFolderUrl ? `<a href="${safe(student.driveFolderUrl)}" target="_blank" rel="noopener">Abrir pasta</a>` : `<button type="button" class="teacher-link" data-drive-student="${safe(student.id)}">Vincular pasta</button>`}</td></tr>`).join('') : '<tr><td colspan="5">Nenhuma matrícula ativa foi criada no Firestore ainda.</td></tr>';
+    roster.innerHTML = students.length ? students.map((student) => `<tr><td><strong>${safe(student.name || student.email || 'Aluno sem nome')}</strong><small>${safe(student.email || student.id)}</small></td><td>${safe(student.plan || 'A definir')}</td><td><span class="teacher-status ${student.enrollmentStatus === 'paid' ? 'teacher-status--ok' : ''}">${safe(student.enrollmentStatus || 'Pendente')}</span></td><td>${formatDate(student.courseStart)}<button type="button" class="teacher-link" data-course-start-student="${safe(student.id)}">Definir início</button></td><td>${student.driveFolderUrl ? `<a href="${safe(student.driveFolderUrl)}" target="_blank" rel="noopener">Abrir pasta</a>` : `<button type="button" class="teacher-link" data-drive-student="${safe(student.id)}">Vincular pasta</button>`}</td></tr>`).join('') : '<tr><td colspan="5">Nenhuma matrícula ativa foi criada no Firestore ainda.</td></tr>';
     roster.querySelectorAll('[data-drive-student]').forEach((button) => button.addEventListener('click', async () => {
       const driveFolderUrl = window.prompt('Cole o link da pasta individual do Google Drive deste aluno:');
       if (!driveFolderUrl) return;
       try { new URL(driveFolderUrl); await setDoc(doc(db, 'students', button.dataset.driveStudent), { driveFolderUrl, updatedAt: serverTimestamp() }, { merge: true }); await loadStudents(); }
       catch { window.alert('Use um link válido do Google Drive.'); }
+    }));
+    roster.querySelectorAll('[data-course-start-student]').forEach((button) => button.addEventListener('click', async () => {
+      const courseStart = window.prompt('Informe a data de início da turma no formato AAAA-MM-DD:');
+      if (!courseStart) return;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(courseStart) || Number.isNaN(new Date(`${courseStart}T00:00:00`).getTime())) { window.alert('Use uma data válida no formato AAAA-MM-DD.'); return; }
+      try { await setDoc(doc(db, 'students', button.dataset.courseStartStudent), { courseStart, updatedAt: serverTimestamp() }, { merge: true }); await loadStudents(); }
+      catch { window.alert('Não foi possível registrar a data de início. Confira as regras do Firestore.'); }
     }));
     rosterStudents = students;
     return students;
@@ -65,12 +74,30 @@ try {
     }));
   }
 
-  const [students, assessments, requestCount] = await Promise.all([loadStudents(), loadAssessments(), loadRequests()]);
+  async function loadSales() {
+    try {
+      const snapshot = await getDocs(query(collection(db, 'sales'), limit(100)));
+      const sales = snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() }));
+      const approved = sales.filter((sale) => sale.status === 'approved');
+      const gross = approved.reduce((total, sale) => total + Number(sale.grossAmount || 0), 0);
+      const commission = approved.reduce((total, sale) => total + Number(sale.commissionAmount || 0), 0);
+      const rate = gross > 0 && commission > 0 ? Math.round((commission / gross) * 100) : null;
+      if (salesNode) salesNode.innerHTML = approved.length ? `<div class="teacher-table-wrap"><table class="teacher-table"><thead><tr><th>Aluno</th><th>Plano</th><th>Compra</th><th>Bruto</th><th>Comissão</th></tr></thead><tbody>${approved.slice(0, 12).map((sale) => `<tr><td>${safe(sale.buyerName || sale.buyerEmail || '—')}</td><td>${safe(sale.plan || sale.offerName || '—')}</td><td>${formatDate(sale.approvedAt || sale.updatedAt)}</td><td>${formatMoney(sale.grossAmount)}</td><td>${sale.commissionAmount ? `${formatMoney(sale.commissionAmount)}${sale.commissionPercentage ? ` (${safe(sale.commissionPercentage)}%)` : ''}` : 'Aguardando dado'}</td></tr>`).join('')}</tbody></table></div>` : '<p>Ainda não há vendas aprovadas registradas pelo webhook.</p>';
+      return { gross, commission, rate };
+    } catch {
+      if (salesNode) salesNode.innerHTML = '<p>Os indicadores financeiros aparecerão após a publicação da rota Hotmart e das regras do Firestore.</p>';
+      return { gross: 0, commission: 0, rate: null };
+    }
+  }
+
+  const [students, assessments, requestCount, finance] = await Promise.all([loadStudents(), loadAssessments(), loadRequests(), loadSales()]);
   await loadSessions();
   const metricValues = metrics.querySelectorAll('strong');
   metricValues[0].textContent = students.filter((student) => student.enrollmentStatus === 'paid').length;
   metricValues[1].textContent = assessments.length;
   metricValues[2].textContent = requestCount;
+  metricValues[3].textContent = formatMoney(finance.gross);
+  metricValues[4].textContent = finance.rate === null ? '—' : `${finance.rate}%`;
 
   document.querySelector('[data-create-assessment]')?.addEventListener('submit', async (event) => {
     event.preventDefault();

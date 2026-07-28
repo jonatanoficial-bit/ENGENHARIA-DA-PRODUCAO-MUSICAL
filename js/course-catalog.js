@@ -56,22 +56,36 @@
   const stateKey = 'epm-course-progress-v14';
   const stored = JSON.parse(localStorage.getItem(stateKey) || '{"passed":[]}');
   const state = {passed:Array.isArray(stored.passed) ? stored.passed : [], selected:0};
+  let remoteProgress = null;
   const modulesNode = catalogRoot.querySelector('.course-modules');
   const lessonsNode = catalogRoot.querySelector('.course-lessons');
   const playerNode = document.querySelector('[data-course-player]');
   const quizNode = document.querySelector('[data-course-quiz]');
   const progressNode = document.querySelector('[data-course-progress]');
+  const percentNode = document.querySelector('[data-course-percent]');
+  const progressRing = document.querySelector('[data-course-ring]');
   const startValue = catalogRoot.dataset.courseStart;
-  const courseStart = startValue ? new Date(`${startValue}T00:00:00`) : new Date();
+  let courseStart = startValue ? new Date(`${startValue}T00:00:00`) : new Date();
   courseStart.setHours(0,0,0,0);
 
-  function save(){ localStorage.setItem(stateKey,JSON.stringify({passed:state.passed})); }
+  function save(){
+    localStorage.setItem(stateKey,JSON.stringify({passed:state.passed}));
+    if (remoteProgress) {
+      const percent = Math.round((state.passed.length / modules.length) * 100);
+      remoteProgress.setDoc(remoteProgress.doc(remoteProgress.db, 'students', remoteProgress.uid, 'progress', 'catalog'), { completedModules: state.passed, percent, updatedAt: remoteProgress.serverTimestamp() }, { merge: true }).catch(() => {});
+    }
+  }
   function releaseDate(globalIndex){ const result = new Date(courseStart); result.setDate(result.getDate()+Math.floor(globalIndex/2)*7); return result; }
   function dayLabel(date){ return new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'short',year:'numeric'}).format(date); }
   function lessonOffset(moduleIndex,lessonIndex){ return modules.slice(0,moduleIndex).reduce((sum,module)=>sum+module.lessons.length,0)+lessonIndex; }
   function moduleAllowed(moduleIndex){ return moduleIndex === 0 || state.passed.includes(modules[moduleIndex-1].id); }
   function lessonAvailable(moduleIndex,lessonIndex){ return moduleAllowed(moduleIndex) && new Date() >= releaseDate(lessonOffset(moduleIndex,lessonIndex)); }
-  function updateProgress(){ if(progressNode) progressNode.textContent = `${state.passed.length} de ${modules.length} módulos concluídos`; }
+  function updateProgress(){
+    const percent = Math.round((state.passed.length / modules.length) * 100);
+    if(progressNode) progressNode.textContent = `${state.passed.length} de ${modules.length} módulos concluídos`;
+    if(percentNode) percentNode.textContent = `${percent}%`;
+    if(progressRing) progressRing.style.setProperty('--course-progress', percent);
+  }
   function escapeHtml(value){ return value.replace(/[&<>'"]/g,char=>({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char])); }
 
   function renderModules(){
@@ -118,4 +132,31 @@
   }
   function render(){ renderModules(); renderLessons(); renderQuiz(); updateProgress(); }
   render();
+
+  import('../firebase/firebase-client.js').then(async ({ firebaseReady }) => {
+    if (!firebaseReady) return;
+    const { auth, authSdk, db, firestoreSdk } = await firebaseReady;
+    authSdk.onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      remoteProgress = { db, uid: user.uid, doc: firestoreSdk.doc, setDoc: firestoreSdk.setDoc, serverTimestamp: firestoreSdk.serverTimestamp };
+      try {
+        const [snapshot, studentSnapshot] = await Promise.all([
+          firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid, 'progress', 'catalog')),
+          firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid))
+        ]);
+        const remoteCourseStart = studentSnapshot.exists() ? studentSnapshot.data().courseStart : '';
+        if (remoteCourseStart) {
+          const parsedCourseStart = new Date(`${remoteCourseStart}T00:00:00`);
+          if (!Number.isNaN(parsedCourseStart.getTime())) { courseStart = parsedCourseStart; courseStart.setHours(0, 0, 0, 0); }
+        }
+        const completedModules = snapshot.exists() ? snapshot.data().completedModules : null;
+        if (Array.isArray(completedModules)) {
+          state.passed = completedModules.filter((id) => modules.some((module) => module.id === id));
+          render();
+        } else if (state.passed.length) {
+          save();
+        }
+      } catch { /* A interface continua funcional enquanto as regras do Firestore são configuradas. */ }
+    });
+  }).catch(() => {});
 })();
