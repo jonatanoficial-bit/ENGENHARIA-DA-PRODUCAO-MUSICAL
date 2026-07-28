@@ -1,6 +1,6 @@
 ENGENHARIA DA PRODUÇÃO MUSICAL™
 
-Release: v1.4.3
+Release: v1.4.4
 Fase: 16 — Jornada Comercial, Progresso e Integração Hotmart
 Build: 28/07/2026 · 10:07 BRT
 
