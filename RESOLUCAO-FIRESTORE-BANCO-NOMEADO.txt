@@ -1,0 +1,46 @@
+RESOLUÇÃO DO ACESSO FIREBASE — ENGENHARIA DA PRODUÇÃO MUSICAL™
+
+CAUSA ENCONTRADA
+O navegador informou: Database '(default)' not found.
+
+O projeto possui um banco Firestore com o nome: default
+Esse nome não é o banco técnico padrão '(default)'. Por isso, o login Google
+funcionava, mas o site não encontrava a coleção staff.
+
+O QUE JÁ FOI CORRIGIDO NO SITE
+1. A configuração do site agora usa firestoreDatabaseId: "default".
+2. A integração Hotmart/Vercel também usa o banco "default".
+3. O cache do site foi atualizado para que navegadores recebam a nova versão.
+4. A correção foi publicada no GitHub no commit 9fa8a83.
+
+O QUE VOCÊ PRECISA FAZER AGORA
+1. Não crie outro documento de professor.
+2. Mantenha o documento atual em staff com:
+   active: true
+   role: "teacher"
+   name: "Jonatan Vale"
+3. Confirme que o ID desse documento é exatamente o UID da conta Google que
+   será usada para entrar como professor.
+4. Aguarde a Vercel concluir o deploy do commit 9fa8a83.
+5. Abra uma nova janela anônima do Chrome.
+6. Acesse: https://engenharia-da-producao-musical.vercel.app/pages/login.html
+7. Clique em "Entrar como professor" e use a conta cadastrada no staff.
+
+RESULTADO ESPERADO
+Você será direcionado para /professor/index.html e verá o painel com alunos,
+avaliações, presenças, mentorias e indicadores financeiros.
+
+IMPORTANTE SOBRE AS REGRAS
+As regras do Firestore que você publicou podem permanecer como estão. O erro
+não era uma permissão negada: era o site consultando um banco com outro ID.
+
+VERCEL E HOTMART
+Nas variáveis de ambiente da Vercel, cadastre também:
+FIRESTORE_DATABASE_ID=default
+
+O código já possui "default" como reserva, mas a variável deixa a configuração
+explícita para as rotas de webhook e matrícula da Hotmart.
+
+SE AINDA HOUVER ERRO
+Envie uma captura que mostre o novo código exibido na tela. O texto antigo
+"Database '(default)' not found" não deve mais aparecer após o novo deploy.
