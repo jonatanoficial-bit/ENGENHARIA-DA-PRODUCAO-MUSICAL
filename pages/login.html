@@ -1,5 +1,45 @@
 <!doctype html>
 <html lang="pt-BR" data-root="../">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Acesso | Engenharia da Produção Musical™</title><meta name="description" content="Login Google da Área do Aluno da Engenharia da Produção Musical™."><meta name="robots" content="noindex,nofollow"><link rel="manifest" href="../site.webmanifest"><link rel="stylesheet" href="../css/tokens.css"><link rel="stylesheet" href="../css/base.css"><link rel="stylesheet" href="../css/components.css"><link rel="stylesheet" href="../css/layout.css"><link rel="stylesheet" href="../css/platform.css"><link rel="stylesheet" href="../css/final-polish.css"></head>
-<body><a class="skip-link" href="#conteudo">Pular para o conteúdo</a><div data-component="header"></div><main id="conteudo" class="app-main"><div class="container"><section class="foundation-card"><p class="eyebrow">Acesso à plataforma</p><h1>Entre no seu espaço de criação.</h1><p class="lede">Use sua conta Google para acessar a sua formação. Alunos e professores recebem permissões diferentes conforme o perfil cadastrado.</p><p><button class="google-button" type="button" data-google-login>Continuar com Google</button><button class="button button--quiet" type="button" data-firebase-logout hidden>Sair</button></p><p class="firebase-status" data-firebase-status aria-live="polite"></p><p class="notice">O login identifica sua conta. A liberação de plano, notas e funções docentes é feita pela equipe no Firebase após a confirmação da matrícula.</p><p><a class="button button--quiet" href="../pages/planos.html">Conhecer a formação</a> <a class="button button--quiet" href="../pages/login.html?target=teacher">Sou professor</a></p></section></div></main><div data-component="footer"></div><script src="../components/component-loader.js"></script><script src="../js/app.js"></script><script type="module" src="../firebase/firebase-auth.js"></script></body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Acesso | Engenharia da Produção Musical™</title>
+  <meta name="description" content="Acesso de alunos e professores à Engenharia da Produção Musical™.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="manifest" href="../site.webmanifest">
+  <link rel="stylesheet" href="../css/tokens.css"><link rel="stylesheet" href="../css/base.css"><link rel="stylesheet" href="../css/components.css"><link rel="stylesheet" href="../css/layout.css"><link rel="stylesheet" href="../css/platform.css"><link rel="stylesheet" href="../css/final-polish.css"><link rel="stylesheet" href="../css/phase-16.css">
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <div data-component="header"></div>
+  <main id="conteudo" class="app-main">
+    <div class="container">
+      <section class="foundation-card access-card">
+        <p class="eyebrow">Acesso à plataforma</p>
+        <h1>Escolha o seu ambiente.</h1>
+        <p class="lede">Entre com a mesma conta Google cadastrada no Firebase. Cada acesso leva você ao painel correspondente.</p>
+        <div class="access-options">
+          <article class="access-option">
+            <p class="eyebrow">Para estudantes</p>
+            <h2>Sou aluno</h2>
+            <p>Acesse aulas, materiais, avaliações, certificados e seu progresso na formação.</p>
+            <button class="google-button access-option__button" type="button" data-google-login data-access-target="student">Entrar como aluno</button>
+          </article>
+          <article class="access-option access-option--teacher">
+            <p class="eyebrow">Para equipe acadêmica</p>
+            <h2>Sou professor</h2>
+            <p>Acesse turmas, notas, avaliações, presença, mentorias e indicadores acadêmicos.</p>
+            <button class="google-button access-option__button" type="button" data-google-login data-access-target="teacher">Entrar como professor</button>
+          </article>
+        </div>
+        <p class="firebase-status" data-firebase-status aria-live="polite"></p>
+        <button class="button button--quiet" type="button" data-firebase-logout hidden>Sair da conta atual</button>
+        <p class="notice">O acesso de professor depende de um perfil ativo na coleção <strong>staff</strong> do Firebase. A formação do aluno é liberada após a confirmação de compra da Hotmart.</p>
+        <p><a class="button button--quiet" href="../pages/planos.html">Conhecer a formação</a></p>
+      </section>
+    </div>
+  </main>
+  <div data-component="footer"></div>
+  <script src="../components/component-loader.js"></script><script src="../js/app.js"></script><script type="module" src="../firebase/firebase-auth.js"></script>
+</body>
 </html>

@@ -24,8 +24,9 @@ if (!firebaseReady) {
       document.dispatchEvent(new CustomEvent('teacher:authorized', { detail: window.empTeacherSession }));
       if (notice) notice.hidden = true;
       if (appContent) appContent.hidden = false;
-    } catch {
-      show('Não foi possível validar o perfil docente. Confira as regras do Firestore e tente novamente.');
+    } catch (error) {
+      const code = error?.code || 'erro-desconhecido';
+      show(`Não foi possível validar o perfil docente. Código Firebase: ${code}. Confirme que a regra publicada permite "get" em staff e tente novamente.`);
     }
   });
 }

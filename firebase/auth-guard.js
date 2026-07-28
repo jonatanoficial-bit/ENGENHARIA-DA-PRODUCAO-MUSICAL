@@ -18,8 +18,12 @@ if (!firebaseReady) {
       ]);
       const isStaff = staffSnapshot.exists() && staffSnapshot.data().active === true;
       const student = studentSnapshot.exists() ? studentSnapshot.data() : null;
+      if (isStaff) {
+        window.location.replace('../professor/index.html');
+        return;
+      }
       const isEnrolled = student?.enrollmentStatus === 'paid';
-      if (!isStaff && !isEnrolled) {
+      if (!isEnrolled) {
         window.location.replace(`${loginUrl}?status=enrollment`);
         return;
       }

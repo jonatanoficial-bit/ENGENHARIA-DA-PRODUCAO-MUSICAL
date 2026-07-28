@@ -13,6 +13,8 @@
     });
   });
 
+  import(`${root.dataset.root || './'}firebase/access-routing.js`);
+
   if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
     window.addEventListener('load', () => navigator.serviceWorker.register(`${root.dataset.root || './'}sw.js`));
   }
