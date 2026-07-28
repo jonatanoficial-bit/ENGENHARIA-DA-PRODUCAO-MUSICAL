@@ -13,8 +13,8 @@ if (!firebaseReady) {
     }
     try {
       const [staffSnapshot, studentSnapshot] = await Promise.all([
-        firestoreSdk.getDoc(firestoreSdk.doc(db, 'staff', user.uid)),
-        firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid))
+        firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'staff', user.uid)),
+        firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'students', user.uid))
       ]);
       const isStaff = staffSnapshot.exists() && staffSnapshot.data().active === true;
       const student = studentSnapshot.exists() ? studentSnapshot.data() : null;

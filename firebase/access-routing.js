@@ -16,12 +16,12 @@ if (firebaseReady) {
   authSdk.onAuthStateChanged(auth, async (user) => {
     if (!user) return;
     try {
-      const staff = await firestoreSdk.getDoc(firestoreSdk.doc(db, 'staff', user.uid));
+      const staff = await firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'staff', user.uid));
       if (staff.exists() && staff.data().active === true) {
         setPortal(`${root}professor/index.html`, 'Área do professor');
         return;
       }
-      const student = await firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid));
+      const student = await firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'students', user.uid));
       if (student.exists() && student.data().enrollmentStatus === 'paid') {
         setPortal(`${root}aluno/index.html`, 'Área do aluno');
       }

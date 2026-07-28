@@ -18,8 +18,8 @@ if (firebaseReady && root) {
     }
     try {
       const [staffSnapshot, studentSnapshot] = await Promise.all([
-        firestoreSdk.getDoc(firestoreSdk.doc(db, 'staff', user.uid)),
-        firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid))
+        firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'staff', user.uid)),
+        firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'students', user.uid))
       ]);
       if (staffSnapshot.exists() && staffSnapshot.data().active === true) {
         window.location.replace('../professor/index.html');

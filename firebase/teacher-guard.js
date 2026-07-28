@@ -14,7 +14,7 @@ if (!firebaseReady) {
       return;
     }
     try {
-      const staff = await firestoreSdk.getDoc(firestoreSdk.doc(db, 'staff', user.uid));
+      const staff = await firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'staff', user.uid));
       if (!staff.exists() || staff.data().active !== true) {
         show(`A conta ${user.email || ''} está autenticada, mas ainda não possui perfil de professor. Peça ao administrador para criar staff/${user.uid} no Firestore.`);
         return;

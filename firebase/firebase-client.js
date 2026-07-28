@@ -9,7 +9,12 @@ export const firebaseReady = configured ? (async () => {
     import('https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js')
   ]);
   const app = appSdk.getApps().length ? appSdk.getApp() : appSdk.initializeApp(firebaseConfig);
-  return { auth: authSdk.getAuth(app), authSdk, db: firestoreSdk.getFirestore(app), firestoreSdk };
+  // Long polling é mais tolerante a redes móveis, proxies e bloqueios de WebChannel.
+  const db = firestoreSdk.initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+    useFetchStreams: false
+  });
+  return { auth: authSdk.getAuth(app), authSdk, db, firestoreSdk };
 })() : null;
 
 export const isFirebaseConfigured = Boolean(configured);

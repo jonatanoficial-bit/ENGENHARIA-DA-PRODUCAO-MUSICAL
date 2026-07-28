@@ -9,6 +9,14 @@ const setLoading = (busy) => loginButtons.forEach((button) => {
   button.disabled = busy;
   button.setAttribute('aria-busy', String(busy));
 });
+const withTimeout = (promise, ms = 12000) => Promise.race([
+  promise,
+  new Promise((_, reject) => setTimeout(() => {
+    const error = new Error('A consulta ao Firebase demorou mais do que o esperado.');
+    error.code = 'firestore/timeout';
+    reject(error);
+  }, ms))
+]);
 
 const sendToStudent = async (user) => {
   try {
@@ -29,7 +37,10 @@ if (!firebaseReady) {
 
   const routeSignedInUser = async (user, requestedRole) => {
     try {
-      const staff = await firestoreSdk.getDoc(firestoreSdk.doc(db, 'staff', user.uid));
+      setStatus('Confirmando o seu perfil no Firebase…');
+      const staff = await withTimeout(
+        firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'staff', user.uid))
+      );
       const isTeacher = staff.exists() && staff.data().active === true;
       if (requestedRole === 'teacher') {
         if (isTeacher) {
