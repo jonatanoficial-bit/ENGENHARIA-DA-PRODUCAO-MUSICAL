@@ -3,6 +3,12 @@
   const catalogRoot = document.querySelector('[data-course-catalog]');
   if (!catalogRoot) return;
 
+  const moduleArt = [
+    'm01-boas-vindas.png','m02-fundamentos-som.png','m03-fundamentos-musicais.png','m04-estudio-conexoes.png','m05-microfones-captacao.png',
+    'm06-acustica-pa.png','m07-producao-daw.png','m08-multi-daw.png','m09-midi-plugins.png','m10-arranjo-direcao.png',
+    'm11-gravacao-estudio.png','m12-edicao-audio.png','m13-mixagem.png','m14-masterizacao.png','m15-producao-vocal.png',
+    'm16-inteligencia-artificial.png','m17-mercado-e-distribuicao.png','m08-multi-daw.png','m01-boas-vindas.png','m17-mercado-e-distribuicao.png'
+  ];
   const modules = [
     ['M01','Boas-vindas e orientação profissional','Jonatan Vale e Giovane Firmino da Silva','Boas-vindas à Engenharia da Produção Musical|O que faz um produtor musical|O que faz um engenheiro de áudio|Como estudar e construir um portfólio'],
     ['M02','Fundamentos do som e do áudio','Giovane Firmino da Silva','O que é som|Frequência e espectro audível|Amplitude, volume e pressão sonora|Fase e cancelamento|Áudio analógico e digital|Sample rate e bit depth|Headroom, clipping e ruído|Fluxo de sinal'],
@@ -24,7 +30,7 @@
     ['M18','Vídeo, design e identidade artística','Jonatan Vale','Identidade de lançamento|Canva para músicos|Photoshop para capas e artes|Vídeo para artistas|Conteúdo para redes sociais|Campanha completa de lançamento'],
     ['M19','Projetos práticos e portfólio','Jonatan Vale e Giovane Firmino da Silva','Projeto de demo|Captação|Mixagem completa|Masterização|Lançamento digital|Construção de portfólio'],
     ['M20','Avaliação final e certificação','Jonatan Vale e Giovane Firmino da Silva','Orientação final|Apresentação técnica|Avaliação artística e comercial|Conclusão e próximos passos']
-  ].map(([id,title,instructor,lessons]) => ({id,title,instructor,lessons:lessons.split('|')}));
+  ].map(([id,title,instructor,lessons], index) => ({id,title,instructor,lessons:lessons.split('|'),art:`../assets/portal/${moduleArt[index]}`}));
 
   const quizPrompts = [
     'Reconhecer os papéis profissionais e estruturar um plano de estudo e portfólio.',
@@ -89,7 +95,7 @@
   function escapeHtml(value){ return value.replace(/[&<>'"]/g,char=>({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char])); }
 
   function renderModules(){
-    modulesNode.innerHTML = modules.map((module,index)=>`<button class="course-module-button" type="button" data-module-index="${index}" aria-current="${index===state.selected}"><span class="course-module-button__number">${module.id}${state.passed.includes(module.id)?' · CONCLUÍDO':''}</span><span class="course-module-button__title">${escapeHtml(module.title)}</span></button>`).join('');
+    modulesNode.innerHTML = modules.map((module,index)=>`<button class="course-module-button" type="button" style="--module-art:url('${module.art}')" data-module-index="${index}" aria-current="${index===state.selected}"><span class="course-module-button__number">${module.id}${state.passed.includes(module.id)?' · CONCLUÍDO':''}</span><span class="course-module-button__title">${escapeHtml(module.title)}</span></button>`).join('');
     modulesNode.querySelectorAll('[data-module-index]').forEach(button=>button.addEventListener('click',()=>{ state.selected=Number(button.dataset.moduleIndex); render(); }));
   }
   function renderLessons(){
@@ -101,7 +107,7 @@
       const status = !allowed ? 'Conclua a avaliação anterior' : available ? 'Disponível agora' : `Liberação: ${dayLabel(schedule)}`;
       return `<li class="lesson-item ${available?'lesson-item--available':''}" ${available?`data-play-lesson="${index}" tabindex="0" role="button"`:''}><span class="lesson-item__icon">${available?'▶':'🔒'}</span><span class="lesson-item__main"><span class="lesson-item__title">Aula ${String(index+1).padStart(2,'0')} · ${escapeHtml(lesson)}</span><span class="lesson-item__meta">Ao vivo + gravação · cerca de 50 min</span></span><span class="lesson-item__status">${status}</span></li>`;
     }).join('');
-    lessonsNode.innerHTML = `<div class="course-lessons__head"><div><p class="eyebrow">${module.id}</p><h3>${escapeHtml(module.title)}</h3><p class="course-instructor">Condução: ${escapeHtml(module.instructor)}</p></div><span class="badge">${module.lessons.length} aulas</span></div><ul class="lesson-list">${lessonItems}</ul>`;
+    lessonsNode.innerHTML = `<div class="course-lessons__head" style="--selected-module-art:url('${module.art}')"><div><p class="eyebrow">${module.id}</p><h3>${escapeHtml(module.title)}</h3><p class="course-instructor">Condução: ${escapeHtml(module.instructor)}</p></div><span class="badge">${module.lessons.length} aulas</span></div><ul class="lesson-list">${lessonItems}</ul>`;
     lessonsNode.querySelectorAll('[data-play-lesson]').forEach(item=>{
       const play=()=>openLesson(state.selected,Number(item.dataset.playLesson));
       item.addEventListener('click',play); item.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();play();}});
