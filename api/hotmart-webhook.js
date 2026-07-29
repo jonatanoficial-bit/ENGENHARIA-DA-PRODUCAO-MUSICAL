@@ -39,7 +39,7 @@ module.exports = async (request, response) => {
     if (status === 'approved') enrollment.approvedAt = now;
     await db.collection('sales').doc(transaction).set({ transaction, event, status, buyerEmail: email, buyerName: buyer.name || '', plan, offerCode, offerName: offer.name || '', grossAmount, commissionAmount, commissionPercentage, updatedAt: now, approvedAt: status === 'approved' ? now : null }, { merge: true });
     await db.collection('enrollments').doc(emailKey(email)).set(enrollment, { merge: true });
-    return response.status(200).json({ received: true });
+    return response.status(200).json({ received: true, integration: 'emp-hotmart-v1.6.2', event, enrollmentStatus: enrollment.enrollmentStatus });
   } catch (error) {
     console.error('Erro Hotmart webhook', error);
     const isConfigurationError = /Firebase Admin|FIREBASE_SERVICE_ACCOUNT_JSON/.test(String(error?.message || ''));
