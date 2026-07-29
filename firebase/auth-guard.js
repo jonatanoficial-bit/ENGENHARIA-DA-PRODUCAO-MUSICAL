@@ -19,7 +19,14 @@ if (!firebaseReady) {
       const isStaff = staffSnapshot.exists() && staffSnapshot.data().active === true;
       const student = studentSnapshot.exists() ? studentSnapshot.data() : null;
       if (isStaff) {
-        window.location.replace('../professor/index.html');
+        // Professores podem conferir a experiência do aluno sem precisar criar
+        // uma matrícula fictícia. Este modo não representa uma compra e os
+        // scripts da área do aluno não registram progresso, provas ou pedidos.
+        document.documentElement.dataset.studentPreview = 'staff';
+        document.querySelector('[data-staff-preview-notice]')?.removeAttribute('hidden');
+        document.querySelector('[data-staff-preview-back]')?.removeAttribute('hidden');
+        window.empStudentSession = { user, student, isStaff: true, staff: staffSnapshot.data(), preview: true };
+        document.dispatchEvent(new CustomEvent('student:authorized', { detail: window.empStudentSession }));
         return;
       }
       const isEnrolled = student?.enrollmentStatus === 'paid';

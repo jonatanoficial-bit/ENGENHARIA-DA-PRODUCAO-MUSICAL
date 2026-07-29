@@ -22,7 +22,11 @@ if (firebaseReady && root) {
         firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'students', user.uid))
       ]);
       if (staffSnapshot.exists() && staffSnapshot.data().active === true) {
-        window.location.replace('../professor/index.html');
+        const staff = staffSnapshot.data();
+        const name = staff.name || user.displayName || 'Professor(a)';
+        root.innerHTML = `<p class="eyebrow">Visualização docente</p><h1>${safe(name)}</h1><p class="lede">Você está visualizando o perfil que um aluno veria, sem criar uma matrícula ou alterar registros acadêmicos.</p>`;
+        details.hidden = false;
+        details.innerHTML = `<article><span>Conta Google</span><strong>${safe(user.email || '—')}</strong></article><article><span>Perfil de acesso</span><strong>${safe(staff.role || 'teacher')}</strong></article><article><span>Modo atual</span><strong class="profile-status profile-status--ok">Visualização do aluno</strong></article><article><span>Matrícula</span><strong>Não exigida para docentes ativos</strong></article>`;
         return;
       }
       if (!studentSnapshot.exists() || studentSnapshot.data().enrollmentStatus !== 'paid') {

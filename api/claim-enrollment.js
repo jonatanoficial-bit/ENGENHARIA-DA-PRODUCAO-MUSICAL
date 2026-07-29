@@ -17,6 +17,7 @@ module.exports = async (request, response) => {
     return response.status(200).json({ status: 'paid', plan: enrollment.plan || 'curso' });
   } catch (error) {
     console.error('Erro ao vincular matrícula', error);
-    return response.status(500).json({ error: 'Não foi possível validar a matrícula' });
+    const isConfigurationError = /Firebase Admin|FIREBASE_SERVICE_ACCOUNT_JSON/.test(String(error?.message || ''));
+    return response.status(isConfigurationError ? 503 : 500).json({ error: isConfigurationError ? 'Integração do Firebase Admin pendente na Vercel' : 'Não foi possível validar a matrícula' });
   }
 };

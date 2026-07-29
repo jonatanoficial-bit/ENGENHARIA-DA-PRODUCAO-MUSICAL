@@ -1,0 +1,73 @@
+TESTE REAL — HOTMART, FIREBASE E ÁREA DO ALUNO
+Engenharia da Produção Musical™
+
+OBJETIVO
+
+Confirmar a jornada inteira de matrícula:
+Hotmart (compra aprovada) > Webhook Vercel > Firestore > login Google > Área do Aluno.
+
+ANTES DE TESTAR
+
+1. Na Vercel > projeto > Settings > Environment Variables, confirme estas variáveis
+   para Production, Preview e Development:
+
+   HOTMART_HOTTOK = o mesmo Hottok informado na configuração de Webhook da Hotmart
+   FIRESTORE_DATABASE_ID = default
+
+   Escolha UMA das duas formas de credencial Firebase Admin:
+
+   FORMA A (recomendada):
+   FIREBASE_SERVICE_ACCOUNT_JSON = cole o conteúdo inteiro do arquivo JSON de
+   conta de serviço do Firebase/Google Cloud em uma única linha.
+
+   FORMA B:
+   FIREBASE_PROJECT_ID = engenharia-producao-musical
+   FIREBASE_CLIENT_EMAIL = e-mail client_email do JSON de conta de serviço
+   FIREBASE_PRIVATE_KEY = private_key do JSON, preservando os caracteres \n
+
+2. Depois de salvar qualquer variável, faça Redeploy do último deployment na Vercel.
+
+3. Na Hotmart > Ferramentas > Webhook (API e notificações), a URL deve ser:
+   https://engenharia-da-producao-musical.vercel.app/api/hotmart-webhook
+
+   Marque, no mínimo: Compra aprovada e Compra completa.
+   Recomenda-se também: Compra reembolsada, Compra cancelada, Chargeback,
+   Compra expirada e Compra atrasada.
+
+TESTE INDICADO
+
+A Hotmart não permite cupom de 100%. O cupom de 99% usado por você é uma boa
+forma de teste real, pois gera uma transação verdadeira e paga.
+
+1. Crie ou use um Gmail de teste que NÃO seja conta de professor no Firebase.
+2. Com o navegador anônimo, compre por um dos links Hotmart usando esse MESMO
+   Gmail de teste no campo de comprador.
+3. Aguarde a Hotmart marcar a transação como “Compra aprovada”.
+4. Vá a Hotmart > Ferramentas > Webhook > Histórico:
+   - HTTP 200: a Hotmart conseguiu entregar o evento ao site.
+   - HTTP 401: Hottok da Hotmart é diferente de HOTMART_HOTTOK na Vercel.
+   - HTTP 503: faltam ou estão inválidas as credenciais Firebase Admin na Vercel.
+   - HTTP 500: abra Vercel > Functions > Logs e copie o erro para a equipe.
+5. Em Firebase > Firestore > Dados, após um HTTP 200 deve aparecer:
+   - sales > documento da transação
+   - enrollments > documento com hash do e-mail
+6. Abra o site em janela anônima e entre como ALUNO com o mesmo Gmail usado
+   no checkout. O site vincula automaticamente esse e-mail à conta Google e
+   cria students > UID com enrollmentStatus: paid.
+7. Atualize a página. A Área do Aluno deve permanecer aberta e a coleção
+   students deve mostrar o documento do UID do Gmail de teste.
+
+ATENÇÃO
+
+- O botão “Enviar teste de configuração” da Hotmart confirma somente que a URL
+  responde. O evento de teste pode não conter e-mail de comprador; portanto ele
+  não cria matrícula. A compra de R$ 1,00 é o teste completo.
+- O e-mail do checkout e o e-mail da conta Google precisam ser idênticos.
+- Não crie manualmente um documento students para esse Gmail antes do teste:
+  isso esconderia uma falha da automação.
+- Professores ativos podem usar “Visualizar como aluno”; essa prévia não cria
+  matrícula e não altera progresso, provas ou solicitações.
+
+FIM DO TESTE
+
+Depois de confirmar, desative ou expire o cupom de 99% para evitar uso indevido.

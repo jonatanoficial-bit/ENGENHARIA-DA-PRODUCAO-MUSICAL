@@ -21,11 +21,23 @@ const withTimeout = (promise, ms = 12000) => Promise.race([
 const sendToStudent = async (user) => {
   try {
     const idToken = await user.getIdToken();
-    await fetch('../api/claim-enrollment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
+    const response = await fetch('../api/claim-enrollment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
+    const result = await response.json().catch(() => ({}));
+    if (response.ok && result.status === 'paid') {
+      window.location.assign('../aluno/index.html');
+      return;
+    }
+    if (response.status === 403 && result.status === 'pending') {
+      setStatus('Compra ainda não localizada. Confirme se o e-mail usado na Hotmart é exatamente o mesmo da conta Google e se o Webhook recebeu “Compra aprovada”.');
+      setLoading(false);
+      return;
+    }
+    setStatus('A matrícula não pôde ser confirmada. Verifique as variáveis Firebase Admin e o histórico do Webhook na Hotmart.');
+    setLoading(false);
   } catch {
-    // A proteção da Área do Aluno verifica a matrícula novamente no Firestore.
+    setStatus('Não foi possível validar a matrícula agora. Verifique o histórico do Webhook e tente novamente em alguns instantes.');
+    setLoading(false);
   }
-  window.location.assign('../aluno/index.html');
 };
 
 if (!firebaseReady) {
@@ -51,8 +63,12 @@ if (!firebaseReady) {
         setLoading(false);
         return;
       }
-      if (isTeacher) {
+      if (isTeacher && requestedRole === 'teacher') {
         window.location.assign('../professor/index.html');
+        return;
+      }
+      if (isTeacher && requestedRole === 'student') {
+        window.location.assign('../aluno/index.html');
         return;
       }
       await sendToStudent(user);

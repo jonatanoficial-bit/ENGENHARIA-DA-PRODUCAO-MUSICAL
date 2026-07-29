@@ -42,6 +42,7 @@ module.exports = async (request, response) => {
     return response.status(200).json({ received: true });
   } catch (error) {
     console.error('Erro Hotmart webhook', error);
-    return response.status(500).json({ error: 'Não foi possível processar o evento' });
+    const isConfigurationError = /Firebase Admin|FIREBASE_SERVICE_ACCOUNT_JSON/.test(String(error?.message || ''));
+    return response.status(isConfigurationError ? 503 : 500).json({ error: isConfigurationError ? 'Integração do Firebase Admin pendente na Vercel' : 'Não foi possível processar o evento' });
   }
 };

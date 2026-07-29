@@ -63,6 +63,7 @@
   const stored = JSON.parse(localStorage.getItem(stateKey) || '{"passed":[]}');
   const state = {passed:Array.isArray(stored.passed) ? stored.passed : [], selected:0};
   let remoteProgress = null;
+  let staffPreview = false;
   const modulesNode = catalogRoot.querySelector('.course-modules');
   const lessonsNode = catalogRoot.querySelector('.course-lessons');
   const playerNode = document.querySelector('[data-course-player]');
@@ -75,6 +76,7 @@
   courseStart.setHours(0,0,0,0);
 
   function save(){
+    if (staffPreview) return;
     localStorage.setItem(stateKey,JSON.stringify({passed:state.passed}));
     if (remoteProgress) {
       const percent = Math.round((state.passed.length / modules.length) * 100);
@@ -124,7 +126,8 @@
     const form=quizNode.querySelector('[data-module-quiz]');
     if(form) form.addEventListener('submit',event=>{
       event.preventDefault(); const data=new FormData(form); const ok=data.get('focus')===quizPrompts[state.selected]&&data.get('schedule')==='0'; const result=form.querySelector('[data-quiz-result]');
-      if(ok){ state.passed.push(module.id); save(); result.textContent='Avaliação aprovada. Próximo módulo registrado na sua trilha.'; result.className='quiz-result quiz-result--pass'; renderModules(); updateProgress(); }
+      if(ok && staffPreview){ result.textContent='Resposta correta. No modo de visualização docente, nenhum progresso é registrado.'; result.className='quiz-result quiz-result--pass'; }
+      else if(ok){ state.passed.push(module.id); save(); result.textContent='Avaliação aprovada. Próximo módulo registrado na sua trilha.'; result.className='quiz-result quiz-result--pass'; renderModules(); updateProgress(); }
       else { result.textContent='Ainda não foi desta vez. Revise a aula e tente novamente.'; result.className='quiz-result quiz-result--fail'; }
     });
   }
@@ -144,12 +147,20 @@
     const { auth, authSdk, db, firestoreSdk } = await firebaseReady;
     authSdk.onAuthStateChanged(auth, async (user) => {
       if (!user) return;
-      remoteProgress = { db, uid: user.uid, doc: firestoreSdk.doc, setDoc: firestoreSdk.setDoc, serverTimestamp: firestoreSdk.serverTimestamp };
       try {
-        const [snapshot, studentSnapshot] = await Promise.all([
+        const [staffSnapshot, snapshot, studentSnapshot] = await Promise.all([
+          firestoreSdk.getDoc(firestoreSdk.doc(db, 'staff', user.uid)),
           firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid, 'progress', 'catalog')),
           firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid))
         ]);
+        staffPreview = staffSnapshot.exists() && staffSnapshot.data().active === true;
+        if (staffPreview) {
+          state.passed = [];
+          remoteProgress = null;
+          render();
+          return;
+        }
+        remoteProgress = { db, uid: user.uid, doc: firestoreSdk.doc, setDoc: firestoreSdk.setDoc, serverTimestamp: firestoreSdk.serverTimestamp };
         const remoteCourseStart = studentSnapshot.exists() ? studentSnapshot.data().courseStart : '';
         if (remoteCourseStart) {
           const parsedCourseStart = new Date(`${remoteCourseStart}T00:00:00`);
