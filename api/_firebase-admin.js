@@ -1,4 +1,6 @@
-const admin = require('firebase-admin');
+const { cert, getApps, initializeApp } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
+const { FieldValue, getFirestore } = require('firebase-admin/firestore');
 
 function serviceAccount() {
   const rawJson = (process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '').trim();
@@ -29,15 +31,24 @@ function serviceAccount() {
   };
 }
 
-function getAdmin() {
-  if (!admin.apps.length) {
-    admin.initializeApp({ credential: admin.credential.cert(serviceAccount()) });
+function getApp() {
+  if (!getApps().length) {
+    initializeApp({ credential: cert(serviceAccount()) });
   }
-  return admin;
+  return getApps()[0];
 }
 
 function getDb() {
-  return getAdmin().firestore(process.env.FIRESTORE_DATABASE_ID || 'default');
+  const databaseId = String(process.env.FIRESTORE_DATABASE_ID || 'default').trim() || 'default';
+  return getFirestore(getApp(), databaseId);
 }
 
-module.exports = { getAdmin, getDb };
+function getFirebaseAuth() {
+  return getAuth(getApp());
+}
+
+function serverTimestamp() {
+  return FieldValue.serverTimestamp();
+}
+
+module.exports = { getApp, getDb, getFirebaseAuth, serverTimestamp };

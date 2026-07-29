@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { getAdmin, getDb } = require('./_firebase-admin');
+const { getDb, getFirebaseAuth, serverTimestamp } = require('./_firebase-admin');
 const emailKey = (email) => crypto.createHash('sha256').update(String(email).trim().toLowerCase()).digest('hex');
 
 // O webhook grava a venda aprovada e a matrícula por e-mail. Esta recuperação
@@ -17,11 +17,11 @@ module.exports = async (request, response) => {
   try {
     const body = typeof request.body === 'string' ? JSON.parse(request.body || '{}') : (request.body || {});
     if (!body.idToken) return response.status(400).json({ error: 'Token de acesso ausente' });
-    const admin = getAdmin(); const decoded = await admin.auth().verifyIdToken(body.idToken);
+    const decoded = await getFirebaseAuth().verifyIdToken(body.idToken);
     const email = String(decoded.email || '').trim().toLowerCase();
     if (!email) return response.status(403).json({ error: 'A conta Google não possui e-mail' });
     const db = getDb(); const enrollmentRef = db.collection('enrollments').doc(emailKey(email)); const enrollmentSnapshot = await enrollmentRef.get();
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = serverTimestamp();
     let enrollment = enrollmentSnapshot.exists ? enrollmentSnapshot.data() : null;
     let recovered = false;
 
