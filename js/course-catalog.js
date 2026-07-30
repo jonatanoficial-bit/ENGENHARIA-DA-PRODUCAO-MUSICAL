@@ -64,6 +64,8 @@
   const state = {passed:Array.isArray(stored.passed) ? stored.passed : [], selected:0};
   let remoteProgress = null;
   let staffPreview = false;
+  const remoteLessons = new Map();
+  let stopRemoteLessons = null;
   const modulesNode = catalogRoot.querySelector('.course-modules');
   const lessonsNode = catalogRoot.querySelector('.course-lessons');
   const playerNode = document.querySelector('[data-course-player]');
@@ -88,6 +90,7 @@
   function lessonOffset(moduleIndex,lessonIndex){ return modules.slice(0,moduleIndex).reduce((sum,module)=>sum+module.lessons.length,0)+lessonIndex; }
   function moduleAllowed(moduleIndex){ return moduleIndex === 0 || state.passed.includes(modules[moduleIndex-1].id); }
   function lessonAvailable(moduleIndex,lessonIndex){ return moduleAllowed(moduleIndex) && new Date() >= releaseDate(lessonOffset(moduleIndex,lessonIndex)); }
+  function lessonVideo(moduleIndex, lessonIndex){ return remoteLessons.get(`${modules[moduleIndex].id.toLowerCase()}a${String(lessonIndex + 1).padStart(2, '0')}`); }
   function updateProgress(){
     const percent = Math.round((state.passed.length / modules.length) * 100);
     if(progressNode) progressNode.textContent = `${state.passed.length} de ${modules.length} módulos concluídos`;
@@ -104,9 +107,11 @@
     const module = modules[state.selected];
     const allowed = moduleAllowed(state.selected);
     const lessonItems = module.lessons.map((lesson,index)=>{
-      const available = lessonAvailable(state.selected,index);
+      const scheduled = lessonAvailable(state.selected,index);
+      const remoteVideo = lessonVideo(state.selected, index);
+      const available = scheduled && !(remoteVideo && (!remoteVideo.published || !remoteVideo.videoId));
       const schedule = releaseDate(lessonOffset(state.selected,index));
-      const status = !allowed ? 'Conclua a avaliação anterior' : available ? 'Disponível agora' : `Liberação: ${dayLabel(schedule)}`;
+      const status = !allowed ? 'Conclua a avaliação anterior' : !scheduled ? `Liberação: ${dayLabel(schedule)}` : remoteVideo && !remoteVideo.published ? 'Gravação em preparação' : available ? 'Disponível agora' : 'Gravação em preparação';
       return `<li class="lesson-item ${available?'lesson-item--available':''}" ${available?`data-play-lesson="${index}" tabindex="0" role="button"`:''}><span class="lesson-item__icon">${available?'▶':'🔒'}</span><span class="lesson-item__main"><span class="lesson-item__title">Aula ${String(index+1).padStart(2,'0')} · ${escapeHtml(lesson)}</span><span class="lesson-item__meta">Ao vivo + gravação · cerca de 50 min</span></span><span class="lesson-item__status">${status}</span></li>`;
     }).join('');
     lessonsNode.innerHTML = `<div class="course-lessons__head" style="--selected-module-art:url('${module.art}')"><div><p class="eyebrow">${module.id}</p><h3>${escapeHtml(module.title)}</h3><p class="course-instructor">Condução: ${escapeHtml(module.instructor)}</p></div><span class="badge">${module.lessons.length} aulas</span></div><ul class="lesson-list">${lessonItems}</ul>`;
@@ -132,11 +137,11 @@
     });
   }
   function openLesson(moduleIndex,lessonIndex){
-    const module=modules[moduleIndex]; const title=module.lessons[lessonIndex];
+    const module=modules[moduleIndex]; const remoteVideo = lessonVideo(moduleIndex, lessonIndex); const title=remoteVideo?.title || module.lessons[lessonIndex];
     const key=`${module.id.toLowerCase()}a${String(lessonIndex+1).padStart(2,'0')}`;
-    const embeds=window.EPM_YOUTUBE_EMBEDS || {}; const id=embeds[key];
+    const embeds=window.EPM_YOUTUBE_EMBEDS || {}; const id=remoteVideo ? (remoteVideo.published ? remoteVideo.videoId : '') : embeds[key];
     playerNode.classList.add('is-visible');
-    playerNode.innerHTML=`<div class="course-player__bar"><div><p class="eyebrow">${module.id} · Aula ${String(lessonIndex+1).padStart(2,'0')}</p><h3>${escapeHtml(title)}</h3><p class="course-instructor">${escapeHtml(module.instructor)}</p></div><span class="badge">Disponível</span></div><div class="course-player__stage">${id?`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}" title="${escapeHtml(title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`:'<div class="course-player__placeholder"><span class="video-stage__play">▶</span><h4>Gravação a ser incorporada</h4><p>Após a aula ao vivo, a coordenação adiciona aqui o código de incorporação do YouTube não listado. Consulte o arquivo YOUTUBE-EMBEDS.md do projeto.</p></div>'}</div>`;
+    playerNode.innerHTML=`<div class="course-player__bar"><div><p class="eyebrow">${module.id} · Aula ${String(lessonIndex+1).padStart(2,'0')}</p><h3>${escapeHtml(title)}</h3><p class="course-instructor">${escapeHtml(module.instructor)}</p></div><span class="badge">Disponível</span></div><div class="course-player__stage">${id?`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}" title="${escapeHtml(title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`:'<div class="course-player__placeholder"><span class="video-stage__play">▶</span><h4>Gravação em preparação</h4><p>A equipe acadêmica ainda não publicou a gravação desta aula. Assim que o professor salvar o vídeo, ela aparecerá aqui automaticamente, sem atualização manual do site.</p></div>'}</div>`;
     playerNode.scrollIntoView({behavior:'smooth',block:'start'}); renderQuiz();
   }
   function render(){ renderModules(); renderLessons(); renderQuiz(); updateProgress(); }
@@ -146,7 +151,12 @@
     if (!firebaseReady) return;
     const { auth, authSdk, db, firestoreSdk } = await firebaseReady;
     authSdk.onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
+      if (!user) {
+        if (stopRemoteLessons) { stopRemoteLessons(); stopRemoteLessons = null; }
+        remoteLessons.clear();
+        renderLessons();
+        return;
+      }
       try {
         const [staffSnapshot, snapshot, studentSnapshot] = await Promise.all([
           firestoreSdk.getDoc(firestoreSdk.doc(db, 'staff', user.uid)),
@@ -154,6 +164,15 @@
           firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid))
         ]);
         staffPreview = staffSnapshot.exists() && staffSnapshot.data().active === true;
+        if (stopRemoteLessons) stopRemoteLessons();
+        stopRemoteLessons = firestoreSdk.onSnapshot(firestoreSdk.collection(db, 'courseLessons'), (lessonSnapshot) => {
+          remoteLessons.clear();
+          lessonSnapshot.docs.forEach((entry) => {
+            const item = entry.data();
+            if (item.moduleId && item.lessonNumber) remoteLessons.set(`${String(item.moduleId).toLowerCase()}a${String(item.lessonNumber).padStart(2, '0')}`, item);
+          });
+          renderLessons();
+        }, () => { /* O catálogo continua com o conteúdo de demonstração até as regras serem publicadas. */ });
         if (staffPreview) {
           state.passed = [];
           remoteProgress = null;

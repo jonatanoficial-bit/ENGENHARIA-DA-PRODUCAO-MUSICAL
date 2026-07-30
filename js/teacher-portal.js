@@ -8,6 +8,20 @@ const formatDate = (value) => {
   return Number.isNaN(date.getTime()) ? '—' : new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(date);
 };
 const formatMoney = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value || 0));
+const timestampValue = (value) => {
+  if (!value) return 0;
+  if (value.toDate) return value.toDate().getTime();
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+const lessonKey = (module, lessonNumber) => `${String(module).toLowerCase()}a${String(lessonNumber).padStart(2, '0')}`;
+const extractYoutubeId = (value) => {
+  const raw = String(value || '').trim().replace(/&amp;/g, '&');
+  const source = raw.match(/src=["']([^"']+)["']/i)?.[1] || raw;
+  const match = source.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?v=|shorts\/))([A-Za-z0-9_-]{11})/i)
+    || source.match(/^([A-Za-z0-9_-]{11})$/);
+  return match ? match[1] : '';
+};
 
 try {
   const { user } = await authorized;
@@ -19,12 +33,14 @@ try {
   const requestsNode = document.querySelector('[data-mentorship-requests]');
   const sessionsNode = document.querySelector('[data-live-session-list]');
   const salesNode = document.querySelector('[data-finance-sales]');
+  const enrollmentSummary = document.querySelector('[data-enrollment-summary]');
+  const videoListNode = document.querySelector('[data-video-list]');
   let rosterStudents = [];
 
   async function loadStudents() {
     const snapshot = await getDocs(query(collection(db, 'students'), orderBy('name'), limit(100)));
     const students = snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() }));
-    roster.innerHTML = students.length ? students.map((student) => `<tr><td><strong>${safe(student.name || student.email || 'Aluno sem nome')}</strong><small>${safe(student.email || student.id)}</small></td><td>${safe(student.plan || 'A definir')}</td><td><span class="teacher-status ${student.enrollmentStatus === 'paid' ? 'teacher-status--ok' : ''}">${safe(student.enrollmentStatus || 'Pendente')}</span></td><td>${formatDate(student.courseStart)}<button type="button" class="teacher-link" data-course-start-student="${safe(student.id)}">Definir início</button></td><td>${student.driveFolderUrl ? `<a href="${safe(student.driveFolderUrl)}" target="_blank" rel="noopener">Abrir pasta</a>` : `<button type="button" class="teacher-link" data-drive-student="${safe(student.id)}">Vincular pasta</button>`}</td></tr>`).join('') : '<tr><td colspan="5">Nenhuma matrícula ativa foi criada no Firestore ainda.</td></tr>';
+    roster.innerHTML = students.length ? students.map((student) => `<tr><td data-label="Aluno"><strong>${safe(student.name || student.email || 'Aluno sem nome')}</strong><small>${safe(student.email || student.id)}</small></td><td data-label="Plano">${safe(student.plan || 'A definir')}</td><td data-label="Status"><span class="teacher-status ${student.enrollmentStatus === 'paid' ? 'teacher-status--ok' : ''}">${safe(student.enrollmentStatus || 'Pendente')}</span></td><td data-label="Início">${formatDate(student.courseStart)}<button type="button" class="teacher-link" data-course-start-student="${safe(student.id)}">Definir início</button></td><td data-label="Drive">${student.driveFolderUrl ? `<a href="${safe(student.driveFolderUrl)}" target="_blank" rel="noopener">Abrir pasta</a>` : `<button type="button" class="teacher-link" data-drive-student="${safe(student.id)}">Vincular pasta</button>`}</td></tr>`).join('') : '<tr><td colspan="5">Nenhum acesso de aluno foi ativado ainda.</td></tr>';
     roster.querySelectorAll('[data-drive-student]').forEach((button) => button.addEventListener('click', async () => {
       const driveFolderUrl = window.prompt('Cole o link da pasta individual do Google Drive deste aluno:');
       if (!driveFolderUrl) return;
@@ -78,26 +94,96 @@ try {
     try {
       const snapshot = await getDocs(query(collection(db, 'sales'), limit(100)));
       const sales = snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() }));
-      const approved = sales.filter((sale) => sale.status === 'approved');
+      const approved = sales.filter((sale) => sale.status === 'approved').sort((first, second) => timestampValue(second.approvedAt || second.updatedAt) - timestampValue(first.approvedAt || first.updatedAt));
       const gross = approved.reduce((total, sale) => total + Number(sale.grossAmount || 0), 0);
       const commission = approved.reduce((total, sale) => total + Number(sale.commissionAmount || 0), 0);
       const rate = gross > 0 && commission > 0 ? Math.round((commission / gross) * 100) : null;
-      if (salesNode) salesNode.innerHTML = approved.length ? `<div class="teacher-table-wrap"><table class="teacher-table"><thead><tr><th>Aluno</th><th>Plano</th><th>Compra</th><th>Bruto</th><th>Comissão</th></tr></thead><tbody>${approved.slice(0, 12).map((sale) => `<tr><td>${safe(sale.buyerName || sale.buyerEmail || '—')}</td><td>${safe(sale.plan || sale.offerName || '—')}</td><td>${formatDate(sale.approvedAt || sale.updatedAt)}</td><td>${formatMoney(sale.grossAmount)}</td><td>${sale.commissionAmount ? `${formatMoney(sale.commissionAmount)}${sale.commissionPercentage ? ` (${safe(sale.commissionPercentage)}%)` : ''}` : 'Aguardando dado'}</td></tr>`).join('')}</tbody></table></div>` : '<p>Ainda não há vendas aprovadas registradas pelo webhook.</p>';
-      return { gross, commission, rate };
+      const claimedEmails = new Set(rosterStudents.map((student) => String(student.email || '').trim().toLowerCase()).filter(Boolean));
+      const waiting = approved.filter((sale) => !claimedEmails.has(String(sale.buyerEmail || '').trim().toLowerCase()));
+      if (enrollmentSummary) {
+        enrollmentSummary.innerHTML = `<p><strong>${approved.length}</strong> compra${approved.length === 1 ? '' : 's'} aprovada${approved.length === 1 ? '' : 's'} recebida${approved.length === 1 ? '' : 's'} pela Hotmart · <strong>${rosterStudents.filter((student) => student.enrollmentStatus === 'paid').length}</strong> acesso${rosterStudents.filter((student) => student.enrollmentStatus === 'paid').length === 1 ? '' : 's'} ativado${rosterStudents.filter((student) => student.enrollmentStatus === 'paid').length === 1 ? '' : 's'} no Firebase.${waiting.length ? ` ${waiting.length} compra${waiting.length === 1 ? '' : 's'} aguarda${waiting.length === 1 ? '' : 'm'} o primeiro login do comprador: ${safe(waiting.map((sale) => sale.buyerEmail).filter(Boolean).join(', '))}.` : ' Todos os compradores aprovados já ativaram o acesso.'}</p>`;
+      }
+      if (salesNode) salesNode.innerHTML = approved.length ? `<div class="teacher-table-wrap"><table class="teacher-table teacher-table--sales"><thead><tr><th>Aluno</th><th>Plano</th><th>Compra</th><th>Bruto</th><th>Acesso</th><th>Comissão</th></tr></thead><tbody>${approved.map((sale) => { const email = String(sale.buyerEmail || '').trim().toLowerCase(); const active = claimedEmails.has(email); return `<tr><td data-label="Aluno"><strong>${safe(sale.buyerName || sale.buyerEmail || '—')}</strong><small>${safe(sale.buyerEmail || '')}</small></td><td data-label="Plano">${safe(sale.plan || sale.offerName || '—')}</td><td data-label="Compra">${formatDate(sale.approvedAt || sale.updatedAt)}</td><td data-label="Bruto">${formatMoney(sale.grossAmount)}</td><td data-label="Acesso"><span class="teacher-status ${active ? 'teacher-status--ok' : ''}">${active ? 'Ativado' : 'Aguardando primeiro login'}</span></td><td data-label="Comissão">${sale.commissionAmount ? `${formatMoney(sale.commissionAmount)}${sale.commissionPercentage ? ` (${safe(sale.commissionPercentage)}%)` : ''}` : 'Aguardando dado'}</td></tr>`; }).join('')}</tbody></table></div>` : '<p>Ainda não há vendas aprovadas registradas pelo webhook.</p>';
+      return { gross, commission, rate, approved };
     } catch {
       if (salesNode) salesNode.innerHTML = '<p>Os indicadores financeiros aparecerão após a publicação da rota Hotmart e das regras do Firestore.</p>';
-      return { gross: 0, commission: 0, rate: null };
+      return { gross: 0, commission: 0, rate: null, approved: [] };
     }
   }
 
-  const [students, assessments, requestCount, finance] = await Promise.all([loadStudents(), loadAssessments(), loadRequests(), loadSales()]);
+  const [students, assessments, requestCount] = await Promise.all([loadStudents(), loadAssessments(), loadRequests()]);
+  const finance = await loadSales();
   await loadSessions();
   const metricValues = metrics.querySelectorAll('strong');
   metricValues[0].textContent = students.filter((student) => student.enrollmentStatus === 'paid').length;
-  metricValues[1].textContent = assessments.length;
-  metricValues[2].textContent = requestCount;
-  metricValues[3].textContent = formatMoney(finance.gross);
-  metricValues[4].textContent = finance.rate === null ? '—' : `${finance.rate}%`;
+  metricValues[1].textContent = finance.approved.length;
+  metricValues[2].textContent = assessments.length;
+  metricValues[3].textContent = requestCount;
+  metricValues[4].textContent = formatMoney(finance.gross);
+  metricValues[5].textContent = finance.rate === null ? '—' : `${finance.rate}%`;
+
+  async function loadCourseVideos() {
+    if (!videoListNode) return;
+    try {
+      const snapshot = await getDocs(query(collection(db, 'courseLessons'), limit(500)));
+      const videos = snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() }))
+        .sort((first, second) => String(first.moduleId || '').localeCompare(String(second.moduleId || '')) || Number(first.lessonNumber || 0) - Number(second.lessonNumber || 0));
+      videoListNode.innerHTML = videos.length ? videos.map((video) => `<article class="teacher-video-item"><div><strong>${safe(video.moduleId || 'Módulo')} · Aula ${String(video.lessonNumber || 0).padStart(2, '0')}${video.title ? ` · ${safe(video.title)}` : ''}</strong><span>${video.published ? 'Vídeo disponível para a data de liberação da turma.' : 'Vídeo salvo como rascunho; ainda não aparece aos alunos.'}</span><span class="teacher-status ${video.published ? 'teacher-status--ok' : ''}">${video.published ? 'Publicado' : 'Rascunho'}</span></div><button class="button button--quiet" type="button" data-toggle-video="${safe(video.id)}" data-next-status="${video.published ? 'false' : 'true'}">${video.published ? 'Despublicar' : 'Publicar'}</button></article>`).join('') : '<p>Nenhum vídeo foi salvo ainda. Publique a primeira gravação acima.</p>';
+      videoListNode.querySelectorAll('[data-toggle-video]').forEach((button) => button.addEventListener('click', async () => {
+        try {
+          await setDoc(doc(db, 'courseLessons', button.dataset.toggleVideo), { published: button.dataset.nextStatus === 'true', updatedAt: serverTimestamp(), updatedBy: user.uid }, { merge: true });
+          await loadCourseVideos();
+        } catch {
+          window.alert('Não foi possível atualizar o vídeo. Publique as regras do Firestore indicadas no guia da área do professor.');
+        }
+      }));
+    } catch {
+      videoListNode.innerHTML = '<p>Não foi possível carregar a lista de vídeos. Verifique se as regras do Firestore incluem a coleção courseLessons.</p>';
+    }
+  }
+
+  await loadCourseVideos();
+
+  document.querySelector('[data-video-publish]')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const feedback = form.querySelector('[data-video-feedback]');
+    const moduleId = String(data.get('module') || '');
+    const lessonNumber = Number(data.get('lessonNumber'));
+    const videoId = extractYoutubeId(data.get('youtube'));
+    if (!/^M(0[1-9]|1\d|20)$/.test(moduleId) || !Number.isInteger(lessonNumber) || lessonNumber < 1 || lessonNumber > 20) {
+      feedback.textContent = 'Escolha um módulo e um número de aula válidos.';
+      feedback.className = 'form-feedback form-feedback--error';
+      return;
+    }
+    if (!videoId) {
+      feedback.textContent = 'Não reconheci o vídeo. Cole um link do YouTube, um link youtu.be ou o código iframe completo.';
+      feedback.className = 'form-feedback form-feedback--error';
+      return;
+    }
+    try {
+      await setDoc(doc(db, 'courseLessons', lessonKey(moduleId, lessonNumber)), {
+        moduleId,
+        lessonNumber,
+        title: String(data.get('title') || '').trim(),
+        videoId,
+        published: data.get('published') === 'on',
+        provider: 'youtube',
+        updatedAt: serverTimestamp(),
+        updatedBy: user.uid
+      }, { merge: true });
+      feedback.textContent = 'Vídeo salvo. Ele será exibido automaticamente aos alunos na data prevista do calendário.';
+      feedback.className = 'form-feedback form-feedback--ok';
+      form.reset();
+      form.elements.lessonNumber.value = '1';
+      form.elements.published.checked = true;
+      await loadCourseVideos();
+    } catch {
+      feedback.textContent = 'Não foi possível salvar o vídeo. Publique as regras atualizadas do Firestore antes de tentar novamente.';
+      feedback.className = 'form-feedback form-feedback--error';
+    }
+  });
 
   document.querySelector('[data-create-assessment]')?.addEventListener('submit', async (event) => {
     event.preventDefault();

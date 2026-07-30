@@ -1,0 +1,39 @@
+/* Fase 18 — operação docente: publicação de aulas e leitura móvel sem corte lateral. */
+.teacher-form__split { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(8rem, .6fr); gap: .75rem; }
+.teacher-checkbox { display: flex !important; align-items: flex-start; gap: .6rem; font-weight: 500 !important; line-height: 1.45; }
+.teacher-checkbox input { width: auto !important; margin-top: .2rem; accent-color: #e4b44f; }
+.teacher-enrollment-summary { margin-top: 1rem; }
+.teacher-enrollment-summary p { margin: 0; padding: .85rem 1rem; border-left: .2rem solid #e2b64e; background: rgba(219,173,70,.08); color: #dce8ee; line-height: 1.5; }
+.teacher-video-list { display: grid; gap: .65rem; margin-top: 1rem; }
+.teacher-video-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .8rem; padding: .85rem 1rem; border: 1px solid rgba(255,255,255,.12); border-radius: .8rem; background: rgba(3,11,19,.36); }
+.teacher-video-item strong, .teacher-video-item span { display: block; }
+.teacher-video-item span { margin-top: .2rem; color: #aebdca; font-size: .84rem; }
+.teacher-video-item .teacher-status { margin-top: .38rem; }
+.teacher-table--sales td:last-child, .teacher-table--sales th:last-child { text-align: left; }
+
+@media (max-width: 760px) {
+  .teacher-header { min-height: 19rem; padding: 1.35rem; }
+  .teacher-header h1 { font-size: clamp(2rem, 11vw, 3rem); }
+  .teacher-metrics--expanded { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .teacher-metrics article { min-width: 0; padding: .9rem; }
+  .teacher-metrics strong { font-size: 1.45rem; overflow-wrap: anywhere; }
+  .teacher-grid { min-width: 0; }
+  .teacher-card { min-width: 0; padding: 1rem; }
+  .teacher-card__head { align-items: flex-start; }
+  .teacher-table-wrap { overflow: visible; }
+  .teacher-table--roster, .teacher-table--sales, .teacher-table--nested { min-width: 0; }
+  .teacher-table--roster thead, .teacher-table--sales thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .teacher-table--roster, .teacher-table--roster tbody, .teacher-table--roster tr, .teacher-table--roster td, .teacher-table--sales, .teacher-table--sales tbody, .teacher-table--sales tr, .teacher-table--sales td { display: block; width: 100%; }
+  .teacher-table--roster tr, .teacher-table--sales tr { margin: 0 0 .75rem; padding: .75rem; border: 1px solid rgba(255,255,255,.12); border-radius: .8rem; background: rgba(3,11,19,.35); }
+  .teacher-table--roster td, .teacher-table--sales td { display: grid; grid-template-columns: minmax(6.6rem, .8fr) minmax(0, 1.2fr); gap: .75rem; padding: .48rem 0; border: 0; overflow-wrap: anywhere; }
+  .teacher-table--roster td::before, .teacher-table--sales td::before { content: attr(data-label); color: #e7be61; font-size: .7rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+  .teacher-form__split { grid-template-columns: 1fr; }
+  .teacher-video-item { grid-template-columns: 1fr; }
+  .teacher-video-item .button { width: 100%; }
+}
+
+@media (max-width: 390px) { .teacher-metrics--expanded { grid-template-columns: 1fr; } }
+
+:root[data-theme='light'] .teacher-enrollment-summary p { background: #fff8e8; color: #243943; }
+:root[data-theme='light'] .teacher-video-item, :root[data-theme='light'] .teacher-table--roster tr, :root[data-theme='light'] .teacher-table--sales tr { border-color: rgba(23,42,55,.15); background: #f8fafb; }
+:root[data-theme='light'] .teacher-video-item span { color: #536670; }

@@ -1,7 +1,7 @@
-const CACHE_NAME = 'emp-v1-6-2';
+const CACHE_NAME = 'emp-v1-6-4';
 const APP_SHELL = [
   './', './index.html', './css/tokens.css', './css/base.css', './css/components.css',
-  './css/layout.css', './css/phase-2.css', './css/phase-3.css', './css/platform.css', './css/final-polish.css', './css/phase-12.css', './css/phase-13.css', './css/phase-14.css', './css/phase-15.css', './css/phase-16.css', './css/phase-17.css', './js/app.js', './js/home.js', './js/portal.js', './js/course-catalog.js', './js/student-assessments.js', './js/student-profile.js', './js/teacher-portal.js', './js/checkout-links.js', './js/smart-tools.js', './components/component-loader.js', './firebase/access-routing.js', './site.webmanifest'
+  './css/layout.css', './css/phase-2.css', './css/phase-3.css', './css/platform.css', './css/final-polish.css', './css/phase-12.css', './css/phase-13.css', './css/phase-14.css', './css/phase-15.css', './css/phase-16.css', './css/phase-17.css', './css/phase-18.css', './js/app.js', './js/home.js', './js/portal.js', './js/course-catalog.js', './js/student-assessments.js', './js/student-profile.js', './js/teacher-portal.js', './js/checkout-links.js', './js/smart-tools.js', './components/component-loader.js', './firebase/access-routing.js', './site.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {

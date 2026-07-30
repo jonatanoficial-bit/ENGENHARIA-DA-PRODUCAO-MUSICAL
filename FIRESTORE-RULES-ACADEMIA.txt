@@ -32,6 +32,11 @@ service cloud.firestore {
     function owns(studentId) {
       return signedIn() && request.auth.uid == studentId;
     }
+    function isPaidStudent() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/students/$(request.auth.uid))
+        && get(/databases/$(database)/documents/students/$(request.auth.uid)).data.enrollmentStatus == 'paid';
+    }
 
     match /staff/{staffId} {
       allow read: if owns(staffId) || isStaff();
@@ -47,6 +52,13 @@ service cloud.firestore {
       allow read: if owns(studentId) || isStaff();
       allow create, update: if owns(studentId) || isStaff();
       allow delete: if isStaff();
+    }
+
+    // Vídeos publicados pela equipe acadêmica. O aluno pago só pode ler;
+    // professores ativos podem publicar, editar e despublicar gravações.
+    match /courseLessons/{lessonId} {
+      allow read: if isStaff() || isPaidStudent();
+      allow create, update, delete: if isStaff();
     }
 
     match /assessments/{assessmentId} {

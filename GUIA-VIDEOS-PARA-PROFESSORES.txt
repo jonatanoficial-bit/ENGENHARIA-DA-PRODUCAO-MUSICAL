@@ -1,0 +1,39 @@
+GUIA RÁPIDO — PUBLICAÇÃO DE AULAS GRAVADAS
+ENGENHARIA DA PRODUÇÃO MUSICAL™
+
+OBJETIVO
+O professor publica uma gravação sem editar código, GitHub ou arquivos do site.
+O vídeo é hospedado no YouTube como NÃO LISTADO e passa a aparecer no painel do
+aluno automaticamente, respeitando a data prevista para cada aula.
+
+ANTES DA PRIMEIRA PUBLICAÇÃO (ADMINISTRAÇÃO — FAZER UMA ÚNICA VEZ)
+1. Abra Firebase Console > Firestore Database > Rules.
+2. Abra o arquivo FIRESTORE-RULES-ACADEMIA.txt deste projeto.
+3. Copie a regra COMPLETA do arquivo, substitua a regra atual e clique em Publicar.
+4. Confirme que o professor tem documento ativo em staff/UID com active: true.
+
+COMO PUBLICAR UMA AULA
+1. No YouTube Studio, envie a gravação e escolha Visibilidade: Não listado.
+2. Copie o link do vídeo (por exemplo, https://youtu.be/XXXXXXXXXXX).
+   Também é aceito o código iframe fornecido pelo YouTube.
+3. Entre no site em Área do professor.
+4. Abra o cartão “Publique um vídeo para a turma”.
+5. Escolha o módulo, informe o número da aula, cole o link e clique em
+   “Salvar vídeo da aula”.
+6. A confirmação verde indica que o vídeo foi salvo. A lista abaixo mostra
+   Publicado ou Rascunho.
+
+PUBLICADO OU RASCUNHO
+- Publicado: fica pronto para o aluno, mas só é aberto na data definida pelo
+  cronograma de duas aulas por semana.
+- Rascunho: fica guardado apenas para a equipe até ser publicado.
+- Despublicar: interrompe a exibição ao aluno sem apagar o registro do vídeo.
+
+SEGURANÇA E LIMITES
+- Nunca cole senha, chave Firebase, JSON administrativo ou credenciais no campo
+  do vídeo. Apenas o link/iframe de uma aula do YouTube.
+- “Não listado” evita que o vídeo apareça em pesquisas públicas; ainda assim,
+  qualquer pessoa com o link direto pode assisti-lo. Para maior controle futuro,
+  pode-se migrar a hospedagem para uma solução com DRM.
+- Esta publicação usa somente a coleção courseLessons. Não altera Hotmart,
+  pagamentos, vendas, matrículas ou configurações da Vercel.
