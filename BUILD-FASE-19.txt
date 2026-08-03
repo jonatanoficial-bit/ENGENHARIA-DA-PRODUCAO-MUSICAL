@@ -1,0 +1,5 @@
+ENGENHARIA DA PRODUCAO MUSICAL
+Release: v1.7.0
+Fase: 19 - Jornada academica, conclusao, atividades, projetos e matricula manual
+Build: 03/08/2026 17:18 BRT
+Checkout Hotmart e Firebase Admin: preservados sem alteracao de credenciais.

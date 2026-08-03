@@ -15,6 +15,12 @@ const timestampValue = (value) => {
   return Number.isNaN(parsed) ? 0 : parsed;
 };
 const lessonKey = (module, lessonNumber) => `${String(module).toLowerCase()}a${String(lessonNumber).padStart(2, '0')}`;
+const lessonCounts = { M01:4, M02:8, M03:8, M04:8, M05:10, M06:10, M07:12, M08:8, M09:8, M10:8, M11:10, M12:8, M13:12, M14:8, M15:8, M16:8, M17:8, M18:6, M19:6, M20:4 };
+const hashEmail = async (email) => {
+  const bytes = new TextEncoder().encode(String(email).trim().toLowerCase());
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('');
+};
 const extractYoutubeId = (value) => {
   const raw = String(value || '').trim().replace(/&amp;/g, '&');
   const source = raw.match(/src=["']([^"']+)["']/i)?.[1] || raw;
@@ -35,6 +41,7 @@ try {
   const salesNode = document.querySelector('[data-finance-sales]');
   const enrollmentSummary = document.querySelector('[data-enrollment-summary]');
   const videoListNode = document.querySelector('[data-video-list]');
+  const projectGradesNode = document.querySelector('[data-project-grade-list]');
   let rosterStudents = [];
 
   async function loadStudents() {
@@ -111,9 +118,25 @@ try {
     }
   }
 
+  async function loadProjectGrades() {
+    if (!projectGradesNode) return;
+    const entries = [];
+    await Promise.all(rosterStudents.map(async (student) => {
+      const snapshot = await getDocs(collection(db, 'students', student.id, 'projects'));
+      snapshot.docs.forEach((entry) => entries.push({ student, id: entry.id, ...entry.data() }));
+    }));
+    projectGradesNode.innerHTML = entries.length ? `<div class="teacher-table-wrap"><table class="teacher-table"><thead><tr><th>Aluno</th><th>Projeto</th><th>Entrega</th><th>Nota</th><th>Feedback</th></tr></thead><tbody>${entries.map((item) => `<tr><td data-label="Aluno">${safe(item.student?.name || item.studentEmail || 'Aluno')}</td><td data-label="Projeto">${item.kind === 'final' ? 'Produção final (M19)' : 'Projeto contínuo'}</td><td data-label="Entrega">${item.driveUrl ? `<a href="${safe(item.driveUrl)}" target="_blank" rel="noopener">Abrir entrega</a>` : 'Sem link'}<small>${safe(item.notes || '')}</small></td><td data-label="Nota"><form class="grade-form" data-project-grade="${safe(item.student.id)}" data-project-kind="${safe(item.id)}"><input name="score" type="number" min="0" max="100" value="${item.score ?? ''}" required aria-label="Nota"><input name="feedback" maxlength="350" value="${safe(item.feedback || '')}" placeholder="Feedback"><button type="submit">Salvar</button></form></td><td data-label="Status">${item.status === 'graded' ? 'Corrigido' : 'Aguardando'}</td></tr>`).join('')}</tbody></table></div>` : '<p>Nenhum projeto foi entregue ainda.</p>';
+    projectGradesNode.querySelectorAll('[data-project-grade]').forEach((form) => form.addEventListener('submit', async (event) => {
+      event.preventDefault(); const data = new FormData(form);
+      try { await setDoc(doc(db, 'students', form.dataset.projectGrade, 'projects', form.dataset.projectKind), { score: Number(data.get('score')), feedback: String(data.get('feedback') || '').trim(), status: 'graded', gradedBy: user.uid, gradedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true }); await loadProjectGrades(); }
+      catch { window.alert('Não foi possível salvar a nota do projeto. Confira as regras do Firestore.'); }
+    }));
+  }
+
   const [students, assessments, requestCount] = await Promise.all([loadStudents(), loadAssessments(), loadRequests()]);
   const finance = await loadSales();
   await loadSessions();
+  await loadProjectGrades();
   const metricValues = metrics.querySelectorAll('strong');
   metricValues[0].textContent = students.filter((student) => student.enrollmentStatus === 'paid').length;
   metricValues[1].textContent = finance.approved.length;
@@ -152,7 +175,7 @@ try {
     const moduleId = String(data.get('module') || '');
     const lessonNumber = Number(data.get('lessonNumber'));
     const videoId = extractYoutubeId(data.get('youtube'));
-    if (!/^M(0[1-9]|1\d|20)$/.test(moduleId) || !Number.isInteger(lessonNumber) || lessonNumber < 1 || lessonNumber > 20) {
+    if (!/^M(0[1-9]|1\d|20)$/.test(moduleId) || !Number.isInteger(lessonNumber) || lessonNumber < 1 || lessonNumber > lessonCounts[moduleId]) {
       feedback.textContent = 'Escolha um módulo e um número de aula válidos.';
       feedback.className = 'form-feedback form-feedback--error';
       return;
@@ -183,6 +206,23 @@ try {
       feedback.textContent = 'Não foi possível salvar o vídeo. Publique as regras atualizadas do Firestore antes de tentar novamente.';
       feedback.className = 'form-feedback form-feedback--error';
     }
+  });
+
+  const videoForm = document.querySelector('[data-video-publish]');
+  videoForm?.elements.module?.addEventListener('change', () => {
+    const count = lessonCounts[videoForm.elements.module.value] || 1;
+    videoForm.elements.lessonNumber.max = String(count);
+    if (Number(videoForm.elements.lessonNumber.value) > count) videoForm.elements.lessonNumber.value = '1';
+  });
+
+  document.querySelector('[data-manual-enrollment]')?.addEventListener('submit', async (event) => {
+    event.preventDefault(); const form = event.currentTarget; const data = new FormData(form); const feedback = form.querySelector('[data-manual-enrollment-feedback]');
+    const email = String(data.get('email') || '').trim().toLowerCase();
+    try {
+      const id = await hashEmail(email);
+      await setDoc(doc(db, 'manualEnrollments', id), { name: String(data.get('name') || '').trim(), email, plan: String(data.get('plan') || 'curso'), courseStart: String(data.get('courseStart') || ''), paymentMode: String(data.get('paymentMode') || 'team-direct'), enrollmentStatus: 'paid', source: 'team-direct', createdBy: user.uid, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+      feedback.textContent = 'Matrícula manual criada. O aluno terá acesso no primeiro login Google com este e-mail.'; feedback.className = 'form-feedback form-feedback--ok'; form.reset();
+    } catch { feedback.textContent = 'Não foi possível criar a matrícula. Confira as regras do Firestore para manualEnrollments.'; feedback.className = 'form-feedback form-feedback--error'; }
   });
 
   document.querySelector('[data-create-assessment]')?.addEventListener('submit', async (event) => {

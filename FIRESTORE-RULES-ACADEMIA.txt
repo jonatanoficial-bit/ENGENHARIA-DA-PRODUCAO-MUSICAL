@@ -1,36 +1,24 @@
-REGRAS DO FIRESTORE — ÁREA DO ALUNO E ÁREA DO PROFESSOR
+REGRAS DO FIRESTORE — FASE 19
 
-ANTES DE COLAR
-1. Firebase Console > Build > Firestore Database > Rules.
-2. Apague as regras atuais.
-3. Cole todo o conteúdo abaixo.
-4. Clique em Publish / Publicar.
+COMO PUBLICAR
+1. Firebase Console > Firestore Database > Regras.
+2. Substitua TODAS as regras atuais pelo bloco abaixo.
+3. Clique em Publicar.
+4. Não altere as variáveis do Firebase Admin nem a URL do webhook Hotmart.
 
-IMPORTANTE: antes de acessar a Área do Professor, crie manualmente no console
-uma coleção chamada staff. O ID do documento deve ser o UID do professor
-obtido em Authentication > Users. Campos do documento:
-
-active: true
-role: "teacher"
-name: "Jonatan Vale"
-
-Para o segundo professor, repita com o UID dele e role: "teacher".
-
-REGRAS PARA COLAR
+Estas regras não interferem no webhook: a Vercel usa Firebase Admin, que é uma
+rota de servidor separada. Elas liberam somente os dados acadêmicos necessários
+ao site: progresso, atividades, projetos, aulas e matrícula direta confirmada.
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() {
-      return request.auth != null;
-    }
+    function signedIn() { return request.auth != null; }
+    function owns(userId) { return signedIn() && request.auth.uid == userId; }
     function isStaff() {
       return signedIn()
         && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
         && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.active == true;
-    }
-    function owns(studentId) {
-      return signedIn() && request.auth.uid == studentId;
     }
     function isPaidStudent() {
       return signedIn()
@@ -48,14 +36,40 @@ service cloud.firestore {
       allow create, update, delete: if isStaff();
     }
 
-    match /students/{studentId}/progress/{moduleId} {
+    match /students/{studentId}/progress/{progressId} {
       allow read: if owns(studentId) || isStaff();
       allow create, update: if owns(studentId) || isStaff();
       allow delete: if isStaff();
     }
 
-    // Vídeos publicados pela equipe acadêmica. O aluno pago só pode ler;
-    // professores ativos podem publicar, editar e despublicar gravações.
+    match /students/{studentId}/activities/{activityId} {
+      allow read: if owns(studentId) || isStaff();
+      allow create: if owns(studentId)
+        && request.resource.data.studentId == request.auth.uid
+        && request.resource.data.answer is string
+        && request.resource.data.answer.size() >= 12;
+      allow update: if isStaff() || (owns(studentId)
+        && resource.data.status != 'graded'
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.studentId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['answer', 'status', 'updatedAt', 'submittedAt']));
+      allow delete: if isStaff();
+    }
+
+    match /students/{studentId}/projects/{projectId} {
+      allow read: if owns(studentId) || isStaff();
+      allow create: if owns(studentId)
+        && request.resource.data.studentId == request.auth.uid
+        && request.resource.data.notes is string
+        && request.resource.data.notes.size() >= 12;
+      allow update: if isStaff() || (owns(studentId)
+        && request.resource.data.studentId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['driveUrl', 'notes', 'status', 'submittedAt', 'updatedAt']));
+      allow delete: if isStaff();
+    }
+
     match /courseLessons/{lessonId} {
       allow read: if isStaff() || isPaidStudent();
       allow create, update, delete: if isStaff();
@@ -64,23 +78,25 @@ service cloud.firestore {
     match /assessments/{assessmentId} {
       allow read: if signedIn();
       allow create, update, delete: if isStaff();
-
       match /submissions/{studentId} {
         allow read: if owns(studentId) || isStaff();
-        allow create, update: if owns(studentId) || isStaff();
+        allow create: if owns(studentId)
+          && request.resource.data.studentId == request.auth.uid
+          && request.resource.data.status == 'submitted';
+        allow update: if isStaff() || (owns(studentId)
+          && resource.data.status == 'submitted'
+          && request.resource.data.status == 'submitted'
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['answer', 'status', 'submittedAt']));
         allow delete: if isStaff();
       }
     }
 
-    // O gabarito é visível somente a professores.
-    match /assessmentKeys/{assessmentId} {
-      allow read, write: if isStaff();
-    }
+    match /assessmentKeys/{assessmentId} { allow read, write: if isStaff(); }
 
     match /liveSessions/{sessionId} {
       allow read: if signedIn();
       allow create, update, delete: if isStaff();
-
       match /attendance/{studentId} {
         allow read: if owns(studentId) || isStaff();
         allow create, update, delete: if isStaff();
@@ -93,42 +109,27 @@ service cloud.firestore {
       allow update, delete: if isStaff();
     }
 
-    // Criadas somente pela rota segura da Hotmart. O aluno não lê vendas nem matrículas por e-mail.
-    match /sales/{saleId} {
-      allow read: if isStaff();
-      allow write: if false;
-    }
+    // Criada somente pela equipe após confirmar boleto/PIX parcelado.
+    // O servidor promove esta matrícula ao documento do aluno no primeiro login.
+    match /manualEnrollments/{enrollmentId} { allow read, write: if isStaff(); }
 
-    match /enrollments/{enrollmentId} {
-      allow read, write: if false;
-    }
+    // Vendas e matrículas automáticas são exclusivas do Firebase Admin na Vercel.
+    match /sales/{saleId} { allow read: if isStaff(); allow write: if false; }
+    match /enrollments/{enrollmentId} { allow read, write: if false; }
   }
 }
 
-COMO CADASTRAR UM ALUNO MANUALMENTE
+MÉDIA GERAL PONDERADA
+- Avaliações de módulo corrigidas: 55%
+- Atividades obrigatórias ao fim das aulas: 10%
+- Projeto contínuo iniciado na Aula 2 do M01: 15%
+- Produção avaliativa independente liberada no M19: 20%
 
-Coleção: students
-ID do documento: UID do aluno visto em Authentication > Users
+A média fica N/A até a primeira avaliação ou trabalho receber nota do professor.
+O painel calcula uma média parcial com os componentes já avaliados; os pesos são
+normalizados para não penalizar o aluno por uma etapa que ainda não foi corrigida.
 
-Campos recomendados:
-name: "Nome do aluno"
-email: "email@aluno.com"
-plan: "profissional"
-enrollmentStatus: "paid"
-courseStart: "2026-08-10"
-driveFolderUrl: "https://drive.google.com/..."
-
-Não cadastre alunos como paid antes da confirmação da compra na Hotmart.
-
-VENDAS E MATRÍCULAS AUTOMÁTICAS
-
-As coleções sales e enrollments são abastecidas exclusivamente pela rota segura
-da Hotmart na Vercel. Não as edite pelo navegador do aluno. Professores ativos
-podem consultar sales pelo painel financeiro; alunos não têm acesso a esses dados.
-
-OBSERVAÇÃO SOBRE PROVAS
-
-O aluno vê a pergunta e envia a resposta no próprio site. O gabarito fica em
-assessmentKeys, que as regras acima permitem somente ao professor. A correção
-é feita na Área do Professor; assim, o aluno não consegue ver a resposta certa
-no código do navegador.
+MATRÍCULA DIRETA
+No painel do professor, abra “Matrícula direta”, informe o mesmo e-mail Google do
+aluno, o plano e a data. Marque a confirmação apenas após receber o pagamento.
+No primeiro login do aluno, o servidor segura essa matrícula e cria o acesso.

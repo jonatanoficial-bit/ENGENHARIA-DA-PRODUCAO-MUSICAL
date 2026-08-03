@@ -26,6 +26,16 @@ module.exports = async (request, response) => {
     let recovered = false;
 
     if (!enrollment || enrollment.enrollmentStatus !== 'paid') {
+      const manualSnapshot = await db.collection('manualEnrollments').doc(emailKey(email)).get();
+      if (manualSnapshot.exists && manualSnapshot.data().enrollmentStatus === 'paid') {
+        const manual = manualSnapshot.data();
+        enrollment = { email, buyerName: manual.name || decoded.name || '', plan: manual.plan || 'curso', enrollmentStatus: 'paid', courseStart: manual.courseStart || '', paymentMode: manual.paymentMode || 'team-direct', source: 'team-direct', updatedAt: now };
+        await enrollmentRef.set(enrollment, { merge: true });
+        recovered = true;
+      }
+    }
+
+    if (!enrollment || enrollment.enrollmentStatus !== 'paid') {
       const sale = await findApprovedSale(db, email);
       if (!sale) return response.status(403).json({ status: 'pending' });
       enrollment = {

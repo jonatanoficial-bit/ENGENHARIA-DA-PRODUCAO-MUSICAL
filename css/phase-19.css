@@ -1,0 +1,41 @@
+/* Fase 19 — progresso acadêmico e acabamento premium responsivo. */
+:root { --premium-ink:#06111d; --premium-panel:rgba(8,23,38,.91); --premium-gold:#f1bd4c; --premium-blue:#3f8cff; }
+/* Mantem o painel integro em telas pequenas; tabelas continuam rolaveis no proprio bloco. */
+body { overflow-x:hidden; }
+.student-shell,.teacher-shell { background:radial-gradient(circle at 82% 2%,rgba(53,119,209,.18),transparent 29rem),radial-gradient(circle at 7% 48%,rgba(232,176,62,.10),transparent 24rem),#07121f; }
+.student-shell .app-main,.teacher-shell .app-main { position:relative; isolation:isolate; }
+.student-shell .app-main:before,.teacher-shell .app-main:before { content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.22; background:linear-gradient(120deg,transparent 0 35%,rgba(241,189,76,.12) 48%,transparent 61%),url('../assets/portal/m01-boas-vindas.png') center/cover; mix-blend-mode:screen; }
+.course-overview,.teacher-header,.profile-hero,.access-card--immersive { overflow:hidden; position:relative; box-shadow:0 18px 55px rgba(0,0,0,.28); }
+.course-overview:after,.teacher-header:after,.access-card--immersive:after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(110deg,transparent 20%,rgba(241,189,76,.12),transparent 72%); }
+.lesson-item--completed { border-color:rgba(84,220,164,.55)!important; background:linear-gradient(90deg,rgba(24,110,81,.30),rgba(10,27,43,.72))!important; }
+.lesson-item--completed .lesson-item__icon { color:#87edb9!important; }
+.lesson-completion { display:grid; gap:1rem; margin-top:1rem; padding:1.25rem; border:1px solid rgba(241,189,76,.42); border-radius:1rem; background:linear-gradient(135deg,rgba(13,32,50,.96),rgba(23,38,47,.88)); }
+.lesson-completion h4 { margin:.2rem 0; font-size:1.25rem; }
+.lesson-completion label { display:grid; gap:.45rem; color:#f4f7fb; }
+.lesson-completion input:not([type="checkbox"]) { min-height:3rem; border-radius:.65rem; border:1px solid rgba(183,210,236,.32); padding:.65rem .75rem; color:#fff; background:#081625; }
+.project-grid,.live-session-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.student-projects,.student-live-sessions { margin:1.5rem 0; padding:clamp(1rem,3vw,2rem); border:1px solid rgba(171,201,232,.18); border-radius:1.25rem; background:linear-gradient(135deg,rgba(9,25,41,.96),rgba(11,18,29,.93)); box-shadow:0 15px 45px rgba(0,0,0,.2); }
+.section-heading { display:flex; gap:1rem; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; }
+.section-heading h2 { margin:.2rem 0 0; }
+.project-card,.live-session-grid article { display:grid; gap:.8rem; padding:1.25rem; min-width:0; border:1px solid rgba(241,189,76,.28); border-radius:1rem; background:radial-gradient(circle at 100% 0,rgba(69,134,220,.17),transparent 12rem),rgba(5,17,29,.75); }
+.project-card--locked { opacity:.74; filter:saturate(.7); }
+.project-card__weight { color:var(--premium-gold); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.project-card form { display:grid; gap:.75rem; }
+.project-card label { display:grid; gap:.35rem; }
+.project-card input,.project-card textarea { width:100%; box-sizing:border-box; border-radius:.6rem; border:1px solid rgba(187,214,235,.32); padding:.62rem; color:#fff; background:#071625; }
+.project-card textarea { min-height:5.4rem; resize:vertical; }
+.profile-grid .profile-stat { background:linear-gradient(135deg,#0a2034,#102234); border-color:rgba(241,189,76,.36); }
+.profile-grid .profile-stat strong { color:#f3c75e; font-size:clamp(1.45rem,3vw,2.2rem); }
+.teacher-card { min-width:0; }
+.teacher-form input,.teacher-form textarea,.teacher-form select { box-sizing:border-box; max-width:100%; }
+.teacher-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.teacher-table { min-width:640px; }
+.access-card--immersive { max-width:1100px; margin-inline:auto; border-color:rgba(241,189,76,.52); background:radial-gradient(circle at 82% 15%,rgba(46,124,222,.24),transparent 24rem),linear-gradient(140deg,rgba(7,19,32,.98),rgba(13,30,48,.95)); }
+.access-card--immersive:before { content:""; position:absolute; right:-2rem; bottom:-7rem; width:31rem; height:31rem; opacity:.18; background:url('../assets/portal/m13-mixagem.png') center/cover; transform:rotate(-6deg); }
+.access-card--immersive > * { position:relative; z-index:1; }
+html[data-theme="light"] .student-shell,html[data-theme="light"] .teacher-shell,html[data-theme="light"] .access-card--immersive { color:#102238; background:#eaf1f8; }
+html[data-theme="light"] .student-shell .app-main:before,html[data-theme="light"] .teacher-shell .app-main:before { opacity:.08; }
+html[data-theme="light"] .lesson-completion,html[data-theme="light"] .student-projects,html[data-theme="light"] .student-live-sessions,html[data-theme="light"] .project-card,html[data-theme="light"] .live-session-grid article { color:#11283b; background:rgba(255,255,255,.94); }
+html[data-theme="light"] .lesson-completion label,html[data-theme="light"] .project-card input,html[data-theme="light"] .project-card textarea { color:#102238; }
+html[data-theme="light"] .lesson-completion input:not([type="checkbox"]),html[data-theme="light"] .project-card input,html[data-theme="light"] .project-card textarea { color:#102238; background:#fff; }
+@media (max-width:720px) { .app-layout { display:block; }.app-sidebar { margin-bottom:1rem; }.course-overview,.teacher-header { padding:1.15rem!important; }.course-overview h2,.teacher-header h1,.app-title-row h1 { font-size:clamp(2rem,10vw,3.2rem)!important; }.project-grid,.live-session-grid { grid-template-columns:1fr; }.section-heading { display:grid; }.lesson-completion { padding:1rem; }.teacher-table { min-width:560px; }.access-options { grid-template-columns:1fr!important; }.access-card--immersive { margin:0 .25rem; }.student-title-actions { flex-wrap:wrap; } }

@@ -61,7 +61,8 @@
   ];
   const stateKey = 'epm-course-progress-v14';
   const stored = JSON.parse(localStorage.getItem(stateKey) || '{"passed":[]}');
-  const state = {passed:Array.isArray(stored.passed) ? stored.passed : [], selected:0};
+  const state = {passed:Array.isArray(stored.passed) ? stored.passed : [], completedLessons:Array.isArray(stored.completedLessons) ? stored.completedLessons : [], selected:0};
+  const totalLessons = modules.reduce((total, module) => total + module.lessons.length, 0);
   let remoteProgress = null;
   let staffPreview = false;
   const remoteLessons = new Map();
@@ -79,10 +80,10 @@
 
   function save(){
     if (staffPreview) return;
-    localStorage.setItem(stateKey,JSON.stringify({passed:state.passed}));
+    localStorage.setItem(stateKey,JSON.stringify({passed:state.passed,completedLessons:state.completedLessons}));
     if (remoteProgress) {
-      const percent = Math.round((state.passed.length / modules.length) * 100);
-      remoteProgress.setDoc(remoteProgress.doc(remoteProgress.db, 'students', remoteProgress.uid, 'progress', 'catalog'), { completedModules: state.passed, percent, updatedAt: remoteProgress.serverTimestamp() }, { merge: true }).catch(() => {});
+      const percent = Math.round((state.completedLessons.length / totalLessons) * 100);
+      remoteProgress.setDoc(remoteProgress.doc(remoteProgress.db, 'students', remoteProgress.uid, 'progress', 'catalog'), { completedModules: state.passed, completedLessons: state.completedLessons, totalLessons, percent, updatedAt: remoteProgress.serverTimestamp() }, { merge: true }).catch(() => {});
     }
   }
   function releaseDate(globalIndex){ const result = new Date(courseStart); result.setDate(result.getDate()+Math.floor(globalIndex/2)*7); return result; }
@@ -92,8 +93,9 @@
   function lessonAvailable(moduleIndex,lessonIndex){ return moduleAllowed(moduleIndex) && new Date() >= releaseDate(lessonOffset(moduleIndex,lessonIndex)); }
   function lessonVideo(moduleIndex, lessonIndex){ return remoteLessons.get(`${modules[moduleIndex].id.toLowerCase()}a${String(lessonIndex + 1).padStart(2, '0')}`); }
   function updateProgress(){
-    const percent = Math.round((state.passed.length / modules.length) * 100);
+    const percent = Math.round((state.completedLessons.length / totalLessons) * 100);
     if(progressNode) progressNode.textContent = `${state.passed.length} de ${modules.length} módulos concluídos`;
+    if(progressNode) progressNode.textContent = `${state.completedLessons.length} de ${totalLessons} aulas concluídas`;
     if(percentNode) percentNode.textContent = `${percent}%`;
     if(progressRing) progressRing.style.setProperty('--course-progress', percent);
   }
@@ -116,6 +118,15 @@
     }).join('');
     lessonsNode.innerHTML = `<div class="course-lessons__head" style="--selected-module-art:url('${module.art}')"><div><p class="eyebrow">${module.id}</p><h3>${escapeHtml(module.title)}</h3><p class="course-instructor">Condução: ${escapeHtml(module.instructor)}</p></div><span class="badge">${module.lessons.length} aulas</span></div><ul class="lesson-list">${lessonItems}</ul>`;
     lessonsNode.querySelectorAll('[data-play-lesson]').forEach(item=>{
+      const lessonIndex = Number(item.dataset.playLesson);
+      const completionKey = `${module.id.toLowerCase()}a${String(lessonIndex + 1).padStart(2, '0')}`;
+      if (state.completedLessons.includes(completionKey)) {
+        item.classList.add('lesson-item--completed');
+        const icon = item.querySelector('.lesson-item__icon');
+        const status = item.querySelector('.lesson-item__status');
+        if (icon) icon.textContent = '✓';
+        if (status) status.textContent = 'Concluída';
+      }
       const play=()=>openLesson(state.selected,Number(item.dataset.playLesson));
       item.addEventListener('click',play); item.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();play();}});
     });
@@ -142,6 +153,25 @@
     const embeds=window.EPM_YOUTUBE_EMBEDS || {}; const id=remoteVideo ? (remoteVideo.published ? remoteVideo.videoId : '') : embeds[key];
     playerNode.classList.add('is-visible');
     playerNode.innerHTML=`<div class="course-player__bar"><div><p class="eyebrow">${module.id} · Aula ${String(lessonIndex+1).padStart(2,'0')}</p><h3>${escapeHtml(title)}</h3><p class="course-instructor">${escapeHtml(module.instructor)}</p></div><span class="badge">Disponível</span></div><div class="course-player__stage">${id?`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}" title="${escapeHtml(title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`:'<div class="course-player__placeholder"><span class="video-stage__play">▶</span><h4>Gravação em preparação</h4><p>A equipe acadêmica ainda não publicou a gravação desta aula. Assim que o professor salvar o vídeo, ela aparecerá aqui automaticamente, sem atualização manual do site.</p></div>'}</div>`;
+    if (id) {
+      const completed = state.completedLessons.includes(key);
+      playerNode.insertAdjacentHTML('beforeend', `<form class="lesson-completion" data-lesson-completion><div><p class="eyebrow">Atividade de consolidação</p><h4>${completed ? 'Atividade concluída' : 'Conclua esta aula'}</h4><p>Registre uma breve aplicação do aprendizado. Esta atividade tem peso menor na média geral.</p></div><label>Minha reflexão / atividade<input name="answer" minlength="12" maxlength="800" required placeholder="Ex.: O conceito que aplicarei no meu projeto é..."></label><label class="teacher-checkbox"><input name="watched" type="checkbox" required> Declaro que assisti a esta aula e realizei a atividade.</label><button class="button" type="submit">${completed ? 'Atualizar atividade' : 'Concluir aula e registrar atividade'}</button><p class="form-feedback" data-lesson-feedback></p></form>`);
+      playerNode.querySelector('[data-lesson-completion]')?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const feedback = form.querySelector('[data-lesson-feedback]');
+        const answer = String(new FormData(form).get('answer') || '').trim();
+        if (staffPreview) { feedback.textContent = 'Visualização docente: nenhum progresso é registrado.'; return; }
+        if (!remoteProgress) { feedback.textContent = 'Entre com sua conta para registrar a atividade.'; feedback.className = 'form-feedback form-feedback--error'; return; }
+        try {
+          await remoteProgress.setDoc(remoteProgress.doc(remoteProgress.db, 'students', remoteProgress.uid, 'activities', key), { studentId: remoteProgress.uid, moduleId: module.id, lessonNumber: lessonIndex + 1, lessonKey: key, title, answer, status: 'submitted', submittedAt: remoteProgress.serverTimestamp(), updatedAt: remoteProgress.serverTimestamp() }, { merge: true });
+          if (!state.completedLessons.includes(key)) state.completedLessons.push(key);
+          save(); renderLessons(); updateProgress();
+          feedback.textContent = 'Aula concluída e atividade registrada. Seu progresso foi atualizado.';
+          feedback.className = 'form-feedback form-feedback--ok';
+        } catch { feedback.textContent = 'Não foi possível registrar a atividade. Tente novamente.'; feedback.className = 'form-feedback form-feedback--error'; }
+      });
+    }
     playerNode.scrollIntoView({behavior:'smooth',block:'start'}); renderQuiz();
   }
   function render(){ renderModules(); renderLessons(); renderQuiz(); updateProgress(); }
@@ -186,8 +216,15 @@
           if (!Number.isNaN(parsedCourseStart.getTime())) { courseStart = parsedCourseStart; courseStart.setHours(0, 0, 0, 0); }
         }
         const completedModules = snapshot.exists() ? snapshot.data().completedModules : null;
+        const completedLessons = snapshot.exists() ? snapshot.data().completedLessons : null;
         if (Array.isArray(completedModules)) {
           state.passed = completedModules.filter((id) => modules.some((module) => module.id === id));
+        }
+        if (Array.isArray(completedLessons)) {
+          const validKeys = new Set(modules.flatMap((module) => module.lessons.map((_, index) => `${module.id.toLowerCase()}a${String(index + 1).padStart(2, '0')}`)));
+          state.completedLessons = completedLessons.filter((key) => validKeys.has(key));
+        }
+        if (Array.isArray(completedModules) || Array.isArray(completedLessons)) {
           render();
         } else if (state.passed.length) {
           save();

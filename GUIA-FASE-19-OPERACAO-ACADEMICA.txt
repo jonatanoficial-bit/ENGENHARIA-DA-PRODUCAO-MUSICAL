@@ -1,0 +1,57 @@
+ENGENHARIA DA PRODUCAO MUSICAL - GUIA DA FASE 19
+Build: 03/08/2026 17:18 BRT
+
+O QUE FOI IMPLEMENTADO
+
+1. CONCLUSAO DE AULAS
+- Depois que um video estiver publicado e liberado, o aluno encontra no fim do player o botao "Confirmar atividade e concluir aula".
+- Ele marca que assistiu e responde uma atividade curta obrigatoria.
+- A conclusao fica gravada no Firebase e atualiza automaticamente o percentual na area inicial e no perfil.
+- O percentual considera as 162 aulas da formacao.
+
+2. NOTAS E MEDIA GERAL
+- Antes de uma nota publicada pelo professor, a media aparece como N/A.
+- Avaliacoes finais de modulo: peso-base de 55%.
+- Atividades das aulas: peso-base de 10%.
+- Projeto continuo: peso-base de 15%.
+- Projeto final independente: peso-base de 20%.
+- Enquanto alguma categoria nao tiver nota, a media usa apenas categorias ja avaliadas e reequilibra os pesos. Nenhum aluno recebe nota artificial por etapa pendente.
+
+3. DOIS PROJETOS PRINCIPAIS
+- Projeto continuo: libera depois da Aula 02 do Modulo 01.
+- Projeto final independente: libera ao iniciar o Modulo 19 e possui maior peso na media.
+- O aluno envia link do Google Drive e descricao; o professor informa nota de 0 a 100 e feedback. O perfil do aluno e atualizado automaticamente.
+
+4. AVALIACOES FINAIS DE MODULO
+- Em Professor > Avaliacoes, crie e publique uma avaliacao para cada modulo no momento adequado.
+- A nota corrigida pelo professor alimenta a media geral.
+- O quiz de passagem ja existente continua sendo pedagogico; a avaliacao final registrada e a que entra na media.
+
+5. PUBLICACAO DE VIDEOS - SEM GITHUB
+- Em Professor > Publicar gravacao, selecione modulo/aula e cole o link do YouTube nao listado ou codigo embed.
+- M01 Aula 01 grava no endereco m01a01: atualiza somente essa aula, sem substituir as Aulas 02, 03 ou 04.
+- O sistema aceita somente aulas previstas na grade. M01 tem 4 aulas; M01 Aula 10 e recusada para evitar uma aula inexistente por engano.
+- Para incluir aula nova fora da grade, a estrutura curricular deve receber atualizacao tecnica deliberada. Para trocar ou publicar as aulas existentes, o professor nao usa GitHub.
+
+6. AULAS AO VIVO
+- Em Professor > Aulas ao vivo, cadastre titulo, data/hora e link de Google Meet, Zoom ou YouTube.
+- A proxima aula aparece automaticamente para os alunos matriculados.
+
+7. MATRICULA MANUAL: BOLETO PARCELADO OU PIX PARCELADO
+- Use somente apos a equipe confirmar o pagamento direto com o fornecedor escolhido.
+- Em Professor > Matricula manual, informe nome, o MESMO e-mail Google que o aluno usara, plano, data de inicio e meio de pagamento; marque pagamento confirmado.
+- O aluno entra com aquele e-mail Google e a plataforma gera a matricula protegida automaticamente.
+- Esta rota e independente da Hotmart. Ela nao altera webhook, HOTMART_HOTTOK, Firebase Admin ou vendas da Hotmart.
+
+8. FIREBASE - PASSO OBRIGATORIO
+- Abra FIRESTORE-RULES-ACADEMIA.txt deste pacote.
+- Firebase Console > Firestore Database > Regras.
+- Substitua integralmente as regras atuais pelo bloco completo do arquivo e clique em Publicar.
+- As regras liberam apenas as colecoes academicas novas (atividades, projetos, aulas e matriculas manuais). O webhook Hotmart segue usando Firebase Admin no servidor.
+
+CHECK RAPIDO PARA DEMONSTRACAO
+1. Entre como professor e publique um video em M01 / Aula 01.
+2. Entre como aluno matriculado, abra Aula 01, responda a atividade e confirme a conclusao.
+3. Abra Meu perfil: o percentual de aulas deve subir.
+4. Crie uma avaliacao do Modulo 01 e atribua uma nota apos a resposta.
+5. Atualize o perfil do aluno: a media deixa de ser N/A.
