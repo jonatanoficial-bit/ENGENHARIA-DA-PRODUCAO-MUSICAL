@@ -1,5 +1,12 @@
 import { firebaseReady } from '../firebase/firebase-client.js';
 
+if (!document.querySelector('link[href="../css/phase-20.css"]')) {
+  const phase20 = document.createElement('link');
+  phase20.rel = 'stylesheet'; phase20.href = '../css/phase-20.css'; document.head.append(phase20);
+}
+
+const scheduleTitles = ['M01 — Boas-vindas','M02 — Fundamentos do som','M03 — Fundamentos musicais','M04 — Estúdio e conexões','M05 — Microfones e captação','M06 — Acústica e PA','M07 — Pro Tools','M08 — Reaper e multi-DAW','M09 — MIDI e plugins','M10 — Arranjo e direção','M11 — Gravação','M12 — Edição','M13 — Mixagem','M14 — Masterização','M15 — Produção vocal','M16 — Inteligência artificial','M17 — Mercado e distribuição','M18 — Vídeo e design','M19 — Projetos práticos','M20 — Avaliação final'];
+
 const authorized = window.empTeacherSession ? Promise.resolve(window.empTeacherSession) : new Promise((resolve) => document.addEventListener('teacher:authorized', (event) => resolve(event.detail), { once: true }));
 const safe = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char]));
 const formatDate = (value) => {
@@ -43,6 +50,30 @@ try {
   const videoListNode = document.querySelector('[data-video-list]');
   const projectGradesNode = document.querySelector('[data-project-grade-list]');
   let rosterStudents = [];
+
+  const scheduleCard = document.createElement('section');
+  scheduleCard.className = 'teacher-card teacher-card--wide';
+  scheduleCard.id = 'calendario';
+  scheduleCard.innerHTML = `<p class="eyebrow">Calendário da turma</p><h2>Planeje a liberação por módulo.</h2><p class="teacher-note">Sem cadastrar 162 datas: escolha quando o módulo abre e o ritmo semanal. Cada vídeo publicado seguirá esse calendário. Use a data individual do vídeo apenas para exceções.</p><form class="module-schedule-card" data-module-schedule><div class="module-schedule-card__grid"><label>Módulo<select name="moduleId" required>${scheduleTitles.map((title,index)=>`<option value="M${String(index+1).padStart(2,'0')}">${safe(title)}</option>`).join('')}</select></label><label>Primeira liberação<input name="releaseAt" type="datetime-local" required></label><label>Aulas por semana<select name="lessonsPerWeek"><option value="2">2 aulas por semana</option><option value="1">1 aula por semana</option><option value="3">3 aulas por semana</option></select></label><label>Título da aula ao vivo (opcional)<input name="liveTitle" maxlength="120"></label><label>Data e hora ao vivo (opcional)<input name="liveStartsAt" type="datetime-local"></label><label>Link da aula ao vivo (opcional)<input name="liveUrl" type="url" placeholder="https://meet.google.com/... ou Zoom"></label></div><button class="button" type="submit">Salvar calendário do módulo</button><p class="form-feedback" data-module-schedule-feedback></p></form><div class="module-schedule-card__list" data-module-schedule-list></div>`;
+  document.querySelector('#videos')?.insertAdjacentElement('afterend', scheduleCard);
+  const scheduleForm = scheduleCard.querySelector('[data-module-schedule]');
+  const scheduleList = scheduleCard.querySelector('[data-module-schedule-list]');
+
+  async function loadModuleSchedules() {
+    try {
+      const snapshot = await getDocs(query(collection(db, 'moduleSchedules'), limit(50)));
+      const schedules = snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() })).sort((a,b) => String(a.moduleId).localeCompare(String(b.moduleId)));
+      scheduleList.innerHTML = schedules.length ? schedules.map((item) => `<article class="module-schedule-row"><div><strong>${safe(item.moduleId)} · ${safe(scheduleTitles[Number(String(item.moduleId).slice(1))-1] || '')}</strong><small>Abre ${formatDate(item.releaseAt)} · ${Number(item.lessonsPerWeek || 2)} aula(s) por semana${item.liveStartsAt ? ` · ao vivo ${formatDate(item.liveStartsAt)}` : ''}</small></div><button class="button button--quiet" data-edit-module-schedule="${safe(item.moduleId)}" type="button">Editar</button></article>`).join('') : '<p>Nenhum módulo foi agendado. Comece pelo M01.</p>';
+      scheduleList.querySelectorAll('[data-edit-module-schedule]').forEach((button) => button.addEventListener('click', () => {
+        const item = schedules.find((entry) => entry.moduleId === button.dataset.editModuleSchedule); if (!item) return;
+        scheduleForm.elements.moduleId.value = item.moduleId; scheduleForm.elements.releaseAt.value = String(item.releaseAt || '').slice(0,16); scheduleForm.elements.lessonsPerWeek.value = String(item.lessonsPerWeek || 2); scheduleForm.elements.liveTitle.value = item.liveTitle || ''; scheduleForm.elements.liveStartsAt.value = String(item.liveStartsAt || '').slice(0,16); scheduleForm.elements.liveUrl.value = item.liveUrl || ''; scheduleForm.scrollIntoView({ behavior:'smooth', block:'center' });
+      }));
+    } catch { scheduleList.innerHTML = '<p>Não foi possível carregar o calendário. Publique as regras da coleção moduleSchedules.</p>'; }
+  }
+  scheduleForm.addEventListener('submit', async (event) => {
+    event.preventDefault(); const data = new FormData(scheduleForm); const feedback = scheduleForm.querySelector('[data-module-schedule-feedback]'); const moduleId = String(data.get('moduleId'));
+    try { await setDoc(doc(db,'moduleSchedules',moduleId), { moduleId, releaseAt:String(data.get('releaseAt')), lessonsPerWeek:Number(data.get('lessonsPerWeek') || 2), liveTitle:String(data.get('liveTitle') || '').trim(), liveStartsAt:String(data.get('liveStartsAt') || ''), liveUrl:String(data.get('liveUrl') || '').trim(), updatedBy:user.uid, updatedAt:serverTimestamp() }, {merge:true}); feedback.textContent = 'Calendário salvo. A turma verá a data automaticamente.'; feedback.className='form-feedback form-feedback--ok'; await loadModuleSchedules(); } catch { feedback.textContent='Não foi possível salvar. Confirme as regras do Firestore para moduleSchedules.'; feedback.className='form-feedback form-feedback--error'; }
+  });
 
   async function loadStudents() {
     const snapshot = await getDocs(query(collection(db, 'students'), orderBy('name'), limit(100)));
@@ -166,6 +197,11 @@ try {
   }
 
   await loadCourseVideos();
+  await loadModuleSchedules();
+
+  const releaseOverride = document.createElement('label');
+  releaseOverride.innerHTML = 'Liberação individual (opcional)<input name="availableAt" type="datetime-local"><small>Use apenas quando esta aula precisar sair em data diferente do calendário do módulo.</small>';
+  document.querySelector('[data-video-publish] .teacher-checkbox')?.insertAdjacentElement('beforebegin', releaseOverride);
 
   document.querySelector('[data-video-publish]')?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -191,6 +227,7 @@ try {
         lessonNumber,
         title: String(data.get('title') || '').trim(),
         videoId,
+        availableAt: String(data.get('availableAt') || ''),
         published: data.get('published') === 'on',
         provider: 'youtube',
         updatedAt: serverTimestamp(),

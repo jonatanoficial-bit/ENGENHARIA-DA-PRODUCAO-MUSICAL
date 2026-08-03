@@ -1,4 +1,4 @@
-REGRAS DO FIRESTORE — FASE 19
+REGRAS DO FIRESTORE — FASE 20
 
 COMO PUBLICAR
 1. Firebase Console > Firestore Database > Regras.
@@ -72,6 +72,18 @@ service cloud.firestore {
 
     match /courseLessons/{lessonId} {
       allow read: if isStaff() || isPaidStudent();
+      allow create, update, delete: if isStaff();
+    }
+
+    // Calendário por módulo: professores configuram uma abertura e o ritmo semanal.
+    match /moduleSchedules/{moduleId} {
+      allow read: if isStaff() || isPaidStudent();
+      allow create, update, delete: if isStaff();
+    }
+
+    // Configurações institucionais exibidas no certificado; apenas a equipe edita.
+    match /academicSettings/{settingId} {
+      allow read: if signedIn();
       allow create, update, delete: if isStaff();
     }
 

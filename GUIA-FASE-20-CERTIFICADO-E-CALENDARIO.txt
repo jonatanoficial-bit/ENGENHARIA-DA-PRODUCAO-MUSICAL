@@ -1,0 +1,46 @@
+FASE 20 — CERTIFICADO, CALENDARIO E AULAS AO VIVO
+
+O QUE FOI ENTREGUE
+- Certificado imprimivel em duas paginas (frente e verso), com logo oficial,
+  CNPJ, carga horaria, grade curricular completa, media, codigo e assinatura.
+- Emissao liberada somente com 90% ou mais da trilha concluida e media geral
+  igual ou superior a 70/100 (nota 7,0).
+- Antes de imprimir, o aluno confirma e pode corrigir apenas o nome a ser
+  impresso. Em seguida usa "Gerar e baixar certificado" e escolhe
+  "Salvar como PDF" na tela de impressao do navegador.
+- Calendario simples por modulo na Area do Professor.
+- Link opcional de aula ao vivo, visivel para o aluno no cabecalho do modulo.
+- Data individual opcional no formulario de video para excecoes.
+
+PUBLICACAO DAS REGRAS (OBRIGATORIO UMA VEZ)
+1. Abra Firebase > Firestore Database > Regras.
+2. Copie TODO o conteudo do arquivo FIRESTORE-RULES-ACADEMIA.txt.
+3. Apague as regras anteriores, cole o bloco completo e clique em Publicar.
+4. Nao altere Firebase Admin, Vercel, Hotmart ou a URL do webhook.
+
+COMO PROGRAMAR UMA TURMA
+1. Entre em Area do Professor com uma conta que tenha documento ativo em staff.
+2. Abra "Calendario da turma" abaixo da area de videos.
+3. Selecione M01, escolha a primeira data/hora e mantenha 2 aulas por semana.
+4. Se houver encontro online, informe titulo, data/hora e o link do Meet,
+   Zoom ou YouTube. Salve.
+5. Repita somente para os modulos que ja possuem previsao. Os demais podem
+   ficar sem data; os alunos veem as aulas bloqueadas ate a programacao.
+6. Publique o video em "Aulas gravadas". Se nao preencher a data individual,
+   ele respeitara automaticamente a data e o ritmo do modulo.
+
+REGRA VISUAL PARA O ALUNO
+- Cada modulo mostra cadeado e a data de abertura quando ainda nao chegou.
+- Cada aula mostra a previsao e so abre quando a data chega, o modulo anterior
+  esta aprovado e o video foi publicado.
+- O botao da aula ao vivo abre a plataforma escolhida pelo professor em outra
+  aba, sem exigir que o professor edite GitHub ou codigo.
+
+CARGA HORARIA
+O certificado esta configurado com 180 horas, distribuidas no verso entre os
+20 modulos. Antes da primeira emissao oficial, confirme que 180h corresponde
+ao plano pedagogico final da turma.
+
+SUPORTE ACADEMICO
+empengenhariadeproducaomusical@gmail.com
+(11) 96327-2371

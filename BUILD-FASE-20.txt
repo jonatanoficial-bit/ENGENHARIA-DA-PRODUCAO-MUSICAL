@@ -1,0 +1,16 @@
+BUILD: FASE 20 — CERTIFICACAO E CALENDARIO OPERACIONAL
+Data de build: 03/08/2026 (America/Sao_Paulo)
+
+Atualizacoes
+- Certificado institucional em duas paginas, aptidao 90% + media 70/100.
+- Nome confirmado pelo aluno antes da geracao para PDF.
+- Logo oficial, assinatura de Jonatan do Vale Souza, 180 horas e verso com
+  grade curricular completa.
+- Agenda por modulo e ritmo semanal no painel docente.
+- Link de aula ao vivo e liberacao individual opcional por video.
+- Suporte academico institucional incluido.
+
+Integracoes preservadas
+- Firebase Authentication e Firestore.
+- Firebase Admin no backend Vercel.
+- Hotmart webhook e registros de vendas.

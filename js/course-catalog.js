@@ -2,6 +2,7 @@
 (() => {
   const catalogRoot = document.querySelector('[data-course-catalog]');
   if (!catalogRoot) return;
+  if (!document.querySelector('link[href="../css/phase-20.css"]')) { const phase20 = document.createElement('link'); phase20.rel = 'stylesheet'; phase20.href = '../css/phase-20.css'; document.head.append(phase20); }
 
   const moduleArt = [
     'm01-boas-vindas.png','m02-fundamentos-som.png','m03-fundamentos-musicais.png','m04-estudio-conexoes.png','m05-microfones-captacao.png',
@@ -66,7 +67,9 @@
   let remoteProgress = null;
   let staffPreview = false;
   const remoteLessons = new Map();
+  const moduleSchedules = new Map();
   let stopRemoteLessons = null;
+  let stopModuleSchedules = null;
   const modulesNode = catalogRoot.querySelector('.course-modules');
   const lessonsNode = catalogRoot.querySelector('.course-lessons');
   const playerNode = document.querySelector('[data-course-player]');
@@ -86,11 +89,17 @@
       remoteProgress.setDoc(remoteProgress.doc(remoteProgress.db, 'students', remoteProgress.uid, 'progress', 'catalog'), { completedModules: state.passed, completedLessons: state.completedLessons, totalLessons, percent, updatedAt: remoteProgress.serverTimestamp() }, { merge: true }).catch(() => {});
     }
   }
-  function releaseDate(globalIndex){ const result = new Date(courseStart); result.setDate(result.getDate()+Math.floor(globalIndex/2)*7); return result; }
+  function releaseDate(globalIndex, moduleIndex = null, lessonIndex = 0){
+    const module = moduleIndex === null ? null : modules[moduleIndex];
+    const schedule = module ? moduleSchedules.get(module.id) : null;
+    const result = schedule?.releaseAt ? new Date(schedule.releaseAt) : new Date(courseStart);
+    const pace = Math.max(1, Number(schedule?.lessonsPerWeek || 2));
+    result.setDate(result.getDate()+Math.floor((schedule ? lessonIndex : globalIndex)/pace)*7); return result;
+  }
   function dayLabel(date){ return new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'short',year:'numeric'}).format(date); }
   function lessonOffset(moduleIndex,lessonIndex){ return modules.slice(0,moduleIndex).reduce((sum,module)=>sum+module.lessons.length,0)+lessonIndex; }
   function moduleAllowed(moduleIndex){ return moduleIndex === 0 || state.passed.includes(modules[moduleIndex-1].id); }
-  function lessonAvailable(moduleIndex,lessonIndex){ return moduleAllowed(moduleIndex) && new Date() >= releaseDate(lessonOffset(moduleIndex,lessonIndex)); }
+  function lessonAvailable(moduleIndex,lessonIndex){ const video = lessonVideo(moduleIndex, lessonIndex); const custom = video?.availableAt ? new Date(video.availableAt) : null; return moduleAllowed(moduleIndex) && new Date() >= (custom && !Number.isNaN(custom.getTime()) ? custom : releaseDate(lessonOffset(moduleIndex,lessonIndex),moduleIndex,lessonIndex)); }
   function lessonVideo(moduleIndex, lessonIndex){ return remoteLessons.get(`${modules[moduleIndex].id.toLowerCase()}a${String(lessonIndex + 1).padStart(2, '0')}`); }
   function updateProgress(){
     const percent = Math.round((state.completedLessons.length / totalLessons) * 100);
@@ -102,7 +111,7 @@
   function escapeHtml(value){ return value.replace(/[&<>'"]/g,char=>({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char])); }
 
   function renderModules(){
-    modulesNode.innerHTML = modules.map((module,index)=>`<button class="course-module-button" type="button" style="--module-art:url('${module.art}')" data-module-index="${index}" aria-current="${index===state.selected}"><span class="course-module-button__number">${module.id}${state.passed.includes(module.id)?' · CONCLUÍDO':''}</span><span class="course-module-button__title">${escapeHtml(module.title)}</span></button>`).join('');
+    modulesNode.innerHTML = modules.map((module,index)=>{ const opening = releaseDate(0,index,0); const locked = new Date() < opening; return `<button class="course-module-button ${locked?'course-module-button--locked':''}" type="button" style="--module-art:url('${module.art}')" data-module-index="${index}" aria-current="${index===state.selected}"><span class="course-module-button__number">${module.id}${state.passed.includes(module.id)?' · CONCLUÍDO':''}</span><span class="course-module-button__title">${escapeHtml(module.title)}</span><span class="course-module-button__schedule">${locked?`🔒 Abre ${dayLabel(opening)}`:'Calendário da turma'}</span></button>`; }).join('');
     modulesNode.querySelectorAll('[data-module-index]').forEach(button=>button.addEventListener('click',()=>{ state.selected=Number(button.dataset.moduleIndex); render(); }));
   }
   function renderLessons(){
@@ -112,11 +121,12 @@
       const scheduled = lessonAvailable(state.selected,index);
       const remoteVideo = lessonVideo(state.selected, index);
       const available = scheduled && !(remoteVideo && (!remoteVideo.published || !remoteVideo.videoId));
-      const schedule = releaseDate(lessonOffset(state.selected,index));
+      const schedule = remoteVideo?.availableAt ? new Date(remoteVideo.availableAt) : releaseDate(lessonOffset(state.selected,index),state.selected,index);
       const status = !allowed ? 'Conclua a avaliação anterior' : !scheduled ? `Liberação: ${dayLabel(schedule)}` : remoteVideo && !remoteVideo.published ? 'Gravação em preparação' : available ? 'Disponível agora' : 'Gravação em preparação';
       return `<li class="lesson-item ${available?'lesson-item--available':''}" ${available?`data-play-lesson="${index}" tabindex="0" role="button"`:''}><span class="lesson-item__icon">${available?'▶':'🔒'}</span><span class="lesson-item__main"><span class="lesson-item__title">Aula ${String(index+1).padStart(2,'0')} · ${escapeHtml(lesson)}</span><span class="lesson-item__meta">Ao vivo + gravação · cerca de 50 min</span></span><span class="lesson-item__status">${status}</span></li>`;
     }).join('');
-    lessonsNode.innerHTML = `<div class="course-lessons__head" style="--selected-module-art:url('${module.art}')"><div><p class="eyebrow">${module.id}</p><h3>${escapeHtml(module.title)}</h3><p class="course-instructor">Condução: ${escapeHtml(module.instructor)}</p></div><span class="badge">${module.lessons.length} aulas</span></div><ul class="lesson-list">${lessonItems}</ul>`;
+    const currentSchedule = moduleSchedules.get(module.id);
+    lessonsNode.innerHTML = `<div class="course-lessons__head" style="--selected-module-art:url('${module.art}')"><div><p class="eyebrow">${module.id}</p><h3>${escapeHtml(module.title)}</h3><p class="course-instructor">Condução: ${escapeHtml(module.instructor)}</p>${currentSchedule?.liveUrl ? `<a class="course-live-link" href="${escapeHtml(currentSchedule.liveUrl)}" target="_blank" rel="noopener">◉ ${escapeHtml(currentSchedule.liveTitle || 'Acessar aula ao vivo')}</a>`:''}</div><span class="badge">${module.lessons.length} aulas</span></div><ul class="lesson-list">${lessonItems}</ul>`;
     lessonsNode.querySelectorAll('[data-play-lesson]').forEach(item=>{
       const lessonIndex = Number(item.dataset.playLesson);
       const completionKey = `${module.id.toLowerCase()}a${String(lessonIndex + 1).padStart(2, '0')}`;
@@ -137,7 +147,7 @@
     const next = modules[state.selected+1];
     const allLessonsReleased = moduleAllowed(state.selected) && module.lessons.every((_,index)=>lessonAvailable(state.selected,index));
     const options = [quizPrompts[state.selected],...answers].sort((a,b)=>a.localeCompare(b,'pt-BR'));
-    const lockedReason = !moduleAllowed(state.selected) ? 'Conclua a avaliação do módulo anterior para abrir esta etapa.' : `A avaliação será liberada após a última aula deste módulo, prevista para ${dayLabel(releaseDate(lessonOffset(state.selected,module.lessons.length-1)))}.`;
+    const lockedReason = !moduleAllowed(state.selected) ? 'Conclua a avaliação do módulo anterior para abrir esta etapa.' : `A avaliação será liberada após a última aula deste módulo, prevista para ${dayLabel(releaseDate(lessonOffset(state.selected,module.lessons.length-1),state.selected,module.lessons.length-1))}.`;
     quizNode.innerHTML = `<p class="eyebrow">Avaliação do módulo</p><h3>${passed?'Módulo concluído':allLessonsReleased?'Libere a próxima etapa com conhecimento':'Avaliação ainda bloqueada'}</h3><p>${passed ? `Você concluiu ${module.id}. ${next ? `O ${next.id} será aberto conforme o calendário da turma.` : 'Você concluiu a trilha de módulos.'}` : allLessonsReleased ? 'Responda corretamente a avaliação abaixo. Nota mínima: 70%.' : lockedReason}</p>${passed||!allLessonsReleased?'':`<form data-module-quiz><fieldset class="quiz-question"><legend>Qual é o foco principal deste módulo?</legend>${options.map((option,index)=>`<label class="quiz-option"><input type="radio" name="focus" value="${escapeHtml(option)}" required> <span>${escapeHtml(option)}</span></label>`).join('')}</fieldset><fieldset class="quiz-question"><legend>Quando a próxima gravação é disponibilizada?</legend><label class="quiz-option"><input type="radio" name="schedule" value="0" required> <span>Após o encontro, conforme o calendário da turma.</span></label><label class="quiz-option"><input type="radio" name="schedule" value="1"> <span>Todas as aulas ficam abertas no primeiro dia.</span></label><label class="quiz-option"><input type="radio" name="schedule" value="2"> <span>Somente no fim da certificação.</span></label></fieldset><button class="button" type="submit">Enviar avaliação</button><p class="quiz-result" data-quiz-result></p></form>`}`;
     const form=quizNode.querySelector('[data-module-quiz]');
     if(form) form.addEventListener('submit',event=>{
@@ -183,7 +193,9 @@
     authSdk.onAuthStateChanged(auth, async (user) => {
       if (!user) {
         if (stopRemoteLessons) { stopRemoteLessons(); stopRemoteLessons = null; }
+        if (stopModuleSchedules) { stopModuleSchedules(); stopModuleSchedules = null; }
         remoteLessons.clear();
+        moduleSchedules.clear();
         renderLessons();
         return;
       }
@@ -203,6 +215,12 @@
           });
           renderLessons();
         }, () => { /* O catálogo continua com o conteúdo de demonstração até as regras serem publicadas. */ });
+        if (stopModuleSchedules) stopModuleSchedules();
+        stopModuleSchedules = firestoreSdk.onSnapshot(firestoreSdk.collection(db, 'moduleSchedules'), (scheduleSnapshot) => {
+          moduleSchedules.clear();
+          scheduleSnapshot.docs.forEach((entry) => { const item = entry.data(); if (item.moduleId) moduleSchedules.set(String(item.moduleId), item); });
+          render();
+        }, () => { /* O calendário padrão continua disponível quando a coleção ainda não foi publicada. */ });
         if (staffPreview) {
           state.passed = [];
           remoteProgress = null;
