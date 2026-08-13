@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verificar Certificado | Engenharia da Produção Musical™</title>
+<meta name="description" content="Consulte a autenticidade de um certificado emitido pelo Instituto Musical Vale.">
+<link rel="canonical" href="https://engenharia-da-producao-musical.vercel.app/pages/verificar-certificado.html">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/phase-21.css">
+</head>
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<div data-component="header">
+</div>
+<main id="conteudo" class="verify-shell">
+<section class="container verify-card">
+<p class="eyebrow">Validação institucional</p>
+<h1>Verifique um certificado.</h1>
+<p class="lede">Digite o código impresso no documento para confirmar sua situação diretamente no registro do Instituto Musical Vale.</p>
+<form class="verify-form" data-verify-form>
+<label for="certificate-code">Código do certificado</label>
+<input id="certificate-code" name="code" autocomplete="off" placeholder="EMP-XXXXXXXX-2026" maxlength="40" required>
+<button class="button" type="submit">Verificar autenticidade</button>
+</form>
+<div class="verify-result" data-verify-result aria-live="polite" hidden>
+</div>
+<p class="perf-note">A consulta pública exibe apenas os dados necessários para validar o documento. Dúvidas: <a href="mailto:empengenhariadeproducaomusical@gmail.com">suporte acadêmico</a>.</p>
+</section>
+</main>
+<div data-component="footer">
+</div>
+<script src="../components/component-loader.js">
+</script>
+<script src="../js/app.js">
+</script>
+<script src="../js/certificate-verifier.js">
+</script>
+</body>
+</html>

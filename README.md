@@ -73,3 +73,9 @@ A auditoria verifica a existência das páginas essenciais, componentes, manifes
 ## Nota institucional
 
 Curso Livre de Formação Profissional, ofertado conforme a legislação brasileira aplicável aos cursos livres, com emissão de certificado de conclusão.
+
+## Fase 21 — prontidão comercial
+
+A versão 1.8.0 acrescenta transparência institucional e comercial, documentos de privacidade e contratação, canais reais de suporte, página internacional informativa, SEO técnico e validação pública do certificado. O certificado é emitido por rota segura somente para matrícula ativa e após o cumprimento dos critérios acadêmicos de 90% de conclusão e média final mínima de 70/100.
+
+Os arquivos centrais das integrações Firebase e Hotmart estão listados como protegidos em `BUILD-FASE-21.txt` e não foram alterados nesta fase. Consulte `GUIA-FASE-21-PRONTIDAO-COMERCIAL.txt` antes de abrir uma turma real.

@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.8.0] — 2026-08-13 — Fase 21
+
+- Home e planos alinhados aos três produtos oficiais, com checkout Hotmart e condições explicadas sem promessas imprecisas.
+- Páginas de privacidade, termos, cookies, cancelamento, transparência, contato e verificação pública de certificados adicionadas.
+- Depoimentos fictícios e formulários demonstrativos removidos da experiência pública.
+- Equipe acadêmica, canais oficiais e página internacional informativa em inglês e espanhol aprimorados.
+- Emissão segura de certificado vinculada a matrícula ativa, 90% de conclusão e média final mínima de 70/100.
+- Sitemap, robots, metadados sociais, foco de teclado, contraste do tema claro e experiência móvel revisados.
+- Imagens mais acessadas convertidas para WebP, reduzindo significativamente o peso de carregamento sem remover os originais.
+- Integrações centrais Firebase e Hotmart preservadas.
+
 ## [1.4.0] — 2026-07-28 — Fase 16
 
 - Placar circular de progresso e página de perfil do aluno adicionados à plataforma.

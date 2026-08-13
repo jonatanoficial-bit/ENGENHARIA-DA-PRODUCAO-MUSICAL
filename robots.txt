@@ -1,3 +1,7 @@
 User-agent: *
 Allow: /
-Sitemap: sitemap.xml
+Disallow: /admin/
+Disallow: /aluno/
+Disallow: /professor/
+Disallow: /api/
+Sitemap: https://engenharia-da-producao-musical.vercel.app/sitemap.xml

@@ -32,7 +32,7 @@ body.sales-home, body.home { overflow-x: clip; overflow-y: auto; }
 .curriculum-cta__card p { max-width: 58ch; color: #d8e0e4; }
 
 @media (min-width: 48rem) {
-  .sales-hero::after { position: absolute; z-index: -1; top: 8%; right: 0; display: block; width: min(37vw, 36rem); height: 82%; background: linear-gradient(90deg, #05080b 0%, transparent 36%, rgba(5, 8, 11, .1)), url('../assets/campaign/home-vale-music-academy.png') 0 50% / 225% auto no-repeat; content: ''; opacity: .82; pointer-events: none; }
+  .sales-hero::after { position: absolute; z-index: -1; top: 8%; right: 0; display: block; width: min(37vw, 36rem); height: 82%; background: linear-gradient(90deg, #05080b 0%, transparent 36%, rgba(5, 8, 11, .1)), url('../assets/campaign/home-vale-music-academy.webp') 0 50% / 225% auto no-repeat; content: ''; opacity: .82; pointer-events: none; }
   .curriculum-modules { grid-template-columns: repeat(2, 1fr); }
 }
 

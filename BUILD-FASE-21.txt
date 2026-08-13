@@ -1,0 +1,20 @@
+BUILD FASE 21 — 13/08/2026
+
+Versão: 1.8.0
+Escopo: confiança comercial, transparência, documentos legais, contato, equipe, SEO, acessibilidade, internacionalização informativa e certificado verificável.
+
+Arquivos de integração preservados:
+- api/_firebase-admin.js
+- api/claim-enrollment.js
+- api/hotmart-webhook.js
+- firebase/firebase-client.js
+- firebase/firebase-auth.js
+- firebase/auth-guard.js
+- firebase/teacher-guard.js
+- firebase/firebase-config.js
+- js/checkout-links.js
+
+Critérios do certificado:
+- mínimo de 90% de conclusão;
+- resultado final mínimo de 70% (nota 7,0);
+- validação pública por código individual.

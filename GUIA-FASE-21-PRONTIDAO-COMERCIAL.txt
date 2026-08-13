@@ -1,0 +1,33 @@
+ENGENHARIA DA PRODUÇÃO MUSICAL™ — GUIA DE PRONTIDÃO COMERCIAL
+
+1. O QUE ESTA VERSÃO ENTREGA
+- Oferta pública coerente com os três planos oficiais.
+- Checkout sempre redirecionado à Hotmart; dados completos de cartão não passam pelo site.
+- Páginas de privacidade, termos, cookies, reembolso, transparência e contato.
+- Equipe acadêmica identificada e canais oficiais visíveis.
+- Página informativa em inglês e espanhol, deixando claro que as aulas são em português.
+- Certificado emitido somente após validação segura dos critérios acadêmicos.
+- Consulta pública do certificado por código individual.
+- Metadados, sitemap e robots atualizados para mecanismos de busca.
+- Correções de contraste, foco de teclado, toque e redução de movimentos.
+
+2. ANTES DE RECEBER ALUNOS REAIS
+- Confirmar no painel Hotmart o prazo de garantia configurado em cada oferta.
+- Fazer uma compra real de baixo valor e um reembolso controlado.
+- Testar login do aluno em janela anônima e em celular Android/iPhone.
+- Publicar duas aulas reais, marcar uma como concluída e conferir o progresso.
+- Executar uma avaliação, lançar uma nota e testar a emissão do certificado em conta de homologação.
+- Confirmar o prazo de resposta do suporte e manter uma pessoa responsável pelo canal.
+
+3. O QUE NÃO DEVE SER ALTERADO SEM TESTE
+As rotas de webhook, vínculo de matrícula, inicialização Firebase, guardas de acesso e links de checkout listados em BUILD-FASE-21.txt. Mudanças nessas áreas exigem homologação completa da jornada Hotmart → Firebase → aluno.
+
+4. SOBRE COOKIES
+Atualmente o site usa recursos essenciais de sessão e preferências. Se forem adicionados Meta Pixel, Google Analytics ou outras ferramentas de publicidade, será necessário implantar consentimento prévio para cookies não essenciais e atualizar a política.
+
+5. SOBRE DEPOIMENTOS
+Publique somente avaliações reais, autorizadas e identificáveis. Nunca use números, nomes, fotos ou resultados inventados. O layout atual apresenta compromissos verificáveis até existirem depoimentos válidos.
+
+6. SUPORTE
+E-mail: empengenhariadeproducaomusical@gmail.com
+Telefone/WhatsApp: (11) 96827-2377

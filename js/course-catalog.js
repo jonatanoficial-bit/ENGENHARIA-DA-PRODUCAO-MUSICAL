@@ -5,10 +5,10 @@
   if (!document.querySelector('link[href="../css/phase-20.css"]')) { const phase20 = document.createElement('link'); phase20.rel = 'stylesheet'; phase20.href = '../css/phase-20.css'; document.head.append(phase20); }
 
   const moduleArt = [
-    'm01-boas-vindas.png','m02-fundamentos-som.png','m03-fundamentos-musicais.png','m04-estudio-conexoes.png','m05-microfones-captacao.png',
-    'm06-acustica-pa.png','m07-producao-daw.png','m08-multi-daw.png','m09-midi-plugins.png','m10-arranjo-direcao.png',
-    'm11-gravacao-estudio.png','m12-edicao-audio.png','m13-mixagem.png','m14-masterizacao.png','m15-producao-vocal.png',
-    'm16-inteligencia-artificial.png','m17-mercado-e-distribuicao.png','m08-multi-daw.png','m01-boas-vindas.png','m17-mercado-e-distribuicao.png'
+    'm01-boas-vindas.webp','m02-fundamentos-som.webp','m03-fundamentos-musicais.webp','m04-estudio-conexoes.webp','m05-microfones-captacao.webp',
+    'm06-acustica-pa.webp','m07-producao-daw.webp','m08-multi-daw.webp','m09-midi-plugins.webp','m10-arranjo-direcao.webp',
+    'm11-gravacao-estudio.webp','m12-edicao-audio.webp','m13-mixagem.webp','m14-masterizacao.webp','m15-producao-vocal.webp',
+    'm16-inteligencia-artificial.webp','m17-mercado-e-distribuicao.webp','m08-multi-daw.webp','m01-boas-vindas.webp','m17-mercado-e-distribuicao.webp'
   ];
   const modules = [
     ['M01','Boas-vindas e orientação profissional','Jonatan Vale e Giovane Firmino da Silva','Boas-vindas à Engenharia da Produção Musical|O que faz um produtor musical|O que faz um engenheiro de áudio|Como estudar e construir um portfólio'],

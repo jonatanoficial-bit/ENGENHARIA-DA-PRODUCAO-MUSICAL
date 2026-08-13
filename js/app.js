@@ -29,4 +29,10 @@
   phase13Styles.rel = 'stylesheet';
   phase13Styles.href = `${root.dataset.root || './'}css/phase-13.css`;
   document.head.append(phase13Styles);
+  if (!document.querySelector('link[href$="phase-21.css"]')) {
+    const phase21Styles = document.createElement('link');
+    phase21Styles.rel = 'stylesheet';
+    phase21Styles.href = `${root.dataset.root || './'}css/phase-21.css`;
+    document.head.append(phase21Styles);
+  }
 })();

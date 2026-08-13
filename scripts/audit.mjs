@@ -20,6 +20,7 @@ required.forEach((file) => { if (!fs.existsSync(path.join(root, file))) errors.p
 ['css/phase-14.css', 'js/course-catalog.js', 'assets/team/giovane-firmino.jpg', 'YOUTUBE-EMBEDS.md', 'FIREBASE-CONTROLE-DE-CURSO.txt'].forEach((file) => { if (!fs.existsSync(path.join(root, file))) errors.push(`Arquivo obrigatório ausente: ${file}`); });
 ['css/phase-15.css', 'js/checkout-links.js', 'js/student-assessments.js', 'js/teacher-portal.js', 'firebase/firebase-client.js', 'firebase/teacher-guard.js', 'FIRESTORE-RULES-ACADEMIA.txt', 'OPERACAO-HOTMART-E-MATRICULAS.txt', 'GOOGLE-DRIVE-ENTREGAS.txt', 'professor/index.html'].forEach((file) => { if (!fs.existsSync(path.join(root, file))) errors.push(`Arquivo obrigatório ausente: ${file}`); });
 ['css/phase-16.css', 'aluno/perfil.html', 'js/student-profile.js', 'api/hotmart-webhook.js', 'api/claim-enrollment.js', 'api/_firebase-admin.js', '.env.example', 'JORNADA-HOTMART-E-ALUNO.txt'].forEach((file) => { if (!fs.existsSync(path.join(root, file))) errors.push(`Arquivo obrigatório ausente: ${file}`); });
+['css/phase-20.css', 'css/phase-21.css', 'api/issue-certificate.js', 'api/verify-certificate.js', 'js/certificate-verifier.js', 'js/international.js', 'pages/privacidade.html', 'pages/termos.html', 'pages/cookies.html', 'pages/reembolso.html', 'pages/transparencia.html', 'pages/verificar-certificado.html', 'pages/international.html', 'BUILD-FASE-21.txt', 'GUIA-FASE-21-PRONTIDAO-COMERCIAL.txt'].forEach((file) => { if (!fs.existsSync(path.join(root, file))) errors.push(`Arquivo obrigatório ausente: ${file}`); });
 htmlFiles.forEach((file) => {
   const source = fs.readFileSync(file, 'utf8');
   const relative = path.relative(root, file);
@@ -28,6 +29,8 @@ htmlFiles.forEach((file) => {
   if (!source.includes('name="description"') && !source.includes('name="robots"')) errors.push(`${relative}: meta description ausente`);
   if (!standalonePages.has(relative.replaceAll('\\', '/')) && !source.includes('data-component="header"')) errors.push(`${relative}: componente header ausente`);
   if (!standalonePages.has(relative.replaceAll('\\', '/')) && !source.includes('data-component="footer"')) errors.push(`${relative}: componente footer ausente`);
+  if (source.includes('data-demo-form')) errors.push(`${relative}: formulário demonstrativo não permitido na versão comercial`);
+  if (/estrutura editorial criada|ser[aã] desenvolvid[oa]|Fase\s+\d+/i.test(source)) errors.push(`${relative}: linguagem de protótipo encontrada`);
   const refs = [...source.matchAll(/(?:href|src)="([^"]+)"/g)].map((match) => match[1]);
   refs.filter((reference) => !/^(https?:|mailto:|#)/.test(reference)).forEach((reference) => {
     const clean = reference.split(/[?#]/)[0];
@@ -35,6 +38,9 @@ htmlFiles.forEach((file) => {
     if (!fs.existsSync(path.resolve(path.dirname(file), clean))) errors.push(`${relative}: referência inválida → ${reference}`);
   });
 });
+
+const protectedIntegrations = ['api/_firebase-admin.js', 'api/claim-enrollment.js', 'api/hotmart-webhook.js', 'firebase/firebase-client.js', 'firebase/firebase-auth.js', 'firebase/auth-guard.js', 'firebase/teacher-guard.js', 'firebase/firebase-config.js', 'js/checkout-links.js'];
+protectedIntegrations.forEach((file) => { if (!fs.existsSync(path.join(root, file))) errors.push(`Integração protegida ausente: ${file}`); });
 
 if (errors.length) {
   console.error(`Auditoria falhou com ${errors.length} problema(s):`);
