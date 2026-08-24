@@ -8,10 +8,6 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
         && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.active == true;
     }
-    function isAdmin() {
-      return isStaff()
-        && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role in ['admin', 'owner'];
-    }
     function isPaidStudent() {
       return signedIn()
         && exists(/databases/$(database)/documents/students/$(request.auth.uid))
