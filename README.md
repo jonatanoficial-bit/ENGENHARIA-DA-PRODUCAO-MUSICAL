@@ -2,9 +2,17 @@
 
 Fundação da plataforma estática, criada para publicação no GitHub Pages.
 
-## Fases 01–15 — Fundação, Identidade, Operação e Lançamento Comercial
+## Fases 01–22 — Plataforma comercial e operação acadêmica
 
 Inclui arquitetura de páginas, componentes compartilhados, identidade visual final, landing page comercial, plataforma institucional, área do aluno, assistente inteligente, áreas premium e comercial, painel administrativo, Firebase preparado para login Google, PWA, SEO técnico e auditoria final.
+
+### Fase 22 — inteligência acadêmica e gestão docente
+
+- Painel do professor com prontuário por aluno: progresso, aula atual, comentários pós-vídeo, acessos, avaliações e projetos.
+- Boletim do aluno com notas por módulo, evolução total e média ponderada (55% provas, 10% atividades, 15% Projeto 1 e 20% Projeto 2/TCC).
+- Importação rápida de avaliações em JSON gerado pelo ChatGPT, com gabarito protegido no Firestore.
+- Administração segura de professores e conexão do portal de apoiadores sem editar o GitHub.
+- Consulte `GUIA-FASE-22-PAINEL-ACADEMICO.txt` antes de publicar as novas regras.
 
 ### Fase 14 — direção acadêmica, planos e jornada modular
 

@@ -1,4 +1,5 @@
 import { firebaseReady } from '../firebase/firebase-client.js';
+import { calculateAcademicGrade } from './academic-model.js';
 
 const root = document.querySelector('[data-certificate-app]');
 if (root && firebaseReady) {
@@ -10,13 +11,11 @@ if (root && firebaseReady) {
   const stamp = () => new Intl.DateTimeFormat('pt-BR',{dateStyle:'long'}).format(new Date());
   const score = (submissions, projects, activities) => {
     const tests = submissions.filter((item) => typeof item.score === 'number').map((item) => item.score);
-    const works = projects.filter((item) => typeof item.score === 'number').map((item) => item.score);
-    const activity = Math.round((activities / totalLessons) * 100);
-    const values = [];
-    if (tests.length) values.push(tests.reduce((a,b)=>a+b,0) / tests.length);
-    if (works.length) values.push(works.reduce((a,b)=>a+b,0) / works.length);
-    if (activities) values.push(activity);
-    return values.length ? Math.round(values.reduce((a,b)=>a+b,0) / values.length) : null;
+    const activityScores = activities.map((item) => Number.isFinite(Number(item.score)) ? Number(item.score) : (['submitted','graded'].includes(item.status) ? 100 : null)).filter((item) => item !== null);
+    const continuous = projects.find((item) => item.kind === 'continuous' || item.id === 'continuous');
+    const finalProject = projects.find((item) => item.kind === 'final' || item.id === 'final');
+    const result = calculateAcademicGrade({ assessmentScores:tests, activityScores, continuousScore:continuous?.score, finalScore:finalProject?.score });
+    return result.official === null ? null : Math.round(result.official);
   };
 
   const render = (data) => {
@@ -58,15 +57,16 @@ if (root && firebaseReady) {
   authSdk.onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.replace('../pages/login.html'); return; }
     try {
-      const [student, catalog, submissions, projects, settings] = await Promise.all([
+      const [student, catalog, submissions, projects, activities, settings] = await Promise.all([
         getDoc(doc(db,'students',user.uid)), getDoc(doc(db,'students',user.uid,'progress','catalog')),
         getDocs(collection(db,'assessments')), getDocs(collection(db,'students',user.uid,'projects')),
+        getDocs(collection(db,'students',user.uid,'activities')),
         getDoc(doc(db,'academicSettings','certification'))
       ]);
       const entries = await Promise.all(submissions.docs.map(async (assessment) => { const item = await getDoc(doc(db,'assessments',assessment.id,'submissions',user.uid)); return item.exists() ? item.data() : {}; }));
       const completed = catalog.exists() && Array.isArray(catalog.data().completedLessons) ? catalog.data().completedLessons.length : 0;
       const hours = settings.exists() && Number(settings.data().courseHours) > 0 ? Number(settings.data().courseHours) : 180;
-      render({ user, name:student.exists() ? (student.data().name || student.data().email || user.displayName) : user.displayName, progress:Math.round((completed / totalLessons) * 100), finalScore:score(entries,projects.docs.map((entry)=>entry.data()),completed), hours });
+      render({ user, name:student.exists() ? (student.data().name || student.data().email || user.displayName) : user.displayName, progress:Math.round((completed / totalLessons) * 100), finalScore:score(entries,projects.docs.map((entry)=>({id:entry.id,...entry.data()})),activities.docs.map((entry)=>entry.data())), hours });
     } catch { root.innerHTML = '<section class="certificate-panel"><h1>Não foi possível carregar os dados acadêmicos.</h1><p>Atualize a página ou entre em contato com o suporte acadêmico.</p></section>'; }
   });
 }

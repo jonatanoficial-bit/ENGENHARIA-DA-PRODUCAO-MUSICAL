@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.9.0] — 2026-08-24 — Fase 22
+
+- Prontuário acadêmico individual no painel docente com posição atual, vídeos concluídos, comentários pós-aula, acessos e médias.
+- Boletim estudantil com avanço nos 20 módulos e média ponderada entre provas, atividades, Projeto 1 e Projeto 2/TCC.
+- Importação de avaliações em JSON gerado pelo ChatGPT e correção objetiva das tentativas em lote.
+- Cadastro de professores pelo administrador, após o primeiro login Google, sem edição manual de documentos no Firestore.
+- Página de apoiadores conectável a um portal externo pela área administrativa.
+- Regras acadêmicas ampliadas sem alterar as rotas protegidas de Firebase Authentication, Hotmart e matrícula.
+- Interface responsiva e contraste dos temas claro/escuro revisados para os novos painéis.
+
 ## [1.8.0] — 2026-08-13 — Fase 21
 
 - Home e planos alinhados aos três produtos oficiais, com checkout Hotmart e condições explicadas sem promessas imprecisas.

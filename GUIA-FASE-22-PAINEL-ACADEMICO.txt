@@ -1,0 +1,106 @@
+ENGENHARIA DA PRODUÇÃO MUSICAL™
+GUIA DE IMPLANTAÇÃO — FASE 22
+
+OBJETIVO
+Ativar o prontuário acadêmico, o boletim, o controle de acessos, a importação
+rápida de avaliações, o cadastro seguro de professores e o portal de apoiadores.
+
+1. SEGURANÇA ANTES DA PUBLICAÇÃO
+1.1 Faça download de um backup do repositório atual.
+1.2 Não exclua coleções no Firebase.
+1.3 Não altere a URL do webhook Hotmart nem as variáveis Firebase Admin da Vercel.
+1.4 Envie os arquivos deste pacote mantendo a mesma estrutura de pastas.
+
+2. PUBLICAÇÃO DO SITE
+2.1 Substitua os arquivos do repositório pelos arquivos do ZIP.
+2.2 Faça commit na branch usada pela Vercel.
+2.3 Aguarde o deployment ficar Ready.
+2.4 Abra o site em janela anônima e atualize com Ctrl+F5. O service worker foi
+    versionado como emp-v1-9-0 para remover o cache anterior.
+
+3. PUBLICAÇÃO DAS REGRAS FIRESTORE
+3.1 Abra Firebase Console > Firestore Database > Regras.
+3.2 Abra FIRESTORE-RULES-ACADEMIA.txt neste pacote.
+3.3 Copie apenas o bloco que começa em rules_version e termina no último }.
+3.4 Substitua TODAS as regras atuais e clique em Publicar.
+3.5 Essa troca NÃO apaga documentos. Ela apenas controla permissões.
+
+4. TRANSFORMAR JONATAN EM ADMINISTRADOR (UMA ÚNICA VEZ)
+4.1 Em Firestore > Dados > staff, abra o documento com o UID da conta de Jonatan.
+4.2 Mantenha active como boolean true.
+4.3 Troque role de teacher para admin (texto em letras minúsculas).
+4.4 Mantenha name e email existentes.
+4.5 Depois disso, novos professores serão cadastrados pelo próprio painel.
+
+5. CADASTRAR UM NOVO PROFESSOR SEM VOLTAR AO FIREBASE
+5.1 O novo professor entra uma vez no site com a conta Google dele.
+5.2 Ele ainda verá a mensagem de que não possui perfil docente. Isso é esperado.
+5.3 Jonatan entra como administrador na Área do Professor.
+5.4 Abra “Administração da plataforma”.
+5.5 Informe nome, o MESMO e-mail Google e escolha Professor ou Administrador.
+5.6 Clique em Salvar professor. A rota segura /api/manage-staff valida o token de
+    Jonatan e procura a conta no Firebase Authentication antes de criar o perfil.
+5.7 Professores comuns não podem cadastrar outros professores.
+
+6. O QUE O PROFESSOR PASSA A VER
+- Cada aluno ativo já existente; nenhuma matrícula é recriada.
+- Percentual do curso e quantidade de aulas concluídas.
+- Próxima aula e última aula marcada como assistida.
+- Quantidade e data do último acesso ao ambiente.
+- Comentários/reflexões enviados após cada vídeo.
+- Notas de atividades, avaliações, Projeto 1 e Projeto 2/TCC.
+- Média parcial coerente e avanço por módulo.
+
+Observação: o contador começa a acumular após a publicação da Fase 22. Acessos
+anteriores não podem ser reconstruídos porque não eram registrados.
+
+7. FLUXO DA ATIVIDADE APÓS O VÍDEO
+7.1 O aluno assiste ao vídeo.
+7.2 Escreve uma reflexão com pelo menos 12 caracteres.
+7.3 Marca a declaração de que assistiu e envia.
+7.4 A aula entra em completedLessons e aparece imediatamente no prontuário.
+7.5 O professor informa nota de 0 a 100 e feedback.
+7.6 A nota entra no boletim com peso de 10% na média geral.
+
+8. CRIAR PROVA RAPIDAMENTE COM CHATGPT
+8.1 No painel, clique em “Copiar prompt para o ChatGPT”.
+8.2 Cole no ChatGPT e substitua [ESCREVA O TEMA AQUI].
+8.3 Peça de 5 a 10 questões e não aceite texto fora do JSON.
+8.4 Copie o JSON para “Avaliação rápida com IA”.
+8.5 Clique em Validar e publicar avaliação.
+8.6 O painel rejeita módulo inválido, alternativa vazia e índice incorreto.
+8.7 O gabarito fica em assessmentKeys, protegido para professores.
+8.8 Clique em “Corrigir tentativas” para calcular todas as respostas enviadas.
+
+Formato aceito:
+{"titulo":"Avaliação M01","modulo":"M01","notaMinima":70,"perguntas":[{"pergunta":"Texto","alternativas":["A","B","C","D"],"correta":0}]}
+
+9. PROJETOS E MÉDIA
+- Provas dos módulos: 55%.
+- Atividades pós-aula: 10%.
+- Projeto 1/produção contínua: 15%.
+- Projeto 2/TCC final: 20%.
+- O boletim mostra N/A enquanto uma parte ainda não recebeu nota.
+- A média parcial normaliza somente os pesos já avaliados.
+- A média oficial exige os quatro componentes avaliados.
+
+10. CONECTAR O SITE DE APOIADORES/PATROCINADORES
+10.1 Entre como administrador.
+10.2 Em Administração, cole a URL https:// do portal externo.
+10.3 Clique em Conectar portal.
+10.4 O endereço será salvo em platformSettings/public e aparecerá em Apoiadores.
+10.5 Como o endereço não foi informado junto deste pedido, o pacote deixa o campo
+     pronto para configuração, sem inventar ou publicar um destino incorreto.
+
+11. TESTE DE ACEITAÇÃO
+11.1 Professor: login, prontuário, nota da atividade e lista de equipe.
+11.2 Aluno: login, abrir vídeo, enviar reflexão e conferir boletim.
+11.3 Confirmar que a porcentagem aumenta ao concluir uma aula.
+11.4 Publicar uma avaliação de teste e corrigir uma tentativa.
+11.5 Verificar Projeto 1 e Projeto 2 no prontuário.
+11.6 Testar celular em retrato; tabelas devem rolar horizontalmente dentro do cartão.
+11.7 Confirmar que o painel Hotmart e as quatro matrículas continuam intactos.
+
+SUPORTE
+empengenhariadeproducaomusical@gmail.com
+(11) 96827-2377

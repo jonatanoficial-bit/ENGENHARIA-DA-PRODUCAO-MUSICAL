@@ -1,8 +1,8 @@
 ENGENHARIA DA PRODUÇÃO MUSICAL™
 
-Release: v1.8.0
-Fase: 21 — Prontidão comercial, transparência e experiência internacional
-Build: 13/08/2026 · BRT
+Release: v1.9.0
+Fase: 22 — Inteligência acadêmica, boletim e gestão docente
+Build: 24/08/2026 · BRT
 
 Instituição certificadora: Instituto Musical Vale
 CNPJ: 31.255.200/0001-19
@@ -15,3 +15,5 @@ Checkout e confirmação de matrícula: Hotmart + rotas seguras Vercel.
 Validação pública de certificados: código individual emitido após 90% de conclusão e resultado final mínimo de 70%.
 
 IMPORTANTE: os arquivos centrais das integrações Firebase e Hotmart foram preservados nesta fase.
+Novidades: prontuário acadêmico por aluno, boletim modular, comentários pós-aula,
+contagem de acessos, importação rápida de avaliações e administração segura de docentes.

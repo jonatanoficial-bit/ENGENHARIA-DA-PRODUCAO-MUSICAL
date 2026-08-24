@@ -1,0 +1,30 @@
+BUILD FASE 22 — 24/08/2026
+
+Versão: 1.9.0
+Escopo: inteligência acadêmica, boletim modular, comentários pós-aula,
+controle de acessos, avaliações rápidas, administração de docentes e apoiadores.
+
+INTEGRAÇÕES PRESERVADAS (sem alteração nesta fase)
+- api/_firebase-admin.js
+- api/claim-enrollment.js
+- api/hotmart-webhook.js
+- firebase/firebase-client.js
+- firebase/firebase-auth.js
+- firebase/auth-guard.js
+- firebase/teacher-guard.js
+- firebase/firebase-config.js
+- js/checkout-links.js
+
+DADOS PRESERVADOS
+- A instalação não apaga, recria ou migra documentos existentes.
+- Os quatro alunos atuais permanecem na coleção students.
+- Vendas e matrículas da Hotmart continuam nas coleções atuais.
+- A Fase 22 acrescenta somente leitura acadêmica e novas subcoleções por aluno.
+
+MODELO DE NOTA
+- Avaliações dos módulos: 55%
+- Atividades após as aulas: 10%
+- Projeto 1 — produção contínua: 15%
+- Projeto 2 — TCC final: 20%
+
+Critérios de certificação: mínimo de 90% de conclusão e média final 70/100.

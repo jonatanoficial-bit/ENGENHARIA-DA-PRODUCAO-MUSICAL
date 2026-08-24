@@ -1,4 +1,5 @@
 import { firebaseReady } from '../firebase/firebase-client.js';
+import { calculateAcademicGrade, formatGrade } from './academic-model.js';
 
 const root = document.querySelector('[data-student-profile]');
 const details = document.querySelector('[data-student-profile-details]');
@@ -25,23 +26,19 @@ if (firebaseReady && root) {
       const completedLessons = Array.isArray(progress.completedLessons) ? progress.completedLessons.length : 0;
       const lessonTotal = Number(progress.totalLessons || 162);
       const courseProgress = Math.round((completedLessons / lessonTotal) * 100);
-      const activityScore = activitySnapshot.size ? Math.round((activitySnapshot.size / lessonTotal) * 100) : null;
+      const activities = activitySnapshot.docs.map((entry) => entry.data());
+      const activityScores = activities.map((item) => Number.isFinite(Number(item.score)) ? Number(item.score) : (['submitted','graded'].includes(item.status) ? 100 : null)).filter((item) => item !== null);
       const submissions = await Promise.all(assessmentSnapshot.docs.map(async (assessment) => { const submission = await getDocFromServer(doc(db, 'assessments', assessment.id, 'submissions', user.uid)); return submission.exists() ? submission.data() : null; }));
       const assessmentScores = submissions.filter((item) => item?.status === 'graded' && Number.isFinite(Number(item.score))).map((item) => Number(item.score));
       const projects = projectsSnapshot.docs.map((entry) => entry.data());
       const continuous = projects.find((item) => item.kind === 'continuous');
       const finalProject = projects.find((item) => item.kind === 'final');
-      const components = [
-        { value: average(assessmentScores), weight: 55 },
-        { value: activityScore, weight: 10 },
-        { value: Number.isFinite(Number(continuous?.score)) ? Number(continuous.score) : null, weight: 15 },
-        { value: Number.isFinite(Number(finalProject?.score)) ? Number(finalProject.score) : null, weight: 20 }
-      ].filter((item) => item.value !== null);
-      const grade = assessmentScores.length || projects.some((item) => Number.isFinite(Number(item.score))) ? components.reduce((sum, item) => sum + item.value * item.weight, 0) / components.reduce((sum, item) => sum + item.weight, 0) : null;
+      const academicGrade = calculateAcademicGrade({ assessmentScores, activityScores, continuousScore:continuous?.score, finalScore:finalProject?.score });
+      const grade = academicGrade.partial;
       const name = isStaff ? (staffSnapshot.data().name || user.displayName || 'Professor(a)') : (student.name || user.displayName || 'Aluno(a)');
       root.innerHTML = `<p class="eyebrow">${isStaff ? 'Visualização docente' : 'Meu perfil acadêmico'}</p><h1>${safe(name)}</h1><p class="lede">${isStaff ? 'Prévia da experiência acadêmica. Nenhum registro é criado na sua conta docente.' : 'Seu progresso, suas entregas e sua média são atualizados conforme você avança.'}</p>`;
       details.hidden = false;
-      details.innerHTML = `<article class="profile-stat"><span>Conclusão do curso</span><strong>${courseProgress}%</strong><small>${completedLessons} de ${lessonTotal} aulas concluídas</small></article><article class="profile-stat"><span>Média geral ponderada</span><strong>${percent(grade)}</strong><small>${grade === null ? 'N/A até existir uma nota publicada' : 'Avaliações, atividades e trabalhos'}</small></article><article><span>Média das avaliações</span><strong>${percent(average(assessmentScores))}</strong><small>${assessmentScores.length} nota(s) publicada(s)</small></article><article><span>Atividades de aula</span><strong>${activitySnapshot.size}</strong><small>${activityScore === null ? 'Ainda não registradas' : `${activityScore}% da trilha concluído`}</small></article><article><span>Projeto contínuo</span><strong>${continuous?.score ?? 'N/A'}</strong><small>${continuous?.status === 'graded' ? 'Nota publicada' : 'Inicia na Aula 2 do M01'}</small></article><article><span>Projeto final</span><strong>${finalProject?.score ?? 'N/A'}</strong><small>${finalProject?.status === 'graded' ? 'Nota publicada' : 'Libera no M19'}</small></article><article><span>Plano contratado</span><strong>${safe(student.plan || (isStaff ? 'Visualização' : 'Em validação'))}</strong><small>Início: ${safe(labelDate(student.courseStart))}</small></article><article><span>Status da matrícula</span><strong class="profile-status profile-status--ok">${isStaff ? 'Prévia docente' : 'Ativa'}</strong><small>${safe(user.email || '—')}</small></article>`;
+      details.innerHTML = `<article class="profile-stat"><span>Conclusão do curso</span><strong>${courseProgress}%</strong><small>${completedLessons} de ${lessonTotal} aulas concluídas</small></article><article class="profile-stat"><span>Média parcial ponderada</span><strong>${formatGrade(grade)}</strong><small>${grade === null ? 'N/A até existir uma nota publicada' : `${academicGrade.availableWeight}% dos componentes avaliados`}</small></article><article><span>Média das avaliações</span><strong>${formatGrade(average(assessmentScores))}</strong><small>${assessmentScores.length} nota(s) publicada(s) · peso 55%</small></article><article><span>Atividades de aula</span><strong>${activitySnapshot.size}</strong><small>Média ${formatGrade(average(activityScores))} · peso 10%</small></article><article><span>Projeto 1</span><strong>${continuous?.score ?? 'N/A'}</strong><small>${continuous?.status === 'graded' ? 'Nota publicada · peso 15%' : 'Inicia na Aula 2 do M01'}</small></article><article><span>Projeto 2 — TCC final</span><strong>${finalProject?.score ?? 'N/A'}</strong><small>${finalProject?.status === 'graded' ? 'Nota publicada · peso 20%' : 'Libera no M19'}</small></article><article><span>Plano contratado</span><strong>${safe(student.plan || (isStaff ? 'Visualização' : 'Em validação'))}</strong><small>Início: ${safe(labelDate(student.courseStart))}</small></article><article><span>Status da matrícula</span><strong class="profile-status profile-status--ok">${isStaff ? 'Prévia docente' : 'Ativa'}</strong><small>${safe(user.email || '—')}</small></article><a class="profile-report-link" href="boletim.html"><span>Boletim completo</span><strong>Ver notas por módulo →</strong></a>`;
     } catch (error) { root.innerHTML = `<p class="eyebrow">Meu perfil</p><h1>Não foi possível carregar o perfil.</h1><p class="lede">Código Firebase: ${safe(error?.code || 'erro-desconhecido')}. Atualize as regras do Firestore e tente novamente.</p>`; }
   });
 }

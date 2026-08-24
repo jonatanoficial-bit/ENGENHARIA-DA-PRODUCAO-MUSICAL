@@ -1,15 +1,3 @@
-REGRAS DO FIRESTORE — FASE 22
-
-COMO PUBLICAR
-1. Firebase Console > Firestore Database > Regras.
-2. Substitua TODAS as regras atuais pelo bloco abaixo.
-3. Clique em Publicar.
-4. Não altere as variáveis do Firebase Admin nem a URL do webhook Hotmart.
-
-Estas regras não interferem no webhook: a Vercel usa Firebase Admin, que é uma
-rota de servidor separada. Elas liberam somente os dados acadêmicos necessários
-ao site: progresso, atividades, projetos, aulas e matrícula direta confirmada.
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -46,8 +34,6 @@ service cloud.firestore {
       allow delete: if isStaff();
     }
 
-    // Contador e histórico de acessos. Cada aluno grava apenas o próprio uso;
-    // a equipe acadêmica pode consultar para acompanhamento pedagógico.
     match /students/{studentId}/analytics/{analyticsId} {
       allow read: if owns(studentId) || isStaff();
       allow create: if owns(studentId)
@@ -104,13 +90,11 @@ service cloud.firestore {
       allow create, update, delete: if isStaff();
     }
 
-    // Calendário por módulo: professores configuram uma abertura e o ritmo semanal.
     match /moduleSchedules/{moduleId} {
       allow read: if isStaff() || isPaidStudent();
       allow create, update, delete: if isStaff();
     }
 
-    // Configurações institucionais exibidas no certificado; apenas a equipe edita.
     match /academicSettings/{settingId} {
       allow read: if signedIn();
       allow create, update, delete: if isStaff();
@@ -133,7 +117,9 @@ service cloud.firestore {
       }
     }
 
-    match /assessmentKeys/{assessmentId} { allow read, write: if isStaff(); }
+    match /assessmentKeys/{assessmentId} {
+      allow read, write: if isStaff();
+    }
 
     match /liveSessions/{sessionId} {
       allow read: if signedIn();
@@ -150,34 +136,22 @@ service cloud.firestore {
       allow update, delete: if isStaff();
     }
 
-    // Criada somente pela equipe após confirmar boleto/PIX parcelado.
-    // O servidor promove esta matrícula ao documento do aluno no primeiro login.
-    match /manualEnrollments/{enrollmentId} { allow read, write: if isStaff(); }
+    match /manualEnrollments/{enrollmentId} {
+      allow read, write: if isStaff();
+    }
 
-    // Endereço público do portal de apoiadores. A escrita ocorre somente pela
-    // API administrativa segura, usando Firebase Admin na Vercel.
     match /platformSettings/public {
       allow read: if true;
       allow write: if false;
     }
 
-    // Vendas e matrículas automáticas são exclusivas do Firebase Admin na Vercel.
-    match /sales/{saleId} { allow read: if isStaff(); allow write: if false; }
-    match /enrollments/{enrollmentId} { allow read, write: if false; }
+    match /sales/{saleId} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+
+    match /enrollments/{enrollmentId} {
+      allow read, write: if false;
+    }
   }
 }
-
-MÉDIA GERAL PONDERADA
-- Avaliações de módulo corrigidas: 55%
-- Atividades obrigatórias ao fim das aulas: 10%
-- Projeto contínuo iniciado na Aula 2 do M01: 15%
-- Produção avaliativa independente liberada no M19: 20%
-
-A média fica N/A até a primeira avaliação ou trabalho receber nota do professor.
-O painel calcula uma média parcial com os componentes já avaliados; os pesos são
-normalizados para não penalizar o aluno por uma etapa que ainda não foi corrigida.
-
-MATRÍCULA DIRETA
-No painel do professor, abra “Matrícula direta”, informe o mesmo e-mail Google do
-aluno, o plano e a data. Marque a confirmação apenas após receber o pagamento.
-No primeiro login do aluno, o servidor segura essa matrícula e cria o acesso.

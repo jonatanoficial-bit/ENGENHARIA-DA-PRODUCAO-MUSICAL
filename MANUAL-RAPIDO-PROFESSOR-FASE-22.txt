@@ -1,0 +1,14 @@
+MANUAL RÁPIDO DO PROFESSOR — FASE 22
+
+1. Entre em “Entrar na plataforma” > “Sou professor” com a conta Google autorizada.
+2. Em “Visão acadêmica completa”, escolha um aluno e abra o prontuário.
+3. Confira o percentual, a aula atual, a última conclusão e os acessos.
+4. Leia o comentário pós-vídeo e dê nota/feedback à atividade.
+5. Em “Projetos principais”, corrija o Projeto 1 ou o Projeto 2/TCC.
+6. Para uma prova rápida, copie o prompt, gere o JSON no ChatGPT, cole e publique.
+7. Use “Corrigir tentativas” para calcular as respostas objetivas recebidas.
+8. Para vídeos, cole o link YouTube não listado, escolha módulo/aula e salve.
+9. Para novo professor, o administrador usa Administração após o primeiro login Google.
+10. Para apoiadores, o administrador cola a URL oficial e salva.
+
+Nunca compartilhe senhas, chave Firebase Admin ou segredo Hotmart.

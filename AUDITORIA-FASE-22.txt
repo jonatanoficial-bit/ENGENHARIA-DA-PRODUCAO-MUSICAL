@@ -1,0 +1,29 @@
+ENGENHARIA DA PRODUÇÃO MUSICAL™ — AUDITORIA DA FASE 22
+Data: 24/08/2026
+Versão: 1.9.0
+
+RESULTADOS
+- Sintaxe validada nos arquivos JavaScript novos e alterados.
+- Auditoria aprovada em 32 páginas e 41 arquivos essenciais.
+- Login, Apoiadores, Boletim e Painel do Professor responderam HTTP 200.
+- Layout verificado em 1440x900 e 390x844, sem rolagem horizontal da página.
+- Tema claro e tema escuro verificados, sem texto branco sobre fundo branco.
+- Cálculo acadêmico testado: 55% provas, 10% atividades, 15% Projeto 1 e 20% Projeto 2/TCC.
+- Atividade entregue e ainda não corrigida não altera a média.
+- Os nove arquivos centrais de autenticação, Firebase Admin, matrícula Hotmart e checkout não foram modificados.
+
+PRESERVAÇÃO DE DADOS
+Esta atualização não contém rotina de exclusão, migração ou recriação de alunos.
+O pacote não acessou nem alterou os quatro alunos existentes no Firestore.
+As rotas atuais da Hotmart e do Firebase foram preservadas.
+
+ANTES DE PUBLICAR
+1. Faça backup/exportação do Firestore.
+2. Publique a regra completa de FIRESTORE-RULES-ACADEMIA.txt.
+3. Uma única vez, defina role = admin no documento staff do responsável pela plataforma.
+4. Faça o deploy do ZIP e execute o roteiro de testes do GUIA-FASE-22-PAINEL-ACADEMICO.txt.
+
+OBSERVAÇÕES
+- A contagem de acessos começa a acumular após o deploy desta versão.
+- O endereço do portal externo de apoiadores deve ser informado pelo administrador no painel.
+- Um novo professor precisa primeiro entrar uma vez com Google; depois o administrador o ativa pelo painel.
