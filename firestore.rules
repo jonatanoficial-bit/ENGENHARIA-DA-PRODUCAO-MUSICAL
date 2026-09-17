@@ -58,7 +58,9 @@ service cloud.firestore {
       allow create: if owns(studentId)
         && request.resource.data.studentId == request.auth.uid
         && request.resource.data.answer is string
-        && request.resource.data.answer.size() >= 12;
+        && request.resource.data.answer.size() >= 12
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.keys().hasOnly(['studentId', 'moduleId', 'lessonNumber', 'lessonKey', 'title', 'answer', 'status', 'submittedAt', 'updatedAt']);
       allow update: if isStaff() || (owns(studentId)
         && resource.data.status != 'graded'
         && request.resource.data.status == 'submitted'
@@ -73,8 +75,11 @@ service cloud.firestore {
       allow create: if owns(studentId)
         && request.resource.data.studentId == request.auth.uid
         && request.resource.data.notes is string
-        && request.resource.data.notes.size() >= 12;
+        && request.resource.data.notes.size() >= 12
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.keys().hasOnly(['kind', 'studentId', 'studentName', 'studentEmail', 'driveUrl', 'notes', 'status', 'submittedAt', 'updatedAt']);
       allow update: if isStaff() || (owns(studentId)
+        && request.resource.data.status == 'submitted'
         && request.resource.data.studentId == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['driveUrl', 'notes', 'status', 'submittedAt', 'updatedAt']));
@@ -103,7 +108,8 @@ service cloud.firestore {
         allow read: if owns(studentId) || isStaff();
         allow create: if owns(studentId)
           && request.resource.data.studentId == request.auth.uid
-          && request.resource.data.status == 'submitted';
+          && request.resource.data.status == 'submitted'
+          && request.resource.data.keys().hasOnly(['studentId', 'studentName', 'studentEmail', 'answers', 'answer', 'status', 'submittedAt']);
         allow update: if isStaff() || (owns(studentId)
           && resource.data.status == 'submitted'
           && request.resource.data.status == 'submitted'

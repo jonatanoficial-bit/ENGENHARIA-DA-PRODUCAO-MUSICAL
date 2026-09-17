@@ -20,10 +20,6 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
         && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.active == true;
     }
-    function isAdmin() {
-      return isStaff()
-        && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role in ['admin', 'owner'];
-    }
     function isPaidStudent() {
       return signedIn()
         && exists(/databases/$(database)/documents/students/$(request.auth.uid))
@@ -46,8 +42,6 @@ service cloud.firestore {
       allow delete: if isStaff();
     }
 
-    // Contador e histórico de acessos. Cada aluno grava apenas o próprio uso;
-    // a equipe acadêmica pode consultar para acompanhamento pedagógico.
     match /students/{studentId}/analytics/{analyticsId} {
       allow read: if owns(studentId) || isStaff();
       allow create: if owns(studentId)
@@ -76,7 +70,9 @@ service cloud.firestore {
       allow create: if owns(studentId)
         && request.resource.data.studentId == request.auth.uid
         && request.resource.data.answer is string
-        && request.resource.data.answer.size() >= 12;
+        && request.resource.data.answer.size() >= 12
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.keys().hasOnly(['studentId', 'moduleId', 'lessonNumber', 'lessonKey', 'title', 'answer', 'status', 'submittedAt', 'updatedAt']);
       allow update: if isStaff() || (owns(studentId)
         && resource.data.status != 'graded'
         && request.resource.data.status == 'submitted'
@@ -91,8 +87,11 @@ service cloud.firestore {
       allow create: if owns(studentId)
         && request.resource.data.studentId == request.auth.uid
         && request.resource.data.notes is string
-        && request.resource.data.notes.size() >= 12;
+        && request.resource.data.notes.size() >= 12
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.keys().hasOnly(['kind', 'studentId', 'studentName', 'studentEmail', 'driveUrl', 'notes', 'status', 'submittedAt', 'updatedAt']);
       allow update: if isStaff() || (owns(studentId)
+        && request.resource.data.status == 'submitted'
         && request.resource.data.studentId == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['driveUrl', 'notes', 'status', 'submittedAt', 'updatedAt']));
@@ -104,13 +103,11 @@ service cloud.firestore {
       allow create, update, delete: if isStaff();
     }
 
-    // Calendário por módulo: professores configuram uma abertura e o ritmo semanal.
     match /moduleSchedules/{moduleId} {
       allow read: if isStaff() || isPaidStudent();
       allow create, update, delete: if isStaff();
     }
 
-    // Configurações institucionais exibidas no certificado; apenas a equipe edita.
     match /academicSettings/{settingId} {
       allow read: if signedIn();
       allow create, update, delete: if isStaff();
@@ -123,7 +120,8 @@ service cloud.firestore {
         allow read: if owns(studentId) || isStaff();
         allow create: if owns(studentId)
           && request.resource.data.studentId == request.auth.uid
-          && request.resource.data.status == 'submitted';
+          && request.resource.data.status == 'submitted'
+          && request.resource.data.keys().hasOnly(['studentId', 'studentName', 'studentEmail', 'answers', 'answer', 'status', 'submittedAt']);
         allow update: if isStaff() || (owns(studentId)
           && resource.data.status == 'submitted'
           && request.resource.data.status == 'submitted'
@@ -133,7 +131,9 @@ service cloud.firestore {
       }
     }
 
-    match /assessmentKeys/{assessmentId} { allow read, write: if isStaff(); }
+    match /assessmentKeys/{assessmentId} {
+      allow read, write: if isStaff();
+    }
 
     match /liveSessions/{sessionId} {
       allow read: if signedIn();
@@ -150,20 +150,23 @@ service cloud.firestore {
       allow update, delete: if isStaff();
     }
 
-    // Criada somente pela equipe após confirmar boleto/PIX parcelado.
-    // O servidor promove esta matrícula ao documento do aluno no primeiro login.
-    match /manualEnrollments/{enrollmentId} { allow read, write: if isStaff(); }
+    match /manualEnrollments/{enrollmentId} {
+      allow read, write: if isStaff();
+    }
 
-    // Endereço público do portal de apoiadores. A escrita ocorre somente pela
-    // API administrativa segura, usando Firebase Admin na Vercel.
     match /platformSettings/public {
       allow read: if true;
       allow write: if false;
     }
 
-    // Vendas e matrículas automáticas são exclusivas do Firebase Admin na Vercel.
-    match /sales/{saleId} { allow read: if isStaff(); allow write: if false; }
-    match /enrollments/{enrollmentId} { allow read, write: if false; }
+    match /sales/{saleId} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+
+    match /enrollments/{enrollmentId} {
+      allow read, write: if false;
+    }
   }
 }
 

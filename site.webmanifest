@@ -3,6 +3,7 @@
   "short_name": "EMP",
   "description": "Formação profissional em produção musical.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#081018",
   "theme_color": "#081018",

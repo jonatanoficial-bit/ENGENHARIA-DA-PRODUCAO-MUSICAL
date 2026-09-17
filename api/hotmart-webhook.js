@@ -26,6 +26,7 @@ module.exports = async (request, response) => {
     const email = String(buyer.email || '').trim().toLowerCase();
     const transaction = String(purchase.transaction || purchase.transaction_id || payload.id || crypto.randomUUID());
     if (!event || !email) return response.status(200).json({ received: true, ignored: 'Evento de teste sem comprador' });
+    if (!approvedEvents.has(event) && !blockedEvents.has(event)) return response.status(200).json({ received:true, ignored:'Evento sem alteração de acesso' });
 
     const db = getDb(); const now = serverTimestamp();
     const offerCode = String(offer.code || offer.id || '').toLowerCase();
@@ -35,10 +36,33 @@ module.exports = async (request, response) => {
     const commissionAmount = toNumber(commissionItem?.value ?? commissionItem?.amount ?? purchase.commission?.value);
     const commissionPercentage = grossAmount > 0 && commissionAmount > 0 ? Math.round((commissionAmount / grossAmount) * 100) : null;
     const status = approvedEvents.has(event) ? 'approved' : blockedEvents.has(event) ? 'blocked' : 'pending';
-    const enrollment = { email, buyerName: buyer.name || '', plan, offerCode, offerName: offer.name || '', enrollmentStatus: status === 'approved' ? 'paid' : status === 'blocked' ? 'blocked' : 'pending', latestTransaction: transaction, updatedAt: now };
+    const enrollment = { email, buyerName: buyer.name || '', plan, offerCode, offerName: offer.name || '', source:'hotmart', enrollmentStatus: status === 'approved' ? 'paid' : status === 'blocked' ? 'blocked' : 'pending', latestTransaction: transaction, updatedAt: now };
     if (status === 'approved') enrollment.approvedAt = now;
-    await db.collection('sales').doc(transaction).set({ transaction, event, status, buyerEmail: email, buyerName: buyer.name || '', plan, offerCode, offerName: offer.name || '', grossAmount, commissionAmount, commissionPercentage, updatedAt: now, approvedAt: status === 'approved' ? now : null }, { merge: true });
-    await db.collection('enrollments').doc(emailKey(email)).set(enrollment, { merge: true });
+    const eventTime = Number(payload.creation_date) || 0;
+    await db.runTransaction(async (tx) => {
+      const saleRef = db.collection('sales').doc(transaction);
+      const enrollmentRef = db.collection('enrollments').doc(emailKey(email));
+      const [saleDoc, enrollmentDoc, students] = await Promise.all([
+        tx.get(saleRef), tx.get(enrollmentRef), tx.get(db.collection('students').where('email','==',email))
+      ]);
+      const previousSale = saleDoc.exists ? saleDoc.data() : {};
+      const previousEnrollment = enrollmentDoc.exists ? enrollmentDoc.data() : {};
+      // Re-delivered approvals must not revive a refunded/charged-back transaction.
+      if (['PURCHASE_REFUNDED','PURCHASE_CHARGEBACK'].includes(previousSale.event) && status === 'approved') return;
+      if (eventTime && previousSale.eventTime > eventTime) return;
+      tx.set(saleRef, { transaction, event, status, buyerEmail: email, buyerName: buyer.name || '', plan, offerCode, offerName: offer.name || '', grossAmount, commissionAmount, commissionPercentage, updatedAt: now, approvedAt: previousSale.approvedAt || (status === 'approved' ? now : null), eventTime }, { merge:true });
+      // A different purchase or a separately granted manual enrollment remains intact.
+      const differentPurchase = previousEnrollment.latestTransaction && previousEnrollment.latestTransaction !== transaction;
+      const manualAccess = previousEnrollment.source === 'team-direct' && previousEnrollment.enrollmentStatus === 'paid';
+      if (manualAccess || (status === 'blocked' && differentPurchase)) return;
+      if (eventTime && previousEnrollment.eventTime > eventTime) return;
+      tx.set(enrollmentRef, { ...enrollment, eventTime }, { merge:true });
+      students.docs.forEach((student) => {
+        const data = student.data();
+        if (status === 'blocked' && data.latestTransaction && data.latestTransaction !== transaction) return;
+        tx.set(student.ref, { enrollmentStatus:enrollment.enrollmentStatus, plan, latestTransaction:transaction, updatedAt:now }, { merge:true });
+      });
+    });
     return response.status(200).json({ received: true, integration: 'emp-hotmart-v1.6.2', event, enrollmentStatus: enrollment.enrollmentStatus });
   } catch (error) {
     console.error('Erro Hotmart webhook', error);

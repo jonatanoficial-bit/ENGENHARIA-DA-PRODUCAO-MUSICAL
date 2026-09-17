@@ -27,6 +27,11 @@ const sendToStudent = async (user) => {
       window.location.assign('../aluno/index.html');
       return;
     }
+    if (response.status === 403 && result.status === 'blocked') {
+      setStatus('Esta matrícula está suspensa. Entre em contato com o suporte para conferir a situação do pagamento.');
+      setLoading(false);
+      return;
+    }
     if (response.status === 403 && result.status === 'pending') {
       setStatus('Compra ainda não localizada. Confirme se o e-mail usado na Hotmart é exatamente o mesmo da conta Google e se o Webhook recebeu “Compra aprovada”.');
       setLoading(false);

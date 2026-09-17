@@ -13,12 +13,23 @@ export const MODULES = [
 
 export const GRADE_WEIGHTS = Object.freeze({ assessments:55, activities:10, continuous:15, final:20 });
 
+export function verifiedLessonCount(keys = [], activities = []) {
+  const valid = new Set(MODULES.flatMap(module => Array.from({length:module.lessons}, (_,n) => `${module.id.toLowerCase()}a${String(n+1).padStart(2,'0')}`)));
+  const submitted = new Set(activities.filter(item => typeof item.answer === 'string' && item.answer.trim().length >= 12).map(item => item.lessonKey || item.id));
+  return [...new Set(Array.isArray(keys) ? keys : [])].filter(key => valid.has(key) && submitted.has(key)).length;
+}
+
 export const average = (values = []) => {
-  const valid = values.map(Number).filter(Number.isFinite);
+  const valid = values.map(gradeValue).filter((value) => value !== null);
   return valid.length ? valid.reduce((sum, value) => sum + value, 0) / valid.length : null;
 };
 
-export const gradeValue = (value) => Number.isFinite(Number(value)) ? Number(value) : null;
+export const gradeValue = (value) => {
+  if (value === null || value === undefined || typeof value === 'boolean' || String(value).trim() === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 && number <= 100 ? number : null;
+};
+export const publishedScore = (item) => item?.status === 'graded' ? gradeValue(item.score) : null;
 
 export function calculateAcademicGrade({ assessmentScores = [], activityScores = [], continuousScore = null, finalScore = null } = {}) {
   const parts = [
@@ -46,8 +57,8 @@ export function buildModuleReport({ completedLessons = [], activities = [], asse
   return MODULES.map((module) => {
     const moduleActivities = activities.filter((item) => String(item.moduleId || moduleFromLessonKey(item.lessonKey)).toUpperCase() === module.id);
     // Uma entrega sem correção não pode elevar artificialmente a média do aluno.
-    const activityScores = moduleActivities.map((item) => gradeValue(item.score)).filter((item) => item !== null);
-    const moduleAssessments = assessments.filter((item) => String(item.module || '').toUpperCase() === module.id && gradeValue(item.score) !== null);
+    const activityScores = moduleActivities.map(publishedScore).filter((item) => item !== null);
+    const moduleAssessments = assessments.filter((item) => String(item.module || '').toUpperCase() === module.id && publishedScore(item) !== null);
     const assessmentAverage = average(moduleAssessments.map((item) => item.score));
     const activityAverage = average(activityScores);
     const available = [{ value:assessmentAverage, weight:85 }, { value:activityAverage, weight:15 }].filter((item) => item.value !== null);

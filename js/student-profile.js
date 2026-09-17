@@ -1,5 +1,5 @@
 import { firebaseReady } from '../firebase/firebase-client.js';
-import { calculateAcademicGrade, formatGrade } from './academic-model.js';
+import { calculateAcademicGrade, formatGrade, publishedScore } from './academic-model.js';
 
 const root = document.querySelector('[data-student-profile]');
 const details = document.querySelector('[data-student-profile-details]');
@@ -27,13 +27,13 @@ if (firebaseReady && root) {
       const lessonTotal = Number(progress.totalLessons || 162);
       const courseProgress = Math.round((completedLessons / lessonTotal) * 100);
       const activities = activitySnapshot.docs.map((entry) => entry.data());
-      const activityScores = activities.map((item) => Number.isFinite(Number(item.score)) ? Number(item.score) : (['submitted','graded'].includes(item.status) ? 100 : null)).filter((item) => item !== null);
+      const activityScores = activities.map(publishedScore).filter((item) => item !== null);
       const submissions = await Promise.all(assessmentSnapshot.docs.map(async (assessment) => { const submission = await getDocFromServer(doc(db, 'assessments', assessment.id, 'submissions', user.uid)); return submission.exists() ? submission.data() : null; }));
-      const assessmentScores = submissions.filter((item) => item?.status === 'graded' && Number.isFinite(Number(item.score))).map((item) => Number(item.score));
+      const assessmentScores = submissions.map(publishedScore).filter((value) => value !== null);
       const projects = projectsSnapshot.docs.map((entry) => entry.data());
       const continuous = projects.find((item) => item.kind === 'continuous');
       const finalProject = projects.find((item) => item.kind === 'final');
-      const academicGrade = calculateAcademicGrade({ assessmentScores, activityScores, continuousScore:continuous?.score, finalScore:finalProject?.score });
+      const academicGrade = calculateAcademicGrade({ assessmentScores, activityScores, continuousScore:publishedScore(continuous), finalScore:publishedScore(finalProject) });
       const grade = academicGrade.partial;
       const name = isStaff ? (staffSnapshot.data().name || user.displayName || 'Professor(a)') : (student.name || user.displayName || 'Aluno(a)');
       root.innerHTML = `<p class="eyebrow">${isStaff ? 'Visualização docente' : 'Meu perfil acadêmico'}</p><h1>${safe(name)}</h1><p class="lede">${isStaff ? 'Prévia da experiência acadêmica. Nenhum registro é criado na sua conta docente.' : 'Seu progresso, suas entregas e sua média são atualizados conforme você avança.'}</p>`;

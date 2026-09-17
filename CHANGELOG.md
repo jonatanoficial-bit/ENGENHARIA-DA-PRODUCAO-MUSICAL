@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.9.1] — 2026-09-17
+
+- Domínio canônico producaomusical.org, metadados e links de verificação de certificados.
+- Correção da resolução dos módulos Firebase na página inicial e atualização do cache PWA.
+- Matrículas e notificações Hotmart processadas em transações, preservando dados do aluno e impedindo reativação por notificações antigas de compras estornadas.
+- Notas pendentes não são tratadas como zero ou aprovação; certificado verifica aulas únicas com atividade e notas publicadas.
+- Progresso isolado por conta, com confirmação somente após persistência no Firestore; visualização docente sem gravar progresso.
+- Regras de envio impedem que alunos atribuam notas e mantêm os formulários existentes.
+- Configuração administrativa do portal de apoiadores respeitada, mantendo o endereço oficial como alternativa.
+- 16 testes automatizados isolados para ofertas, matrícula, estorno, repetição de eventos, notas e certificados (npm test).
+
+
 ## [1.9.0] — 2026-08-24 — Fase 22
 
 - Prontuário acadêmico individual no painel docente com posição atual, vídeos concluídos, comentários pós-aula, acessos e médias.

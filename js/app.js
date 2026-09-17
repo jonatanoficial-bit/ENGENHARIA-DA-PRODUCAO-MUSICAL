@@ -13,17 +13,18 @@
     });
   });
 
-  import(`${root.dataset.root || './'}firebase/access-routing.js`);
+  const siteRoot = new URL(root.dataset.root || './', document.baseURI);
+  import(new URL('firebase/access-routing.js', siteRoot).href);
 
   if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
     window.addEventListener('load', () => navigator.serviceWorker.register(`${root.dataset.root || './'}sw.js`));
   }
 
   if (window.location.pathname.includes('/aluno/')) {
-    import(`${root.dataset.root || './'}firebase/auth-guard.js`);
+    import(new URL('firebase/auth-guard.js', siteRoot).href);
   }
   if (window.location.pathname.includes('/professor/')) {
-    import(`${root.dataset.root || './'}firebase/teacher-guard.js`);
+    import(new URL('firebase/teacher-guard.js', siteRoot).href);
   }
   const phase13Styles = document.createElement('link');
   phase13Styles.rel = 'stylesheet';

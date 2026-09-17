@@ -60,9 +60,8 @@
     'Usar ferramentas sem escuta e sem objetivo.',
     'Evitar qualquer relação entre música e produção.'
   ];
-  const stateKey = 'epm-course-progress-v14';
-  const stored = JSON.parse(localStorage.getItem(stateKey) || '{"passed":[]}');
-  const state = {passed:Array.isArray(stored.passed) ? stored.passed : [], completedLessons:Array.isArray(stored.completedLessons) ? stored.completedLessons : [], selected:0};
+  let stateKey = null;
+  const state = {passed:[], completedLessons:[], selected:0};
   const totalLessons = modules.reduce((total, module) => total + module.lessons.length, 0);
   let remoteProgress = null;
   let staffPreview = false;
@@ -70,6 +69,7 @@
   const moduleSchedules = new Map();
   let stopRemoteLessons = null;
   let stopModuleSchedules = null;
+  let authGeneration = 0;
   const modulesNode = catalogRoot.querySelector('.course-modules');
   const lessonsNode = catalogRoot.querySelector('.course-lessons');
   const playerNode = document.querySelector('[data-course-player]');
@@ -81,12 +81,13 @@
   let courseStart = startValue ? new Date(`${startValue}T00:00:00`) : new Date();
   courseStart.setHours(0,0,0,0);
 
-  function save(){
+  async function save(){
     if (staffPreview) return;
-    localStorage.setItem(stateKey,JSON.stringify({passed:state.passed,completedLessons:state.completedLessons}));
+    if (!remoteProgress || !stateKey) throw new Error('Sessão não carregada');
+    try { localStorage.setItem(stateKey,JSON.stringify({passed:state.passed,completedLessons:state.completedLessons})); } catch { /* Firestore remains the source of truth when local storage is unavailable. */ }
     if (remoteProgress) {
       const percent = Math.round((state.completedLessons.length / totalLessons) * 100);
-      remoteProgress.setDoc(remoteProgress.doc(remoteProgress.db, 'students', remoteProgress.uid, 'progress', 'catalog'), { completedModules: state.passed, completedLessons: state.completedLessons, totalLessons, percent, updatedAt: remoteProgress.serverTimestamp() }, { merge: true }).catch(() => {});
+      await remoteProgress.setDoc(remoteProgress.doc(remoteProgress.db, 'students', remoteProgress.uid, 'progress', 'catalog'), { completedModules: state.passed, completedLessons: state.completedLessons, totalLessons, percent, updatedAt: remoteProgress.serverTimestamp() }, { merge: true });
     }
   }
   function releaseDate(globalIndex, moduleIndex = null, lessonIndex = 0){
@@ -98,8 +99,8 @@
   }
   function dayLabel(date){ return new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'short',year:'numeric'}).format(date); }
   function lessonOffset(moduleIndex,lessonIndex){ return modules.slice(0,moduleIndex).reduce((sum,module)=>sum+module.lessons.length,0)+lessonIndex; }
-  function moduleAllowed(moduleIndex){ return moduleIndex === 0 || state.passed.includes(modules[moduleIndex-1].id); }
-  function lessonAvailable(moduleIndex,lessonIndex){ const video = lessonVideo(moduleIndex, lessonIndex); const custom = video?.availableAt ? new Date(video.availableAt) : null; return moduleAllowed(moduleIndex) && new Date() >= (custom && !Number.isNaN(custom.getTime()) ? custom : releaseDate(lessonOffset(moduleIndex,lessonIndex),moduleIndex,lessonIndex)); }
+  function moduleAllowed(moduleIndex){ return staffPreview || moduleIndex === 0 || state.passed.includes(modules[moduleIndex-1].id); }
+  function lessonAvailable(moduleIndex,lessonIndex){ const video = lessonVideo(moduleIndex, lessonIndex); const custom = video?.availableAt ? new Date(video.availableAt) : null; return staffPreview || moduleAllowed(moduleIndex) && new Date() >= (custom && !Number.isNaN(custom.getTime()) ? custom : releaseDate(lessonOffset(moduleIndex,lessonIndex),moduleIndex,lessonIndex)); }
   function lessonVideo(moduleIndex, lessonIndex){ return remoteLessons.get(`${modules[moduleIndex].id.toLowerCase()}a${String(lessonIndex + 1).padStart(2, '0')}`); }
   function updateProgress(){
     const percent = Math.round((state.completedLessons.length / totalLessons) * 100);
@@ -150,10 +151,10 @@
     const lockedReason = !moduleAllowed(state.selected) ? 'Conclua a avaliação do módulo anterior para abrir esta etapa.' : `A avaliação será liberada após a última aula deste módulo, prevista para ${dayLabel(releaseDate(lessonOffset(state.selected,module.lessons.length-1),state.selected,module.lessons.length-1))}.`;
     quizNode.innerHTML = `<p class="eyebrow">Avaliação do módulo</p><h3>${passed?'Módulo concluído':allLessonsReleased?'Libere a próxima etapa com conhecimento':'Avaliação ainda bloqueada'}</h3><p>${passed ? `Você concluiu ${module.id}. ${next ? `O ${next.id} será aberto conforme o calendário da turma.` : 'Você concluiu a trilha de módulos.'}` : allLessonsReleased ? 'Responda corretamente a avaliação abaixo. Nota mínima: 70%.' : lockedReason}</p>${passed||!allLessonsReleased?'':`<form data-module-quiz><fieldset class="quiz-question"><legend>Qual é o foco principal deste módulo?</legend>${options.map((option,index)=>`<label class="quiz-option"><input type="radio" name="focus" value="${escapeHtml(option)}" required> <span>${escapeHtml(option)}</span></label>`).join('')}</fieldset><fieldset class="quiz-question"><legend>Quando a próxima gravação é disponibilizada?</legend><label class="quiz-option"><input type="radio" name="schedule" value="0" required> <span>Após o encontro, conforme o calendário da turma.</span></label><label class="quiz-option"><input type="radio" name="schedule" value="1"> <span>Todas as aulas ficam abertas no primeiro dia.</span></label><label class="quiz-option"><input type="radio" name="schedule" value="2"> <span>Somente no fim da certificação.</span></label></fieldset><button class="button" type="submit">Enviar avaliação</button><p class="quiz-result" data-quiz-result></p></form>`}`;
     const form=quizNode.querySelector('[data-module-quiz]');
-    if(form) form.addEventListener('submit',event=>{
+    if(form) form.addEventListener('submit',async event=>{
       event.preventDefault(); const data=new FormData(form); const ok=data.get('focus')===quizPrompts[state.selected]&&data.get('schedule')==='0'; const result=form.querySelector('[data-quiz-result]');
       if(ok && staffPreview){ result.textContent='Resposta correta. No modo de visualização docente, nenhum progresso é registrado.'; result.className='quiz-result quiz-result--pass'; }
-      else if(ok){ state.passed.push(module.id); save(); result.textContent='Avaliação aprovada. Próximo módulo registrado na sua trilha.'; result.className='quiz-result quiz-result--pass'; renderModules(); updateProgress(); }
+      else if(ok){ try { if (!state.passed.includes(module.id)) state.passed.push(module.id); await save(); result.textContent='Avaliação aprovada. Próximo módulo registrado na sua trilha.'; result.className='quiz-result quiz-result--pass'; renderModules(); updateProgress(); } catch { result.textContent='Não foi possível salvar seu progresso. Tente enviar novamente.'; result.className='quiz-result quiz-result--fail'; } }
       else { result.textContent='Ainda não foi desta vez. Revise a aula e tente novamente.'; result.className='quiz-result quiz-result--fail'; }
     });
   }
@@ -176,7 +177,7 @@
         try {
           await remoteProgress.setDoc(remoteProgress.doc(remoteProgress.db, 'students', remoteProgress.uid, 'activities', key), { studentId: remoteProgress.uid, moduleId: module.id, lessonNumber: lessonIndex + 1, lessonKey: key, title, answer, status: 'submitted', submittedAt: remoteProgress.serverTimestamp(), updatedAt: remoteProgress.serverTimestamp() }, { merge: true });
           if (!state.completedLessons.includes(key)) state.completedLessons.push(key);
-          save(); renderLessons(); updateProgress();
+          await save(); renderLessons(); updateProgress();
           feedback.textContent = 'Aula concluída e atividade registrada. Seu progresso foi atualizado.';
           feedback.className = 'form-feedback form-feedback--ok';
         } catch { feedback.textContent = 'Não foi possível registrar a atividade. Tente novamente.'; feedback.className = 'form-feedback form-feedback--error'; }
@@ -191,6 +192,15 @@
     if (!firebaseReady) return;
     const { auth, authSdk, db, firestoreSdk } = await firebaseReady;
     authSdk.onAuthStateChanged(auth, async (user) => {
+      const generation = ++authGeneration;
+      state.passed = []; state.completedLessons = []; state.selected = 0; remoteProgress = null; stateKey = null; staffPreview = false;
+      if (stopRemoteLessons) { stopRemoteLessons(); stopRemoteLessons = null; }
+      if (stopModuleSchedules) { stopModuleSchedules(); stopModuleSchedules = null; }
+      remoteLessons.clear(); moduleSchedules.clear();
+      courseStart = startValue ? new Date(startValue + 'T00:00:00') : new Date();
+      courseStart.setHours(0,0,0,0);
+      playerNode.innerHTML = ''; playerNode.classList.remove('is-visible');
+      render();
       if (!user) {
         if (stopRemoteLessons) { stopRemoteLessons(); stopRemoteLessons = null; }
         if (stopModuleSchedules) { stopModuleSchedules(); stopModuleSchedules = null; }
@@ -205,6 +215,7 @@
           firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid, 'progress', 'catalog')),
           firestoreSdk.getDoc(firestoreSdk.doc(db, 'students', user.uid))
         ]);
+        if (generation !== authGeneration) return;
         staffPreview = staffSnapshot.exists() && staffSnapshot.data().active === true;
         if (stopRemoteLessons) stopRemoteLessons();
         stopRemoteLessons = firestoreSdk.onSnapshot(firestoreSdk.collection(db, 'courseLessons'), (lessonSnapshot) => {
@@ -222,11 +233,12 @@
           render();
         }, () => { /* O calendário padrão continua disponível quando a coleção ainda não foi publicada. */ });
         if (staffPreview) {
-          state.passed = [];
+          state.passed = []; state.completedLessons = [];
           remoteProgress = null;
           render();
           return;
         }
+        stateKey = `epm-course-progress-v14:${user.uid}`;
         remoteProgress = { db, uid: user.uid, doc: firestoreSdk.doc, setDoc: firestoreSdk.setDoc, serverTimestamp: firestoreSdk.serverTimestamp };
         const remoteCourseStart = studentSnapshot.exists() ? studentSnapshot.data().courseStart : '';
         if (remoteCourseStart) {
@@ -236,17 +248,13 @@
         const completedModules = snapshot.exists() ? snapshot.data().completedModules : null;
         const completedLessons = snapshot.exists() ? snapshot.data().completedLessons : null;
         if (Array.isArray(completedModules)) {
-          state.passed = completedModules.filter((id) => modules.some((module) => module.id === id));
+          state.passed = [...new Set(completedModules)].filter((id) => modules.some((module) => module.id === id));
         }
         if (Array.isArray(completedLessons)) {
           const validKeys = new Set(modules.flatMap((module) => module.lessons.map((_, index) => `${module.id.toLowerCase()}a${String(index + 1).padStart(2, '0')}`)));
-          state.completedLessons = completedLessons.filter((key) => validKeys.has(key));
+          state.completedLessons = [...new Set(completedLessons)].filter((key) => validKeys.has(key));
         }
-        if (Array.isArray(completedModules) || Array.isArray(completedLessons)) {
-          render();
-        } else if (state.passed.length) {
-          save();
-        }
+        render();
       } catch { /* A interface continua funcional enquanto as regras do Firestore são configuradas. */ }
     });
   }).catch(() => {});

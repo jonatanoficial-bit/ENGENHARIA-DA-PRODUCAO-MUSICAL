@@ -5,3 +5,6 @@ node_modules
 output/
 outputs/
 tmp/
+
+.env.*
+!.env.example

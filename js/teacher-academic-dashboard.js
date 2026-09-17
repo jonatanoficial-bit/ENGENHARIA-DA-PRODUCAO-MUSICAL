@@ -1,5 +1,5 @@
 import { firebaseReady } from '../firebase/firebase-client.js';
-import { MODULES, TOTAL_LESSONS, buildModuleReport, calculateAcademicGrade, formatGrade, moduleFromLessonKey } from './academic-model.js';
+import { MODULES, TOTAL_LESSONS, buildModuleReport, calculateAcademicGrade, formatGrade, moduleFromLessonKey, publishedScore } from './academic-model.js';
 
 const authorized = window.empTeacherSession
   ? Promise.resolve(window.empTeacherSession)
@@ -23,11 +23,11 @@ function projectByKind(projects, kind) {
 }
 
 function academicSummary(record) {
-  const assessmentScores = record.assessments.filter((item) => item.status === 'graded' && Number.isFinite(Number(item.score))).map((item) => Number(item.score));
-  const activityScores = record.activities.map((item) => Number.isFinite(Number(item.score)) ? Number(item.score) : null).filter((item) => item !== null);
+  const assessmentScores = record.assessments.map(publishedScore).filter((value) => value !== null);
+  const activityScores = record.activities.map(publishedScore).filter((item) => item !== null);
   const continuous = projectByKind(record.projects,'continuous');
   const finalProject = projectByKind(record.projects,'final');
-  return calculateAcademicGrade({ assessmentScores, activityScores, continuousScore:continuous.score, finalScore:finalProject.score });
+  return calculateAcademicGrade({ assessmentScores, activityScores, continuousScore:publishedScore(continuous), finalScore:publishedScore(finalProject) });
 }
 
 function learningPosition(record) {
