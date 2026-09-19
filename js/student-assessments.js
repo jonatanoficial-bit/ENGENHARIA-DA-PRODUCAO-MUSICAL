@@ -27,7 +27,7 @@ if (firebaseReady && assessmentRoot) {
         const result = assessment.submission?.status === 'graded' ? `<p class="form-feedback ${assessment.submission.passed ? 'form-feedback--ok' : 'form-feedback--error'}">Nota publicada: ${escapeHtml(assessment.submission.score)}% · ${assessment.submission.passed ? 'Aprovado' : 'Revisar o módulo'}</p>` : assessment.submission ? '<p class="form-feedback">Respostas enviadas · aguardando correção.</p>' : '';
         if (!(assessment.questions || []).length) return '';
         return `<article class="student-assessment"><div class="student-assessment__head"><div><strong>${escapeHtml(assessment.title)}</strong><span>${escapeHtml(assessment.module)} · ${(assessment.questions || []).length} questão(ões) · nota mínima ${escapeHtml(assessment.passScore)}%</span></div>${assessment.submission ? '<span class="badge">Enviada</span>' : ''}</div>${staffPreview ? `<div class="student-assessment__preview">${renderQuestions(assessment,true)}</div>` : `<form data-student-assessment="${assessment.id}">${renderQuestions(assessment)}<button class="button button--quiet" type="submit">Enviar avaliação completa</button><p class="form-feedback"></p>${result}</form>`}</article>`;
-      }).join('')}</div>` : '<p class="eyebrow">Provas publicadas pelo professor</p><h2>Avaliações integradas à sua trilha.</h2><p>Nenhuma avaliação foi publicada para sua turma ainda.</p>';
+      }).join('')}</div>` : '<p class="eyebrow">Provas publicadas pelo professor</p><h2>Avaliações integradas à sua trilha.</h2><div class="student-empty"><strong>Nenhuma avaliação disponível no momento.</strong><span>Continue sua formação normalmente. A equipe publicará a próxima avaliação no período adequado.</span></div>';
       assessmentRoot.querySelectorAll('[data-student-assessment]').forEach((form) => form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const assessment = assessments.find((item) => item.id === form.dataset.studentAssessment);
@@ -51,7 +51,8 @@ if (firebaseReady && assessmentRoot) {
         catch { feedback.textContent='Não foi possível enviar agora. Tente novamente.'; feedback.className='form-feedback form-feedback--error'; }
       });
     } catch (error) {
-      assessmentRoot.innerHTML = `<p class="eyebrow">Avaliações</p><h2>Configuração acadêmica em andamento.</h2><p>As avaliações não puderam ser carregadas (${escapeHtml(error?.code || 'indisponível')}).</p>`;
+      assessmentRoot.innerHTML = '<p class="eyebrow">Avaliações</p><h2>Não conseguimos carregar as avaliações agora.</h2><div class="student-empty"><strong>Seus registros continuam preservados.</strong><span>Tente novamente em alguns instantes.</span></div><button class="button button-secondary" type="button" data-assessment-retry>Tentar novamente</button>';
+      assessmentRoot.querySelector('[data-assessment-retry]')?.addEventListener('click', () => window.location.reload());
     }
   });
 }

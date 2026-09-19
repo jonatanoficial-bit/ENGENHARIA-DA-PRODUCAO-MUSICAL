@@ -19,46 +19,52 @@
   <link rel="stylesheet" href="../css/phase-17.css">
   <link rel="stylesheet" href="../css/phase-19.css">
   <link rel="stylesheet" href="../css/phase-22.css">
+  <link rel="stylesheet" href="../css/phase-23-premium-learning.css">
 </head>
-<body class="app-shell student-shell">
+<body class="app-shell student-shell is-academic-loading">
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
   <div data-component="header"></div>
   <main id="conteudo" class="app-main">
     <div class="container app-layout">
       <aside class="app-sidebar">
-        <p class="app-sidebar__label">Meu desenvolvimento</p>
+        <p class="app-sidebar__label">Seu espaço de formação</p>
         <nav class="app-nav" aria-label="Navegação do aluno">
-          <a href="index.html" aria-current="page">Visão geral</a>
-          <a href="#formacao">Minha formação</a>
-          <a href="#avaliacoes">Avaliações</a>
-          <a href="boletim.html">Meu boletim</a>
+          <a href="index.html" aria-current="page" data-nav-icon="home">Início</a>
+          <a href="#formacao" data-nav-icon="course">Minha formação</a>
+          <a href="#avaliacoes" data-nav-icon="assessment">Avaliações</a>
+          <a href="boletim.html" data-nav-icon="report">Boletim</a>
           <a href="#biblioteca">Biblioteca</a>
           <a href="certificado.html">Certificado</a>
-          <a href="assistente.html">Laboratório inteligente</a>
-          <a href="../pages/fundador.html">Direção acadêmica</a>
+          <a href="assistente.html" data-nav-icon="lab">Laboratório</a>
+          <a href="perfil.html" data-nav-icon="profile">Perfil</a>
         </nav>
+        <div class="app-sidebar__progress"><span>Progresso da formação</span><strong data-sidebar-percent>—</strong><div class="premium-progress-track"><span data-sidebar-bar></span></div></div>
       </aside>
       <div class="app-content course-dashboard">
+        <div class="student-academic-bar"><span>ACADEMIA / ENGENHARIA DA PRODUÇÃO MUSICAL™</span><a class="student-academic-avatar" href="perfil.html" aria-label="Abrir meu perfil" data-student-avatar>—</a></div>
         <div class="app-title-row">
-          <div><p class="eyebrow">Área do aluno</p><h1>Seu estúdio de desenvolvimento.</h1></div>
+          <div><p class="eyebrow">Seu estúdio de desenvolvimento</p><h1 data-student-greeting>Carregando sua formação…</h1><p class="student-title-subtitle">Continue sua formação.</p></div>
           <div class="student-title-actions"><span class="badge">Acesso protegido</span><span class="badge" data-staff-preview-badge hidden>Visualização docente</span><a class="button button--quiet" href="perfil.html">Meu perfil</a><a class="button button--quiet" data-staff-preview-back href="../professor/index.html" hidden>Voltar ao painel docente</a></div>
         </div>
 
         <section class="course-overview" aria-label="Visão geral da formação">
-          <div><p class="eyebrow">Engenharia da Produção Musical™</p><h2>20 módulos · 162 aulas detalhadas · encontros ao vivo e gravações.</h2></div>
-          <div class="course-progress-card"><div class="course-progress-ring" data-course-ring style="--course-progress:0"><div><strong data-course-percent>0%</strong><span>concluído</span></div></div><span class="course-overview__badge" data-course-progress>0 de 20 módulos concluídos</span></div>
+          <div class="course-overview__copy"><p class="eyebrow">Engenharia da Produção Musical™ <span data-student-plan></span></p><h2>Uma jornada entre a escuta, a técnica e a criação.</h2><p class="course-overview__intro">20 módulos · 162 aulas · projetos e avaliações acompanhados ao longo da formação.</p><div class="course-overview__metrics"><span><strong data-course-progress>—</strong><small>Aulas concluídas</small></span><span><strong data-current-module>—</strong><small>Módulo atual</small></span></div></div>
+          <div class="course-progress-card"><div class="course-progress-ring" data-course-ring style="--course-progress:0"><div><strong data-course-percent>—</strong><span>concluído</span></div></div></div>
         </section>
         <p class="course-alert" data-staff-preview-notice hidden><strong>Modo de visualização docente.</strong> Você está conferindo a jornada de um aluno sem criar matrícula, pagamento, progresso, respostas ou agendamentos em seu nome.</p>
-        <p class="course-alert">A formação segue o calendário da sua turma: duas aulas por semana. Cada gravação é liberada após o encontro e as próximas aulas ficam bloqueadas até a data prevista e a conclusão da avaliação do módulo anterior.</p>
+        <section class="continue-learning is-loading" aria-labelledby="continue-title" data-continue-learning style="--continue-art:url('../assets/portal/m01-boas-vindas.webp')">
+          <div class="continue-learning__visual" aria-hidden="true"></div><div class="continue-learning__content"><p class="eyebrow">Próximo passo / Continuar aprendendo</p><span class="continue-learning__module" data-continue-module>Preparando sua trilha</span><h2 id="continue-title" data-continue-title>Carregando a próxima aula…</h2><p data-continue-meta>Seus dados acadêmicos serão exibidos assim que estiverem disponíveis.</p><button class="button button-primary button-large" type="button" data-continue-action disabled>Continuar de onde parei</button></div>
+        </section>
+
+        <section class="course-player" id="aula" data-course-player aria-live="polite"></section>
 
         <section id="formacao" aria-labelledby="formacao-title">
+          <div class="premium-section-heading"><div><p class="eyebrow">Sua jornada</p><h2 id="formacao-title">20 etapas. Um caminho de produção.</h2><p>Explore os módulos e retome uma aula disponível. As liberações seguem o calendário da turma e os pré-requisitos acadêmicos.</p></div><a href="boletim.html" class="button button-ghost">Ver meu boletim</a></div>
           <div class="course-catalog" data-course-catalog data-course-start="">
             <div class="course-modules" aria-label="Módulos da formação"></div>
             <div class="course-lessons" aria-live="polite"></div>
           </div>
         </section>
-
-        <section class="course-player" data-course-player aria-live="polite"></section>
 
         <section id="avaliacoes" class="course-quiz" data-course-quiz aria-live="polite">
           <p class="eyebrow">Avaliação do módulo</p>
@@ -69,12 +75,12 @@
         <section class="teacher-assessments" data-teacher-assessments aria-live="polite">
           <p class="eyebrow">Provas publicadas pelo professor</p>
           <h2>Avaliações integradas à sua trilha.</h2>
-          <p>As avaliações enviadas pela equipe aparecem aqui. A nota e a data da tentativa ficam registradas no seu perfil acadêmico.</p>
+          <p class="student-loading-state">Carregando avaliações acadêmicas…</p>
         </section>
 
-        <section class="student-projects" data-student-projects aria-live="polite"></section>
+        <section class="student-projects" data-student-projects aria-live="polite"><p class="student-loading-state">Carregando seus projetos…</p></section>
 
-        <section class="student-live-sessions" data-student-live-sessions aria-live="polite"></section>
+        <section class="student-live-sessions" id="agenda" data-student-live-sessions aria-live="polite"><p class="student-loading-state">Consultando a agenda da turma…</p></section>
 
         <section class="student-workspace" data-student-workspace aria-live="polite">
           <div><p class="eyebrow">Projetos e entregas</p><h2>Pasta geral de trabalhos.</h2><p>Envie seus arquivos e referências pela pasta compartilhada da turma. Cada envio deve conter seu nome e o módulo correspondente.</p></div>
@@ -93,10 +99,13 @@
       </div>
     </div>
   </main>
+  <nav class="mobile-learn-nav" aria-label="Navegação rápida do aluno"><a href="index.html" aria-current="page" data-nav-icon="home">Início</a><a href="#formacao" data-nav-icon="course">Curso</a><a href="#agenda" data-nav-icon="calendar">Agenda</a><a href="boletim.html" data-nav-icon="report">Boletim</a><a href="perfil.html" data-nav-icon="profile">Perfil</a></nav>
+  <dialog class="student-onboarding" data-student-onboarding aria-labelledby="onboarding-title"><div class="student-onboarding__art" aria-hidden="true"></div><div class="student-onboarding__content"><p class="eyebrow">Bem-vindo à</p><h2 id="onboarding-title">Engenharia da Produção Musical™</h2><p>Uma formação para desenvolver sua escuta, suas decisões e sua prática em estúdio.</p><ol><li><strong>Estude no seu ritmo.</strong> As aulas abrem conforme o calendário da turma, em geral duas por semana.</li><li><strong>Assista e pratique.</strong> As gravações disponíveis ficam em Minha formação; registre a atividade para concluir cada aula.</li><li><strong>Acompanhe sua evolução.</strong> Consulte progresso, avaliações, projetos e notas no boletim.</li><li><strong>Conclua com evidência.</strong> O certificado segue os critérios acadêmicos da formação.</li></ol><button class="button button-primary button-large" type="button" data-onboarding-start>Começar minha formação</button></div></dialog>
   <div data-component="footer"></div>
   <script src="../components/component-loader.js"></script>
   <script src="../js/app.js"></script>
   <script src="../js/course-catalog.js"></script>
+  <script type="module" src="../js/premium-learning-shell.js"></script>
   <script type="module" src="../js/student-assessments.js"></script>
   <script type="module" src="../js/student-projects.js"></script>
   <script type="module" src="../js/student-access-tracker.js"></script>

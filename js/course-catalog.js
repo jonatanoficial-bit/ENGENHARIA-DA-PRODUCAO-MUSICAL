@@ -65,6 +65,10 @@
   const totalLessons = modules.reduce((total, module) => total + module.lessons.length, 0);
   let remoteProgress = null;
   let staffPreview = false;
+  let authResolved = false;
+  let currentStudent = null;
+  let nextTarget = null;
+  let currentLesson = null;
   const remoteLessons = new Map();
   const moduleSchedules = new Map();
   let stopRemoteLessons = null;
@@ -77,6 +81,16 @@
   const progressNode = document.querySelector('[data-course-progress]');
   const percentNode = document.querySelector('[data-course-percent]');
   const progressRing = document.querySelector('[data-course-ring]');
+  const greetingNode = document.querySelector('[data-student-greeting]');
+  const planNode = document.querySelector('[data-student-plan]');
+  const currentModuleNode = document.querySelector('[data-current-module]');
+  const sidebarPercent = document.querySelector('[data-sidebar-percent]');
+  const sidebarBar = document.querySelector('[data-sidebar-bar]');
+  const continueCard = document.querySelector('[data-continue-learning]');
+  const continueModule = document.querySelector('[data-continue-module]');
+  const continueTitle = document.querySelector('[data-continue-title]');
+  const continueMeta = document.querySelector('[data-continue-meta]');
+  const continueAction = document.querySelector('[data-continue-action]');
   const startValue = catalogRoot.dataset.courseStart;
   let courseStart = startValue ? new Date(`${startValue}T00:00:00`) : new Date();
   courseStart.setHours(0,0,0,0);
@@ -103,16 +117,90 @@
   function lessonAvailable(moduleIndex,lessonIndex){ const video = lessonVideo(moduleIndex, lessonIndex); const custom = video?.availableAt ? new Date(video.availableAt) : null; return staffPreview || moduleAllowed(moduleIndex) && new Date() >= (custom && !Number.isNaN(custom.getTime()) ? custom : releaseDate(lessonOffset(moduleIndex,lessonIndex),moduleIndex,lessonIndex)); }
   function lessonVideo(moduleIndex, lessonIndex){ return remoteLessons.get(`${modules[moduleIndex].id.toLowerCase()}a${String(lessonIndex + 1).padStart(2, '0')}`); }
   function updateProgress(){
+    if (!authResolved) return;
     const percent = Math.round((state.completedLessons.length / totalLessons) * 100);
-    if(progressNode) progressNode.textContent = `${state.passed.length} de ${modules.length} módulos concluídos`;
     if(progressNode) progressNode.textContent = `${state.completedLessons.length} de ${totalLessons} aulas concluídas`;
     if(percentNode) percentNode.textContent = `${percent}%`;
     if(progressRing) progressRing.style.setProperty('--course-progress', percent);
+    if(sidebarPercent) sidebarPercent.textContent = `${percent}%`;
+    if(sidebarBar) sidebarBar.style.width = `${percent}%`;
+    if(currentModuleNode) currentModuleNode.textContent = modules[Math.min(state.passed.length, modules.length - 1)].id;
+    renderContinue();
   }
   function escapeHtml(value){ return value.replace(/[&<>'"]/g,char=>({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char])); }
+  function lessonKey(moduleIndex, lessonIndex){ return `${modules[moduleIndex].id.toLowerCase()}a${String(lessonIndex + 1).padStart(2, '0')}`; }
+  function icon(name){
+    const paths = {
+      play:'<path d="m9 5 10 7-10 7z"/>',
+      lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+      check:'<path d="m4 12 5 5L20 6"/>'
+    };
+    return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths[name]}</svg>`;
+  }
+  function nextLearning(){
+    for (let moduleIndex = 0; moduleIndex < modules.length; moduleIndex++) {
+      if (!moduleAllowed(moduleIndex)) break;
+      const module = modules[moduleIndex];
+      for (let lessonIndex = 0; lessonIndex < module.lessons.length; lessonIndex++) {
+        const video = lessonVideo(moduleIndex, lessonIndex);
+        if (lessonAvailable(moduleIndex, lessonIndex) && (!video || (video.published && video.videoId)) && !state.completedLessons.includes(lessonKey(moduleIndex, lessonIndex))) {
+          return { type:'lesson', moduleIndex, lessonIndex };
+        }
+      }
+      if (!state.passed.includes(module.id) && module.lessons.every((_, index) => lessonAvailable(moduleIndex, index))) return { type:'quiz', moduleIndex };
+    }
+    return null;
+  }
+  function renderContinue(){
+    if (!continueCard || !authResolved) return;
+    continueCard.classList.remove('is-loading');
+    nextTarget = nextLearning();
+    if (nextTarget?.type === 'lesson') {
+      const module = modules[nextTarget.moduleIndex];
+      const video = lessonVideo(nextTarget.moduleIndex, nextTarget.lessonIndex);
+      continueCard.style.setProperty('--continue-art', `url('${module.art}')`);
+      continueModule.textContent = `${module.id} / Aula ${String(nextTarget.lessonIndex + 1).padStart(2, '0')}`;
+      continueTitle.textContent = video?.title || module.lessons[nextTarget.lessonIndex];
+      continueMeta.textContent = `${module.instructor} · Aula disponível conforme o calendário da turma`;
+      continueAction.textContent = state.completedLessons.length ? 'Continuar de onde parei' : 'Começar minha formação';
+      continueAction.disabled = false;
+    } else if (nextTarget?.type === 'quiz') {
+      const module = modules[nextTarget.moduleIndex];
+      continueCard.style.setProperty('--continue-art', `url('${module.art}')`);
+      continueModule.textContent = `${module.id} / Avaliação`;
+      continueTitle.textContent = 'Consolide o que aprendeu neste módulo.';
+      continueMeta.textContent = 'A próxima etapa da sua formação é a avaliação do módulo.';
+      continueAction.textContent = 'Ir para avaliação';
+      continueAction.disabled = false;
+    } else {
+      continueModule.textContent = 'Seu percurso acadêmico';
+      continueTitle.textContent = 'Você está em dia com as aulas disponíveis.';
+      continueMeta.textContent = 'A próxima etapa aparecerá aqui quando o calendário ou a equipe a liberar.';
+      continueAction.textContent = 'Ver minha formação';
+      continueAction.disabled = false;
+    }
+  }
+  continueAction?.addEventListener('click', () => {
+    if (nextTarget?.type === 'lesson') {
+      state.selected = nextTarget.moduleIndex;
+      render();
+      openLesson(nextTarget.moduleIndex, nextTarget.lessonIndex);
+    } else if (nextTarget?.type === 'quiz') {
+      state.selected = nextTarget.moduleIndex;
+      render();
+      quizNode.scrollIntoView({ behavior:'smooth', block:'start' });
+    } else document.querySelector('#formacao')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
 
   function renderModules(){
-    modulesNode.innerHTML = modules.map((module,index)=>{ const opening = releaseDate(0,index,0); const locked = new Date() < opening; return `<button class="course-module-button ${locked?'course-module-button--locked':''}" type="button" style="--module-art:url('${module.art}')" data-module-index="${index}" aria-current="${index===state.selected}"><span class="course-module-button__number">${module.id}${state.passed.includes(module.id)?' · CONCLUÍDO':''}</span><span class="course-module-button__title">${escapeHtml(module.title)}</span><span class="course-module-button__schedule">${locked?`🔒 Abre ${dayLabel(opening)}`:'Calendário da turma'}</span></button>`; }).join('');
+    modulesNode.innerHTML = modules.map((module,index)=>{
+      const opening = releaseDate(0,index,0);
+      const allowed = moduleAllowed(index);
+      const locked = !allowed || new Date() < opening;
+      const count = module.lessons.filter((_, lessonIndex) => state.completedLessons.includes(lessonKey(index, lessonIndex))).length;
+      const status = state.passed.includes(module.id) ? 'Concluído' : !allowed ? 'Após avaliação anterior' : new Date() < opening ? `Abre ${dayLabel(opening)}` : count ? 'Em andamento' : 'Disponível';
+      return `<button class="course-module-button ${locked?'course-module-button--locked':''}" type="button" style="--module-art:url('${module.art}');--module-progress:${Math.round(count / module.lessons.length * 100)}" data-module-index="${index}" aria-current="${index===state.selected}" aria-label="${module.id}: ${escapeHtml(module.title)}. ${count} de ${module.lessons.length} aulas concluídas. ${status}"><span class="course-module-button__number">${module.id}</span><span class="course-module-button__title">${escapeHtml(module.title)}</span><span class="course-module-button__meta">${count}/${module.lessons.length} aulas concluídas</span><span class="course-module-button__schedule">${status}</span><span class="course-module-button__track" aria-hidden="true"></span></button>`;
+    }).join('');
     modulesNode.querySelectorAll('[data-module-index]').forEach(button=>button.addEventListener('click',()=>{ state.selected=Number(button.dataset.moduleIndex); render(); }));
   }
   function renderLessons(){
@@ -124,20 +212,13 @@
       const available = scheduled && !(remoteVideo && (!remoteVideo.published || !remoteVideo.videoId));
       const schedule = remoteVideo?.availableAt ? new Date(remoteVideo.availableAt) : releaseDate(lessonOffset(state.selected,index),state.selected,index);
       const status = !allowed ? 'Conclua a avaliação anterior' : !scheduled ? `Liberação: ${dayLabel(schedule)}` : remoteVideo && !remoteVideo.published ? 'Gravação em preparação' : available ? 'Disponível agora' : 'Gravação em preparação';
-      return `<li class="lesson-item ${available?'lesson-item--available':''}" ${available?`data-play-lesson="${index}" tabindex="0" role="button"`:''}><span class="lesson-item__icon">${available?'▶':'🔒'}</span><span class="lesson-item__main"><span class="lesson-item__title">Aula ${String(index+1).padStart(2,'0')} · ${escapeHtml(lesson)}</span><span class="lesson-item__meta">Ao vivo + gravação · cerca de 50 min</span></span><span class="lesson-item__status">${status}</span></li>`;
+      const completed = state.completedLessons.includes(lessonKey(state.selected, index));
+      return `<li class="lesson-item ${available?'lesson-item--available':''} ${completed?'lesson-item--completed':''}" ${available?`data-play-lesson="${index}" tabindex="0" role="button" aria-label="Aula ${String(index+1).padStart(2,'0')}: ${escapeHtml(lesson)}. ${completed?'Concluída':status}"`:''}><span class="lesson-item__art" style="--lesson-art:url('${module.art}')"><span class="lesson-item__icon">${icon(completed?'check':available?'play':'lock')}</span></span><span class="lesson-item__main"><span class="lesson-item__title">Aula ${String(index+1).padStart(2,'0')} · ${escapeHtml(lesson)}</span><span class="lesson-item__meta">${escapeHtml(module.instructor)} · aula gravada</span></span><span class="lesson-item__status">${completed?'Concluída':status}</span></li>`;
     }).join('');
     const currentSchedule = moduleSchedules.get(module.id);
     lessonsNode.innerHTML = `<div class="course-lessons__head" style="--selected-module-art:url('${module.art}')"><div><p class="eyebrow">${module.id}</p><h3>${escapeHtml(module.title)}</h3><p class="course-instructor">Condução: ${escapeHtml(module.instructor)}</p>${currentSchedule?.liveUrl ? `<a class="course-live-link" href="${escapeHtml(currentSchedule.liveUrl)}" target="_blank" rel="noopener">◉ ${escapeHtml(currentSchedule.liveTitle || 'Acessar aula ao vivo')}</a>`:''}</div><span class="badge">${module.lessons.length} aulas</span></div><ul class="lesson-list">${lessonItems}</ul>`;
     lessonsNode.querySelectorAll('[data-play-lesson]').forEach(item=>{
       const lessonIndex = Number(item.dataset.playLesson);
-      const completionKey = `${module.id.toLowerCase()}a${String(lessonIndex + 1).padStart(2, '0')}`;
-      if (state.completedLessons.includes(completionKey)) {
-        item.classList.add('lesson-item--completed');
-        const icon = item.querySelector('.lesson-item__icon');
-        const status = item.querySelector('.lesson-item__status');
-        if (icon) icon.textContent = '✓';
-        if (status) status.textContent = 'Concluída';
-      }
       const play=()=>openLesson(state.selected,Number(item.dataset.playLesson));
       item.addEventListener('click',play); item.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();play();}});
     });
@@ -158,15 +239,44 @@
       else { result.textContent='Ainda não foi desta vez. Revise a aula e tente novamente.'; result.className='quiz-result quiz-result--fail'; }
     });
   }
+  function adjacentLesson(moduleIndex, lessonIndex, direction){
+    const offset = lessonOffset(moduleIndex, lessonIndex) + direction;
+    if (offset < 0 || offset >= totalLessons) return null;
+    let start = 0;
+    for (let index = 0; index < modules.length; index++) {
+      const end = start + modules[index].lessons.length;
+      if (offset < end) {
+        const targetLesson = offset - start;
+        const video = lessonVideo(index, targetLesson);
+        return lessonAvailable(index, targetLesson) && (!video || (video.published && video.videoId)) ? { moduleIndex:index, lessonIndex:targetLesson } : null;
+      }
+      start = end;
+    }
+    return null;
+  }
   function openLesson(moduleIndex,lessonIndex){
     const module=modules[moduleIndex]; const remoteVideo = lessonVideo(moduleIndex, lessonIndex); const title=remoteVideo?.title || module.lessons[lessonIndex];
     const key=`${module.id.toLowerCase()}a${String(lessonIndex+1).padStart(2,'0')}`;
     const embeds=window.EPM_YOUTUBE_EMBEDS || {}; const id=remoteVideo ? (remoteVideo.published ? remoteVideo.videoId : '') : embeds[key];
+    const previous = adjacentLesson(moduleIndex, lessonIndex, -1);
+    const next = adjacentLesson(moduleIndex, lessonIndex, 1);
+    currentLesson = { moduleIndex, lessonIndex };
     playerNode.classList.add('is-visible');
-    playerNode.innerHTML=`<div class="course-player__bar"><div><p class="eyebrow">${module.id} · Aula ${String(lessonIndex+1).padStart(2,'0')}</p><h3>${escapeHtml(title)}</h3><p class="course-instructor">${escapeHtml(module.instructor)}</p></div><span class="badge">Disponível</span></div><div class="course-player__stage">${id?`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}" title="${escapeHtml(title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`:'<div class="course-player__placeholder"><span class="video-stage__play">▶</span><h4>Gravação em preparação</h4><p>A equipe acadêmica ainda não publicou a gravação desta aula. Assim que o professor salvar o vídeo, ela aparecerá aqui automaticamente, sem atualização manual do site.</p></div>'}</div>`;
+    playerNode.innerHTML=`<div class="course-player__bar"><div><nav class="course-player__breadcrumb" aria-label="Localização da aula"><a href="#formacao">Minha formação</a><span>/</span><span>${module.id}</span><span>/</span><span>Aula ${String(lessonIndex+1).padStart(2,'0')}</span></nav><h3>${escapeHtml(title)}</h3><div class="course-player__meta"><span>${escapeHtml(module.instructor)}</span><span>Aula ${String(lessonIndex+1).padStart(2,'0')} de ${module.lessons.length}</span><span>${state.completedLessons.includes(key)?'Concluída':'Em andamento'}</span></div></div><button class="button button-ghost course-player__focus" type="button" data-focus-toggle aria-pressed="${document.body.classList.contains('is-lesson-focus')}">${document.body.classList.contains('is-lesson-focus')?'Sair do modo foco':'Modo foco'}</button></div><div class="course-player__stage ${id?'is-loading':''}">${id?`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}" title="${escapeHtml(title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`:'<div class="course-player__placeholder"><h4>Gravação em preparação</h4><p>A equipe acadêmica ainda não publicou a gravação desta aula. Assim que o professor salvar o vídeo, ela aparecerá aqui automaticamente.</p></div>'}</div><span class="course-player__loader" aria-hidden="true"></span><div class="course-player__tools">${previous?'<button class="button button-secondary" type="button" data-lesson-direction="-1">Aula anterior</button>':''}${id?'<a class="button button-ghost" href="#atividade-aula">Atividade prática</a>':''}${next?'<button class="button button-secondary" type="button" data-lesson-direction="1">Próxima aula</button>':''}</div><div class="course-player__about"><h4>Sobre esta aula</h4><p>Assista à gravação e registre sua aplicação prática para acompanhar seu avanço na formação.</p></div>`;
+    playerNode.querySelector('iframe')?.addEventListener('load', () => playerNode.querySelector('.course-player__stage')?.classList.remove('is-loading'), { once:true });
+    playerNode.querySelector('[data-focus-toggle]')?.addEventListener('click', (event) => {
+      const active = document.body.classList.toggle('is-lesson-focus');
+      event.currentTarget.setAttribute('aria-pressed', String(active));
+      event.currentTarget.textContent = active ? 'Sair do modo foco' : 'Modo foco';
+      playerNode.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+    playerNode.querySelectorAll('[data-lesson-direction]').forEach((button) => button.addEventListener('click', () => {
+      const target = button.dataset.lessonDirection === '-1' ? previous : next;
+      if (target) { state.selected = target.moduleIndex; render(); openLesson(target.moduleIndex, target.lessonIndex); }
+    }));
     if (id) {
       const completed = state.completedLessons.includes(key);
-      playerNode.insertAdjacentHTML('beforeend', `<form class="lesson-completion" data-lesson-completion><div><p class="eyebrow">Atividade de consolidação</p><h4>${completed ? 'Atividade concluída' : 'Conclua esta aula'}</h4><p>Registre uma breve aplicação do aprendizado. Esta atividade tem peso menor na média geral.</p></div><label>Minha reflexão / atividade<input name="answer" minlength="12" maxlength="800" required placeholder="Ex.: O conceito que aplicarei no meu projeto é..."></label><label class="teacher-checkbox"><input name="watched" type="checkbox" required> Declaro que assisti a esta aula e realizei a atividade.</label><button class="button" type="submit">${completed ? 'Atualizar atividade' : 'Concluir aula e registrar atividade'}</button><p class="form-feedback" data-lesson-feedback></p></form>`);
+      playerNode.insertAdjacentHTML('beforeend', `<form class="lesson-completion" id="atividade-aula" data-lesson-completion><div><p class="eyebrow">Atividade prática</p><h4>${completed ? 'Aula concluída' : 'Conclua esta aula'}</h4><p>Descreva uma aplicação do que aprendeu. Sua resposta será registrada para acompanhamento acadêmico.</p></div><label>Minha reflexão / atividade<textarea name="answer" minlength="12" maxlength="800" required placeholder="Ex.: O conceito que aplicarei no meu projeto é..."></textarea></label><label class="teacher-checkbox"><input name="watched" type="checkbox" required> Declaro que assisti a esta aula e realizei a atividade.</label><button class="button button-primary button-large" type="submit">${completed ? 'Atualizar atividade' : 'Concluir aula'}</button><p class="form-feedback" data-lesson-feedback aria-live="polite"></p><div class="lesson-completion__next" data-lesson-next></div></form>`);
       playerNode.querySelector('[data-lesson-completion]')?.addEventListener('submit', async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -180,12 +290,18 @@
           await save(); renderLessons(); updateProgress();
           feedback.textContent = 'Aula concluída e atividade registrada. Seu progresso foi atualizado.';
           feedback.className = 'form-feedback form-feedback--ok';
+          const nextArea = form.querySelector('[data-lesson-next]');
+          if (nextArea) {
+            nextArea.innerHTML = next ? `<strong>Parabéns. Aula concluída.</strong><button class="button button-secondary" type="button" data-open-next>Abrir próxima aula: ${escapeHtml(modules[next.moduleIndex].lessons[next.lessonIndex])}</button>` : '<strong>Parabéns. Aula concluída.</strong><span>Consulte sua jornada para a próxima etapa.</span>';
+            nextArea.querySelector('[data-open-next]')?.addEventListener('click', () => { state.selected = next.moduleIndex; render(); openLesson(next.moduleIndex, next.lessonIndex); });
+          }
         } catch { feedback.textContent = 'Não foi possível registrar a atividade. Tente novamente.'; feedback.className = 'form-feedback form-feedback--error'; }
       });
     }
     playerNode.scrollIntoView({behavior:'smooth',block:'start'}); renderQuiz();
   }
   function render(){ renderModules(); renderLessons(); renderQuiz(); updateProgress(); }
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && document.body.classList.contains('is-lesson-focus')) { document.body.classList.remove('is-lesson-focus'); playerNode.querySelector('[data-focus-toggle]')?.setAttribute('aria-pressed', 'false'); } });
   render();
 
   import('../firebase/firebase-client.js').then(async ({ firebaseReady }) => {
@@ -193,7 +309,7 @@
     const { auth, authSdk, db, firestoreSdk } = await firebaseReady;
     authSdk.onAuthStateChanged(auth, async (user) => {
       const generation = ++authGeneration;
-      state.passed = []; state.completedLessons = []; state.selected = 0; remoteProgress = null; stateKey = null; staffPreview = false;
+      state.passed = []; state.completedLessons = []; state.selected = 0; remoteProgress = null; stateKey = null; staffPreview = false; authResolved = false; currentStudent = null;
       if (stopRemoteLessons) { stopRemoteLessons(); stopRemoteLessons = null; }
       if (stopModuleSchedules) { stopModuleSchedules(); stopModuleSchedules = null; }
       remoteLessons.clear(); moduleSchedules.clear();
@@ -202,6 +318,10 @@
       playerNode.innerHTML = ''; playerNode.classList.remove('is-visible');
       render();
       if (!user) {
+        authResolved = true;
+        document.body.classList.remove('is-academic-loading');
+        if (greetingNode) greetingNode.textContent = 'Entre para continuar.';
+        render();
         if (stopRemoteLessons) { stopRemoteLessons(); stopRemoteLessons = null; }
         if (stopModuleSchedules) { stopModuleSchedules(); stopModuleSchedules = null; }
         remoteLessons.clear();
@@ -217,6 +337,9 @@
         ]);
         if (generation !== authGeneration) return;
         staffPreview = staffSnapshot.exists() && staffSnapshot.data().active === true;
+        currentStudent = studentSnapshot.exists() ? studentSnapshot.data() : {};
+        if (greetingNode) greetingNode.textContent = `Olá, ${String(staffPreview ? (staffSnapshot.data().name || user.displayName || 'professor(a)') : (currentStudent.name || user.displayName || 'estudante')).trim().split(/\s+/)[0]}.`;
+        if (planNode) planNode.textContent = staffPreview ? '· Visualização docente' : currentStudent.plan ? `· Plano ${currentStudent.plan}` : '';
         if (stopRemoteLessons) stopRemoteLessons();
         stopRemoteLessons = firestoreSdk.onSnapshot(firestoreSdk.collection(db, 'courseLessons'), (lessonSnapshot) => {
           remoteLessons.clear();
@@ -224,7 +347,7 @@
             const item = entry.data();
             if (item.moduleId && item.lessonNumber) remoteLessons.set(`${String(item.moduleId).toLowerCase()}a${String(item.lessonNumber).padStart(2, '0')}`, item);
           });
-          renderLessons();
+          renderLessons(); renderContinue();
         }, () => { /* O catálogo continua com o conteúdo de demonstração até as regras serem publicadas. */ });
         if (stopModuleSchedules) stopModuleSchedules();
         stopModuleSchedules = firestoreSdk.onSnapshot(firestoreSdk.collection(db, 'moduleSchedules'), (scheduleSnapshot) => {
@@ -235,6 +358,8 @@
         if (staffPreview) {
           state.passed = []; state.completedLessons = [];
           remoteProgress = null;
+          authResolved = true;
+          document.body.classList.remove('is-academic-loading');
           render();
           return;
         }
@@ -254,8 +379,20 @@
           const validKeys = new Set(modules.flatMap((module) => module.lessons.map((_, index) => `${module.id.toLowerCase()}a${String(index + 1).padStart(2, '0')}`)));
           state.completedLessons = [...new Set(completedLessons)].filter((key) => validKeys.has(key));
         }
+        state.selected = Math.min(state.passed.length, modules.length - 1);
+        authResolved = true;
+        document.body.classList.remove('is-academic-loading');
         render();
-      } catch { /* A interface continua funcional enquanto as regras do Firestore são configuradas. */ }
+      } catch {
+        if (generation !== authGeneration) return;
+        authResolved = true;
+        document.body.classList.remove('is-academic-loading');
+        if (greetingNode) greetingNode.textContent = 'Não conseguimos carregar sua formação agora.';
+        if (continueTitle) continueTitle.textContent = 'Tente novamente em alguns instantes.';
+        if (continueMeta) continueMeta.textContent = 'Sua matrícula e seu progresso continuam preservados.';
+        if (continueAction) { continueAction.textContent = 'Tentar novamente'; continueAction.disabled = false; continueAction.onclick = () => window.location.reload(); }
+        continueCard?.classList.remove('is-loading');
+      }
     });
   }).catch(() => {});
 })();

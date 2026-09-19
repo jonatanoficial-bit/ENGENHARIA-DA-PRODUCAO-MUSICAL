@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.10.0] — 2026-09-19 — Fase 23
+
+- Home acadêmica redesenhada com saudação, dados reais de plano e progresso, próximo passo e retomada da próxima aula disponível.
+- Jornada dos 20 módulos com artes existentes, estados acadêmicos, progresso por módulo e navegação horizontal responsiva.
+- Aula com player 16:9 protagonista, breadcrumb, modo foco, navegação anterior/próxima, atividade prática e transição após conclusão.
+- Navegação acadêmica unificada para desktop e mobile, ícones SVG próprios, botões hierarquizados, avatar Google com alternativa por iniciais e onboarding local por aluno.
+- Estados de carregamento, vazio e recuperação de erro revisados sem expor mensagens internas do Firebase.
+- Área acadêmica, home pública e planos normalizados pela camada `phase-23-premium-learning.css`, sem alterar contratos Firestore, Firebase Auth, checkouts ou webhook Hotmart.
+- Rotina automatizada de regressão visual em 1440, 768, 390 e 360 px, além das auditorias e testes de integração existentes.
+
 ## [1.9.1] — 2026-09-17
 
 - Domínio canônico producaomusical.org, metadados e links de verificação de certificados.
