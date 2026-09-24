@@ -9,12 +9,16 @@ if (!firebaseReady) {
 } else {
   const { auth, authSdk, db, firestoreSdk } = await firebaseReady;
   authSdk.onAuthStateChanged(auth, async (user) => {
+    if (appContent) appContent.hidden = true;
+    if (notice) notice.hidden = false;
+    delete window.empTeacherSession;
     if (!user) {
-      show('Entre com a conta Google cadastrada como professor para acessar este painel.');
+      window.location.replace('../pages/login.html?status=login');
       return;
     }
     try {
       const staff = await firestoreSdk.getDocFromServer(firestoreSdk.doc(db, 'staff', user.uid));
+      if (auth.currentUser?.uid !== user.uid) return;
       if (!staff.exists() || staff.data().active !== true) {
         show(`A conta ${user.email || ''} está autenticada, mas ainda não possui perfil de professor. Peça ao administrador para criar staff/${user.uid} no Firestore.`);
         return;

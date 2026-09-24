@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0] — 2026-09-24
+
+- Logout nas cinco telas do aluno e no painel docente, com encerramento via Firebase Auth.
+- Retorno consistente para a área do aluno, inclusive no certificado.
+- Console docente responsivo com navegação, indicadores, formulários e tabelas renovados.
+- Mantidos seletores, dados acadêmicos, APIs, regras e checkouts existentes.
+
 ## [1.10.0] — 2026-09-19 — Fase 23
 
 - Home acadêmica redesenhada com saudação, dados reais de plano e progresso, próximo passo e retomada da próxima aula disponível.

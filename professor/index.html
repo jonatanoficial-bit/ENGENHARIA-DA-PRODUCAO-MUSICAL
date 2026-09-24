@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="../css/phase-20.css">
   <link rel="stylesheet" href="../css/phase-21.css">
   <link rel="stylesheet" href="../css/phase-22.css">
+  <link rel="stylesheet" href="../css/phase-24-portal-experience.css">
 </head>
 <body class="app-shell teacher-shell">
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -30,19 +31,39 @@
     <div class="container">
       <div class="teacher-gate" data-teacher-gate aria-live="polite">Validando perfil docente…</div>
       <div data-teacher-content hidden>
-        <header class="teacher-header"><div><p class="eyebrow">Área do professor</p><h1>Operação acadêmica em uma única visão.</h1><p class="lede">Acompanhe matrículas liberadas, avaliações, presenças, mentorias, entregas e indicadores de vendas registrados pela Hotmart.</p></div><a class="button button--quiet" href="../aluno/index.html">Visualizar como aluno</a></header>
+        <div class="teacher-console">
+          <aside class="teacher-console__sidebar" aria-label="Navegação do painel docente">
+            <div class="teacher-console__brand"><span class="teacher-console__mark">EMP</span><div><strong>Console docente</strong><small>Operação acadêmica</small></div></div>
+            <nav class="teacher-console__nav">
+              <a href="#visao-geral" aria-current="page">Visão geral</a>
+              <a href="#acompanhamento">Acompanhamento</a>
+              <a href="#alunos">Alunos</a>
+              <a href="#videos">Aulas e calendário</a>
+              <a href="#avaliacoes">Avaliações</a>
+              <a href="#presenca">Presenças</a>
+              <a href="#notas">Notas</a>
+              <a href="#projetos">Projetos</a>
+              <a href="#financeiro">Financeiro</a>
+              <a href="#agendamentos">Mentorias</a>
+              <a href="#administracao" hidden>Administração</a>
+            </nav>
+            <div class="teacher-console__account"><span class="teacher-console__avatar" data-portal-session-avatar>EMP</span><div><strong data-portal-session-name>Conta docente</strong><small>Sessão protegida</small></div></div>
+          </aside>
+          <div class="teacher-console__main">
+            <div class="teacher-command-bar"><div><span class="teacher-command-bar__status"><i></i> Acesso docente validado</span><span>Engenharia da Produção Musical™</span></div><div class="teacher-command-bar__actions"><a class="button button-ghost" href="../aluno/index.html">Visualizar como aluno</a><button class="portal-logout" type="button" data-portal-logout disabled>Sair</button></div></div>
+            <header class="teacher-header" id="visao-geral"><div class="teacher-header__copy"><p class="eyebrow">Área do professor</p><h1>O centro de comando da sua formação.</h1><p class="lede">Acompanhe a turma, publique aulas, avalie projetos e cuide da operação acadêmica em um só lugar.</p><div class="teacher-header__actions"><a class="button" href="#alunos">Ver alunos</a><a class="button button--quiet" href="#videos">Publicar aula</a></div></div><div class="teacher-header__signal" aria-hidden="true"><span>20</span><small>módulos conectados</small></div></header>
 
         <section class="teacher-metrics teacher-metrics--expanded" data-teacher-metrics>
-          <article><strong>—</strong><span>acessos de aluno ativados</span></article><article><strong>—</strong><span>compras aprovadas</span></article><article><strong>—</strong><span>avaliações publicadas</span></article><article><strong>—</strong><span>agendamentos pendentes</span></article><article class="teacher-metric--finance"><strong data-finance-gross>R$ —</strong><span>receita bruta aprovada</span></article><article class="teacher-metric--finance"><strong data-finance-commission>—</strong><span>comissão registrada</span></article>
+          <article data-metric="students"><small>Alunos</small><strong>—</strong><span>acessos ativados</span></article><article data-metric="sales"><small>Hotmart</small><strong>—</strong><span>compras aprovadas</span></article><article data-metric="assessment"><small>Conteúdo</small><strong>—</strong><span>avaliações publicadas</span></article><article data-metric="calendar"><small>Agenda</small><strong>—</strong><span>solicitações pendentes</span></article><article class="teacher-metric--finance" data-metric="revenue"><small>Financeiro</small><strong data-finance-gross>R$ —</strong><span>receita bruta aprovada</span></article><article class="teacher-metric--finance" data-metric="commission"><small>Indicador</small><strong data-finance-commission>—</strong><span>comissão registrada</span></article>
         </section>
 
         <section class="teacher-academic-overview" id="acompanhamento">
-          <div class="teacher-card__head"><div><p class="eyebrow">Acompanhamento individual</p><h2>Visão acadêmica completa da turma</h2><p>Abra o prontuário de cada aluno para ver a aula atual, vídeos concluídos, comentários, acessos, notas e evolução por módulo.</p></div><span class="badge">Atualização pelo Firestore</span></div>
+          <div class="teacher-card__head"><div><p class="eyebrow">Acompanhamento individual</p><h2>Visão acadêmica completa da turma</h2><p>Abra o prontuário de cada aluno para ver a aula atual, vídeos concluídos, comentários, acessos, notas e evolução por módulo.</p></div><span class="badge">Registros acadêmicos</span></div>
           <div class="academic-roster" data-academic-roster><p>Montando os prontuários acadêmicos…</p></div>
         </section>
 
         <div class="teacher-grid">
-          <section class="teacher-card teacher-card--wide" id="alunos"><div class="teacher-card__head"><div><p class="eyebrow">Alunos</p><h2>Matrículas e progresso</h2></div><span class="badge">Firestore</span></div><p class="teacher-note teacher-enrollment-explainer">Compra aprovada e acesso ativado são etapas diferentes: o acesso passa a constar nesta lista quando o comprador entra pela primeira vez com a mesma conta Google usada na Hotmart.</p><div class="teacher-table-wrap"><table class="teacher-table teacher-table--roster"><thead><tr><th>Aluno</th><th>Plano</th><th>Status</th><th>Início</th><th>Drive</th></tr></thead><tbody data-student-roster><tr><td colspan="5">Carregando alunos autorizados…</td></tr></tbody></table></div><div class="teacher-enrollment-summary" data-enrollment-summary aria-live="polite"></div></section>
+          <section class="teacher-card teacher-card--wide" id="alunos"><div class="teacher-card__head"><div><p class="eyebrow">Alunos</p><h2>Matrículas e progresso</h2></div><span class="badge">Matrículas</span></div><p class="teacher-note teacher-enrollment-explainer">Compra aprovada e acesso ativado são etapas diferentes: o acesso passa a constar nesta lista quando o comprador entra pela primeira vez com a mesma conta Google usada na Hotmart.</p><div class="teacher-table-wrap"><table class="teacher-table teacher-table--roster"><thead><tr><th>Aluno</th><th>Plano</th><th>Status</th><th>Início</th><th>Drive</th></tr></thead><tbody data-student-roster><tr><td colspan="5">Carregando alunos autorizados…</td></tr></tbody></table></div><div class="teacher-enrollment-summary" data-enrollment-summary aria-live="polite"></div></section>
 
           <section class="teacher-card" id="matricula-manual"><p class="eyebrow">Matrícula direta</p><h2>Cadastre após confirmar o pagamento.</h2><p class="teacher-note">Para boleto parcelado ou PIX parcelado negociado com a equipe. O aluno recebe acesso no primeiro login Google usando este mesmo e-mail.</p><form class="teacher-form" data-manual-enrollment><label>Nome completo<input name="name" required></label><label>E-mail do aluno<input name="email" type="email" required></label><label>Plano<select name="plan"><option value="essencial">Essencial</option><option value="profissional">Profissional</option><option value="premium">Premium</option></select></label><label>Início da turma<input name="courseStart" type="date"></label><label>Forma confirmada<select name="paymentMode"><option>Boleto parcelado</option><option>PIX parcelado</option><option>Pagamento direto com a equipe</option></select></label><label class="teacher-checkbox"><input name="confirmed" type="checkbox" required> Confirmo que o pagamento foi validado pela equipe organizadora.</label><button class="button" type="submit">Criar matrícula manual</button><p class="form-feedback" data-manual-enrollment-feedback></p></form></section>
 
@@ -69,7 +90,9 @@
           <section class="teacher-card teacher-card--wide admin-tools" id="administracao" data-admin-tools hidden><div class="teacher-card__head"><div><p class="eyebrow">Administração da plataforma</p><h2>Equipe docente e apoiadores</h2></div><span class="badge">Somente administradores</span></div><p class="teacher-note">A conta do novo professor precisa entrar uma vez com Google antes do cadastro. Depois disso, o administrador ativa o perfil aqui sem abrir o Console Firebase.</p><div class="admin-tools-grid"><form class="teacher-form" data-professor-admin><h3>Cadastrar ou atualizar professor</h3><label>Nome completo<input name="name" maxlength="120" required></label><label>E-mail Google<input name="email" type="email" required></label><label>Permissão<select name="role"><option value="teacher">Professor</option><option value="admin">Administrador</option></select></label><label class="teacher-checkbox"><input name="active" type="checkbox" checked> Perfil ativo</label><button class="button" type="submit">Salvar professor</button><p class="form-feedback"></p></form><div><h3>Equipe atual</h3><div class="staff-list" data-staff-list><p>Carregando equipe…</p></div><form class="teacher-form supporters-admin" data-supporters-admin><h3>Portal externo de apoiadores</h3><label>Endereço do site de patrocinadores<input name="siteUrl" type="url" placeholder="https://..."></label><button class="button button--quiet" type="submit">Conectar portal</button><p class="form-feedback"></p></form></div></div></section>
         </div>
 
-        <dialog class="student-record-dialog" data-student-detail aria-labelledby="student-record-title"><button class="student-record-dialog__close" type="button" data-close-student-detail aria-label="Fechar prontuário">×</button><div data-student-detail-body><h2 id="student-record-title">Prontuário acadêmico</h2></div></dialog>
+            <dialog class="student-record-dialog" data-student-detail aria-labelledby="student-record-title"><button class="student-record-dialog__close" type="button" data-close-student-detail aria-label="Fechar prontuário">×</button><div data-student-detail-body><h2 id="student-record-title">Prontuário acadêmico</h2></div></dialog>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -78,5 +101,6 @@
   <script src="../js/app.js"></script>
   <script type="module" src="../js/teacher-portal.js"></script>
   <script type="module" src="../js/teacher-academic-dashboard.js"></script>
+  <script type="module" src="../js/portal-session-controls.js"></script>
 </body>
 </html>

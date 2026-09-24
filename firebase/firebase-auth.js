@@ -108,7 +108,9 @@ if (!firebaseReady) {
         : `Sessão ativa: ${user.displayName || user.email}. Escolha abaixo o painel que deseja acessar.`);
       logout?.removeAttribute('hidden');
     } else {
-      setStatus('Escolha o acesso de aluno ou professor para continuar.');
+      setStatus(requestedStatus === 'logout'
+        ? 'Sessão encerrada com segurança. Entre novamente quando quiser continuar.'
+        : 'Escolha o acesso de aluno ou professor para continuar.');
       logout?.setAttribute('hidden', '');
     }
   });
