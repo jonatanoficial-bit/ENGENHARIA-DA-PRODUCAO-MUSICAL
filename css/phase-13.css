@@ -5,7 +5,7 @@ body.sales-home, body.home { overflow-x: clip; overflow-y: auto; }
 
 .sales-hero::after { display: none; }
 
-.curriculum-showcase .institutional-hero { position: relative; overflow: hidden; padding-block: clamp(4.5rem, 10vw, 8rem); background: linear-gradient(100deg, rgba(5, 8, 11, .98), rgba(5, 8, 11, .7)), url('../assets/curriculum/daws.png') center / cover; }
+.curriculum-showcase .institutional-hero { position: relative; overflow: hidden; padding-block: clamp(4.5rem, 10vw, 8rem); background: linear-gradient(100deg, rgba(5, 8, 11, .98), rgba(5, 8, 11, .7)), url('../assets/curriculum/daws.webp') center / cover; }
 .curriculum-showcase .institutional-hero::after { position: absolute; inset: auto -10% -10rem auto; width: 34rem; height: 34rem; border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); border-radius: 50%; box-shadow: 0 0 0 3rem rgba(191, 142, 55, .04), 0 0 7rem rgba(191, 142, 55, .2); content: ''; pointer-events: none; }
 .curriculum-showcase .institutional-hero .container { position: relative; z-index: 1; }
 .curriculum-lead { display: grid; gap: 1.25rem; max-width: 62rem; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid var(--line); border-radius: var(--radius-lg); background: linear-gradient(145deg, rgba(16, 25, 35, .95), rgba(5, 8, 11, .92)); }
@@ -27,7 +27,7 @@ body.sales-home, body.home { overflow-x: clip; overflow-y: auto; }
 .tool-card span { color: var(--muted); font-size: .92rem; }
 .trademark-note { margin: 1.5rem 0 0; padding: 1rem 1.2rem; border-left: 2px solid var(--gold); background: color-mix(in srgb, var(--gold) 7%, transparent); color: var(--muted); font-size: .86rem; }
 .curriculum-cta { padding-block: clamp(4rem, 8vw, 7rem); }
-.curriculum-cta__card { padding: clamp(2rem, 6vw, 5rem); border: 1px solid var(--gold); border-radius: var(--radius-lg); background: linear-gradient(100deg, rgba(5, 8, 11, .96), rgba(5, 8, 11, .42)), url('../assets/curriculum/plugins-e-mixagem.png') center / cover; }
+.curriculum-cta__card { padding: clamp(2rem, 6vw, 5rem); border: 1px solid var(--gold); border-radius: var(--radius-lg); background: linear-gradient(100deg, rgba(5, 8, 11, .96), rgba(5, 8, 11, .42)), url('../assets/curriculum/plugins-e-mixagem.webp') center / cover; }
 .curriculum-cta__card h2 { max-width: 15ch; }
 .curriculum-cta__card p { max-width: 58ch; color: #d8e0e4; }
 

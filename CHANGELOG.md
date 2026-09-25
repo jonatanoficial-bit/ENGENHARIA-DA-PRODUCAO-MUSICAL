@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.12.0] — 2026-09-25 — Percepção premium
+
+- Microaula sonora interativa na home com comparação entre rascunho e finalização, gerada localmente pelo navegador e sem mídia ou depoimentos fictícios.
+- Tour acessível da experiência acadêmica com prévias de aulas, progresso e feedback claramente identificadas como ilustrativas.
+- Orientador de escolha de plano, esclarecimentos comerciais e destaque visual da recomendação sem alterar links ou checkout.
+- Mapa público que conecta os seis ciclos aos vinte módulos, com versão pronta para impressão ou PDF.
+- Imagens públicas convertidas para WebP, reduzindo os arquivos usados nessas páginas de 16,24 MB para 1,34 MB.
+- Contraste dos cartões de planos e da grade corrigido nos temas claro e escuro, com validação em celular e computador.
+- APIs, autenticação, regras, configuração Firebase, webhook e checkout Hotmart mantidos sem modificações.
+
 ## [1.11.0] — 2026-09-24
 
 - Logout nas cinco telas do aluno e no painel docente, com encerramento via Firebase Auth.

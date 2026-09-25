@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="../css/phase-12.css">
   <link rel="stylesheet" href="../css/phase-14.css">
   <link rel="stylesheet" href="../css/phase-23-premium-learning.css">
+  <link rel="stylesheet" href="../css/phase-25-premium-perception.css">
 </head>
 <body class="sales-home plans-page">
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -32,10 +33,29 @@
       </div>
     </section>
 
+    <section class="plan-finder" aria-labelledby="plan-finder-title">
+      <div class="container plan-finder__inner" data-plan-finder>
+        <div class="plan-finder__copy">
+          <p class="eyebrow">Orientação de escolha</p>
+          <h2 id="plan-finder-title">Qual experiência combina com seu momento?</h2>
+          <p>Escolha sua prioridade. A recomendação ajuda na comparação e não altera preços, matrícula ou checkout.</p>
+        </div>
+        <div class="plan-finder__choices" role="group" aria-label="Objetivo principal">
+          <button type="button" data-plan-choice="essencial"><span>Quero autonomia</span><small>Estudar no meu ritmo com aulas gravadas.</small></button>
+          <button type="button" data-plan-choice="profissional"><span>Quero encontros ao vivo</span><small>Aprender com calendário, turma e materiais.</small></button>
+          <button type="button" data-plan-choice="premium"><span>Quero direção individual</span><small>Somar mentoria estratégica à formação.</small></button>
+        </div>
+        <div class="plan-finder__result" data-plan-result aria-live="polite">
+          <span>Selecione sua prioridade</span>
+          <p>Você verá uma recomendação com os motivos, antes de decidir.</p>
+        </div>
+      </div>
+    </section>
+
     <section class="sales-section plans-section">
       <div class="container">
         <div class="plans-grid">
-          <article class="plan-card">
+          <article class="plan-card" id="plano-essencial" data-plan-card="essencial">
             <p class="plan-card__tag">Formação base</p>
             <h2>Plano Essencial</h2>
             <p class="plan-card__intro">Para estudar no próprio ritmo com a biblioteca de aulas gravadas.</p>
@@ -51,7 +71,7 @@
             <a class="button button--quiet" data-hotmart-plan="essencial" href="contato.html">Quero o Essencial</a>
           </article>
 
-          <article class="plan-card plan-card--featured">
+          <article class="plan-card plan-card--featured" id="plano-profissional" data-plan-card="profissional">
             <p class="plan-card__flag">Mais escolhido</p>
             <p class="plan-card__tag">Formação completa</p>
             <h2>Plano Profissional</h2>
@@ -68,7 +88,7 @@
             <a class="button" data-hotmart-plan="profissional" href="contato.html">Quero o Profissional</a>
           </article>
 
-          <article class="plan-card">
+          <article class="plan-card" id="plano-premium" data-plan-card="premium">
             <p class="plan-card__tag">Formação + mentoria</p>
             <h2>Plano Premium</h2>
             <p class="plan-card__intro">Para quem busca acompanhamento estratégico além da formação completa.</p>
@@ -83,6 +103,18 @@
             </ul>
             <a class="button button--quiet" data-hotmart-plan="premium" href="contato.html">Quero o Premium</a>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="sales-section plan-clarity" aria-labelledby="plan-clarity-title">
+      <div class="container">
+        <div class="sales-heading"><p class="eyebrow">Antes da matrícula</p><h2 id="plan-clarity-title">O que cada compromisso significa.</h2><p>Informações importantes para comparar os planos com segurança.</p></div>
+        <div class="plan-clarity__grid">
+          <details open><summary>Acesso vitalício às aulas liberadas</summary><p>O acesso se refere aos conteúdos do plano adquirido enquanto a plataforma for mantida. Novos serviços, mentorias e produtos vendidos separadamente não entram automaticamente. Consulte os <a href="termos.html#acesso">termos completos</a>.</p></details>
+          <details><summary>Mentoria do plano Premium</summary><p>O plano prevê uma solicitação de mentoria por mês, conduzida por Jonatan Vale ou Giovane Firmino conforme agenda. Disponibilidade e condições de agendamento são confirmadas pela equipe antes da compra.</p></details>
+          <details><summary>Aulas ao vivo e gravações</summary><p>Os encontros seguem o calendário da turma. No plano Profissional e no Premium, as gravações são liberadas após cada encontro conforme a programação acadêmica.</p></details>
+          <details><summary>Certificação</summary><p>O certificado institucional é emitido após o cumprimento dos critérios acadêmicos publicados. A formação é um curso livre profissional e não equivale a graduação, curso técnico ou licença profissional.</p></details>
         </div>
       </div>
     </section>
@@ -119,5 +151,6 @@
   <script src="../components/component-loader.js"></script>
   <script src="../js/app.js"></script>
   <script src="../js/checkout-links.js"></script>
+  <script src="../js/premium-showcase.js"></script>
 </body>
 </html>

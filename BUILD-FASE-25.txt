@@ -1,0 +1,27 @@
+ENGENHARIA DA PRODUÇÃO MUSICAL™ — BUILD 1.12.0
+FASE 25 — PERCEPÇÃO PREMIUM — PRIMEIRA ENTREGA
+DATA: 25/09/2026
+
+ENTREGUE
+- Microaula sonora interativa e original, executada localmente no navegador.
+- Comparação acessível entre rascunho e finalização, com início somente após ação do visitante.
+- Tour demonstrativo da Área do Aluno: aulas, progresso e feedback.
+- Orientador de escolha entre Essencial, Profissional e Premium.
+- Explicações públicas sobre acesso, encontros, mentoria e certificação.
+- Mapa dos seis ciclos para os vinte módulos e impressão da grade.
+- Otimização WebP das imagens públicas utilizadas na home, nos planos e na grade.
+- Contraste revisado em temas claro e escuro.
+
+INTEGRAÇÕES PRESERVADAS
+- Nenhum arquivo em api/ foi alterado.
+- Nenhum arquivo em firebase/ foi alterado.
+- firestore.rules não foi alterado.
+- js/checkout-links.js não foi alterado.
+- URLs dos três checkouts Hotmart não foram alteradas.
+
+VALIDAÇÃO
+- 19 testes automatizados de matrícula, webhook, certificado e sessão docente aprovados.
+- Auditoria estrutural das 32 páginas aprovada.
+- 12 verificações visuais responsivas em 1440 px e 390 px, nos temas claro e escuro.
+- Tour, comparação sonora e recomendador de plano validados por automação no Chrome.
+- Nenhuma imagem quebrada ou rolagem horizontal encontrada nas páginas verificadas.
